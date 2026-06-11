@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "当 temperature < 1.0 时，语言模型输出分布会发生什么？",
+      "options": [
+        "变得更均匀，更随机",
+        "更尖锐，最高概率 token 的概率更高",
+        "只保留 top-1 token",
+        "输出分布不变"
+      ],
+      "correct": 1,
+      "explanation": "除以小于 1 的温度会放大 logit 差异，softmax 后峰值更突出，接近贪心解。"
+    },
+    {
+      "stage": "pre",
+      "question": "top-k 与 top-p（nucleus）本质差异是什么？",
+      "options": [
+        "top-k 比 top-p 快",
+        "top-k 保留固定 k；top-p 按累计概率自适应保留 token 数",
+        "top-p 只能在 temperature=1 下使用",
+        "top-k 用概率，top-p 用 logits"
+      ],
+      "correct": 1,
+      "explanation": "top-k 永远保留 K 个候选；top-p 保留累计概率达到 p 的最小集合，候选数会随上下文分布变化。"
+    },
+    {
+      "stage": "post",
+      "question": "标准采样 `z ~ N(μ,σ^2)` 为什么不能直接反向传播？",
+      "options": [
+        "正态分布没有导数",
+        "采样是随机非确定操作，对 μ 和 σ 的导数定义不清",
+        "PyTorch 不支持正态分布",
+        "梯度始终为 0"
+      ],
+      "correct": 1,
+      "explanation": "随机采样本质上打断了确定性计算图，`d(sample)/dμ` 不可直接定义。重参数化 `z = μ + σ ε` 后，样本成为参数的可导函数。"
+    },
+    {
+      "stage": "post",
+      "question": "Metropolis-Hastings 中提议标准差过大时通常会发生什么？",
+      "options": [
+        "链更快收敛",
+        "大部分提议落在低概率区被拒，链几乎不动",
+        "平稳分布变成均匀分布",
+        "burn-in 变成 0"
+      ],
+      "correct": 1,
+      "explanation": "步长过大时提议点偏离当前位置太多，命中高概率区域的概率低，拒绝率高，链会停滞；这时混合速度变差。"
+    },
+    {
+      "stage": "post",
+      "question": "拒绝采样在目标分布维度升高时，接受率通常如何变化？",
+      "options": [
+        "与维度无关，几乎不变",
+        "会提升，因为可接受区域更多",
+        "会指数级下降，因为重叠体积急剧变小",
+        "最终趋近 50%"
+      ],
+      "correct": 2,
+      "explanation": "高维时目标与提议重叠体积相对比例快速变小，`M` 增大，接受率 1/M 显著下降，拒绝采样会非常低效。"
+    }
+  ]
+}
