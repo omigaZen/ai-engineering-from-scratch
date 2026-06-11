@@ -1923,7 +1923,7 @@
 
       function localizedQuizCandidates(path) {
         var lang = currentLang();
-        var files = lang === 'zh' ? ['quiz.zh.json', 'quiz.json'] : ['quiz.json'];
+        var files = lang === 'zh' ? ['quiz.zh.json'] : ['quiz.json'];
         var urls = [];
         for (var i = 0; i < files.length; i++) urls = urls.concat(candidateFileUrls(path, files[i]));
         return urls;
@@ -1945,7 +1945,19 @@
                 try { renderQuiz(quizResult.value); }
                 catch (err) { console.error('renderQuiz failed', err); }
               })
-              .catch(function () { return null; });
+              .catch(function () {
+                if (currentLang() === 'zh') {
+                  showError(
+                    tr('lesson.translationNotFoundTitle'),
+                    tr(
+                      'lesson.translationNotFoundBody',
+                      { path: escapeHtml(path + '/quiz.zh.json') }
+                    )
+                  );
+                  return;
+                }
+                console.warn('quiz fallback not configured for this language');
+              });
           })
           .catch(function () {
             if (currentLang() === 'zh') {
