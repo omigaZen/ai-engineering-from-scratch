@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "shell 中 `|` 管道符的作用是什么？",
+      "options": [
+        "并行运行两个命令",
+        "把一条命令的标准输出作为下一条命令的标准输入",
+        "把命令输出写入文件",
+        "把两个文件合并为一个"
+      ],
+      "correct": 1,
+      "explanation": "管道把前一条命令输出流转给下一条命令。例如 `cat log.txt | grep error` 先读文件再过滤。"
+    },
+    {
+      "stage": "pre",
+      "question": "关闭启动某进程的终端后，进程通常会怎样？",
+      "options": [
+        "继续在后台运行",
+        "默认会收到 SIGHUP 并通常终止",
+        "自动暂停并等待新终端",
+        "自动升级为系统服务继续跑"
+      ],
+      "correct": 1,
+      "explanation": "终端关闭会给子进程发送挂断信号 SIGHUP，通常会杀掉进程。tmux/nohup 可避免这个问题。"
+    },
+    {
+      "stage": "post",
+      "question": "tmux 相比 `nohup command &` 的关键优势是什么？",
+      "options": [
+        "tmux 更省 CPU",
+        "tmux 支持 detach/attach 且可多窗格实时查看",
+        "tmux 会自动重启失败的进程",
+        "tmux 会压缩日志减小磁盘占用"
+      ],
+      "correct": 1,
+      "explanation": "tmux 提供持久会话，可随时 detach/attach 并用多个 pane 实时观察输出；nohup 只是在后台跑并写日志，无法交互。"
+    },
+    {
+      "stage": "post",
+      "question": "`python train.py > output.log 2>&1` 会做什么？",
+      "options": [
+        "只保存标准错误到 output.log",
+        "把标准输出和标准错误都重定向到同一文件",
+        "运行两次 train.py 并只记录第二次",
+        "给脚本分配两倍内存"
+      ],
+      "correct": 1,
+      "explanation": "`>` 重定向 stdout，`2>&1` 把 stderr 同步到 stdout。结果都写入 `output.log`。"
+    },
+    {
+      "stage": "post",
+      "question": "哪个命令可以把远端 GPU 机 8888 端口的 Jupyter 映射到本机浏览器？",
+      "options": [
+        "scp -P 8888 user@gpu-box:~/notebook.ipynb",
+        "ssh -L 8888:localhost:8888 user@gpu-box",
+        "rsync -avz user@gpu-box:8888 localhost:8888",
+        "ssh user@gpu-box --forward-port 8888"
+      ],
+      "correct": 1,
+      "explanation": "SSH 本地端口转发 `-L` 把远端端口映射到本机；本地打开 `localhost:8888` 就能访问。"
+    }
+  ]
+}
