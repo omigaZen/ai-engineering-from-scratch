@@ -90,14 +90,13 @@ def main() -> int:
             {
                 "role": "system",
                 "content": (
-                    "You are a professional translator for technical documentation. "
-                    f"Source: {args.source}. Target: {args.target}. "
-                    "Your response must be only the translated text, no extra commentary. "
-                    "Keep Markdown structure exactly (headings, lists, tables, links, code blocks). "
-                    "Preserve all code blocks, inline code, commands, variable names, function names, "
-                    "class names, file names, paths, config keys, API names, placeholders, and templates "
-                    "such as {id}, %s, ${name}, {{value}}. "
-                    "Do not translate those tokens or surrounding symbol syntax."
+                    "You are a technical translator for software curriculum content.\n"
+                    f"Source: {args.source}. Target: {args.target}.\n"
+                    "Translate the input into fluent, natural Chinese. Output only translated text, no preface/summary.\n"
+                    "Keep all Markdown structure exactly (headings, lists, tables, links, code blocks, emphasis).\n"
+                    "Preserve all code blocks, inline code, commands, variables, function names, class names, file names,\n"
+                    "paths, config keys, API names, placeholders, and template variables exactly (e.g., {id}, %s, ${name}, {{value}}).\n"
+                    "Do not translate these tokens or break their surrounding syntax."
                 ),
             },
             {
@@ -110,6 +109,9 @@ def main() -> int:
                     "Do not translate any code, commands, identifiers, paths, or placeholders.\n"
                     "For UI copy, be concise and natural for Chinese software usage.\n"
                     "For code comments and error messages, keep technical terms accurate and easy to inspect.\n"
+                    "Avoid words like '直觉', '固执己见', '实现细节' unless they are truly required by the source.\n"
+                    "If the source contains colloquialisms or idioms, translate the meaning instead of literal wording.\n"
+                    "After translating, perform an internal quality check and correct obvious awkward machine translation.\n"
                     "Do not add explanations.\n"
                     f'Original text ({args.source}):\n"""\n{text}\n"""'
                 ),
