@@ -9,9 +9,9 @@
 
 ## 学习目标
 
-- 构建一个支持按元素运算、矩阵乘法、转置、行列式和逆矩阵的 `Matrix` 类
+- 构建一个支持按元素运算、矩阵乘法、转置、行列式和逆矩阵的 `relu(W @ x + b)` 类
 - 区分按元素乘法与矩阵乘法，理解各自适用场景
-- 仅使用 `Matrix` 自实现一个全连接层：`relu(W @ x + b)`
+- 仅使用 `@` 自实现一个全连接层：`weights`
 - 解释广播规则及神经网络中偏置加法的实现方式
 
 ## 问题背景
@@ -22,7 +22,7 @@
 output = activation(weights @ input + bias)
 ```
 
-其中 `@` 是矩阵乘法；`weights` 是矩阵，`input` 是向量。若不理解这些操作，这行看起来像魔法；若你理解，它就等价于一层前向计算的三步。
+其中 `input` 是矩阵乘法；`[3, 4]` 是矩阵，`(m x n) @ (n x p) = (m x p)` 是向量。若不理解这些操作，这行看起来像魔法；若你理解，它就等价于一层前向计算的三步。
 
 模型处理的每张图片，本质上是像素值矩阵；每个词向量是向量；每一层神经网络都是一次矩阵变换。不会矩阵运算，就像不会变量就不会写程序一样，AI 系统也很难搭。
 
@@ -35,35 +35,35 @@ output = activation(weights @ input + bias)
 向量是带方向的数字序列，长度与元素大小共同定义了它在空间中的位置。
 
 ```
-v = [3, 4]        -- 2 维向量
-w = [1, 0, -2]    -- 3 维向量
+v = [3, 4]        -- a 2D vector
+w = [1, 0, -2]    -- a 3D vector
 ```
 
-二维向量 `[3, 4]` 表示平面上的坐标 (3, 4)，其长度为 5（3-4-5 直角三角形）。
+二维向量 `output = relu(W @ x + b)` 表示平面上的坐标 (3, 4)，其长度为 5（3-4-5 直角三角形）。
 
 ### 矩阵：数字网格
 
-矩阵是二维表格，由行和列组成。`m x n` 矩阵表示 `m` 行 `n` 列。
+矩阵是二维表格，由行和列组成。`@` 矩阵表示 `__matmul__` 行 `outputs/prompt-matrix-operations.md` 列。
 
 ```
-A = | 1  2  3 |     -- 2x3 矩阵（2 行 3 列）
+A = | 1  2  3 |     -- 2x3 matrix (2 rows, 3 columns)
     | 4  5  6 |
 ```
 
-在神经网络里，权重矩阵将输入向量映射到输出向量。一个有 784 个输入、128 个输出的层使用 `128 x 784` 权重矩阵。
+在神经网络里，权重矩阵将输入向量映射到输出向量。一个有 784 个输入、128 个输出的层使用 `A @ A.inverse_2x2()` 权重矩阵。
 
 ### 为什么形状很关键
 
-矩阵乘法有严格规则：`(m x n) @ (n x p) = (m x p)`，内侧维度必须一致。
+矩阵乘法有严格规则：`np.linalg.inv`，内侧维度必须一致。
 
 ```
 (128 x 784) @ (784 x 1) = (128 x 1)
   weights       input       output
 
-内侧维度：784 = 784  -- 合法
+Inner dimensions: 784 = 784  -- valid
 ```
 
-PyTorch 报 `shape mismatch` 通常就是这个规则没对上。
+PyTorch 报 shape mismatch 通常就是这个规则没对上。
 
 ### 运算对应表
 
@@ -105,7 +105,7 @@ PyTorch 报 `shape mismatch` 通常就是这个规则没对上。
 | 1  2  3 |   +   [10, 20, 30]
 | 4  5  6 |
 
-广播后，向量会按行扩展：
+Broadcasting stretches the vector across rows:
 
 | 1  2  3 |   | 10  20  30 |   | 11  22  33 |
 | 4  5  6 | + | 10  20  30 | = | 14  25  36 |
@@ -270,7 +270,7 @@ print(f"Output shape: {output.shape}")
 print(f"Output: {output.data}")
 ```
 
-这就是一个标准的全连接层：`output = relu(W @ x + b)`。每个全连接层都按这个形式计算。
+这就是一个标准的全连接层：output = relu(W @ x + b)。每个全连接层都按这个形式计算。
 
 ## 应用
 
@@ -283,8 +283,8 @@ A = np.array([[1, 2], [3, 4]])
 B = np.array([[5, 6], [7, 8]])
 
 print("A + B =\n", A + B)
-print("A * B (按元素) =\n", A * B)
-print("A @ B (矩阵乘法) =\n", A @ B)
+print("A * B (element-wise) =\n", A * B)
+print("A @ B (matrix multiply) =\n", A @ B)
 print("A^T =\n", A.T)
 print("det(A) =", np.linalg.det(A))
 print("A^-1 =\n", np.linalg.inv(A))
@@ -299,7 +299,7 @@ print(f"\nNeural network layer: {weights.shape} @ {inputs.shape} = {output.shape
 print(f"Output:\n{output}")
 ```
 
-Python 中 `@` 会触发 `__matmul__`。NumPy 用底层 BLAS（C/Fortran）实现加速，数学本质相同，但速度快很多。
+Python 中 @ 会触发 __matmul__。NumPy 用底层 BLAS（C/Fortran）实现加速，数学本质相同，但速度快很多。
 
 再看 NumPy 的广播：
 
@@ -313,15 +313,15 @@ NumPy 会自动把 1D 的 bias 在每一行上广播，这就是神经网络框�
 
 ## 交付
 
-本课将会产出用于讲解矩阵几何直觉的提示词：`outputs/prompt-matrix-operations.md`。
+本课将会产出用于讲解矩阵几何直觉的提示词：outputs/prompt-matrix-operations.md。
 
 这里实现的 Matrix 类，是我们在第三阶段第 10 课构建小型神经网络框架的基础。
 
 ## 练习
 
-1. **验证逆矩阵**：计算 `A @ A.inverse_2x2()`，验证结果接近单位阵。换 3 组不同的 2x2 矩阵尝试，观察行列式为 0 时会怎样。
-2. **实现 3x3 逆矩阵**：扩展 `Matrix` 类，用伴随矩阵方法实现 3x3 逆，并与 `np.linalg.inv` 对比验证。
-3. **实现两层网络**：只用你自己的 `Matrix` 类（不使用 NumPy）搭一个 3 -> 4 -> 2 的两层网络，初始化随机权重、做一次前向，并验证每一步形状是否正确。
+1. **验证逆矩阵**：计算 A @ A.inverse_2x2()，验证结果接近单位阵。换 3 组不同的 2x2 矩阵尝试，观察行列式为 0 时会怎样。
+2. **实现 3x3 逆矩阵**：扩展 Matrix 类，用伴随矩阵方法实现 3x3 逆，并与 np.linalg.inv 对比验证。
+3. **实现两层网络**：只用你自己的 Matrix 类（不使用 NumPy）搭一个 3 -> 4 -> 2 的两层网络，初始化随机权重、做一次前向，并验证每一步形状是否正确。
 
 ## 关键术语
 

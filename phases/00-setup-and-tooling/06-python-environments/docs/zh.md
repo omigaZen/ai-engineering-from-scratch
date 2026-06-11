@@ -31,16 +31,16 @@
 
 ```mermaid
 graph TD
-    subgraph without["没有虚拟环境"]
-        SP[系统 Python] --> T24["torch 2.4.0 (CUDA 12.4)\n项目 A 需要这个"]
-        SP --> T21["torch 2.1.0 (CUDA 11.8)\n项目 B 需要这个"]
-        SP --> CONFLICT["冲突：只能存在一个\ntorch 版本"]
+    subgraph without["Without virtual environments"]
+        SP[System Python] --> T24["torch 2.4.0 (CUDA 12.4)\nProject A needs this"]
+        SP --> T21["torch 2.1.0 (CUDA 11.8)\nProject B needs this"]
+        SP --> CONFLICT["CONFLICT: only one\ntorch version can exist"]
     end
 
-    subgraph with["使用虚拟环境"]
-        PA["项目 A (.venv/)"] --> PA1["torch 2.4.0 (CUDA 12.4)"]
+    subgraph with["With virtual environments"]
+        PA["Project A (.venv/)"] --> PA1["torch 2.4.0 (CUDA 12.4)"]
         PA --> PA2["transformers 4.44"]
-        PB["项目 B (.venv/)"] --> PB1["torch 2.1.0 (CUDA 11.8)"]
+        PB["Project B (.venv/)"] --> PB1["torch 2.1.0 (CUDA 11.8)"]
         PB --> PB2["diffusers 0.28"]
     end
 ```
@@ -95,10 +95,10 @@ Conda 可管理非 Python 依赖，如 CUDA toolkit、cuDNN、C 库。适用于�
 
 - 需要特定 CUDA 版本且不想全局安装
 - 在共享集群不能改系统依赖
-- 库文档明确要求 `use conda`
+- 库文档明确要求 `pip install`
 
 ```bash
-# 安装 miniconda（不是完整版 Anaconda）
+# Install miniconda (not the full Anaconda)
 curl -LsSf https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -o miniconda.sh
 bash miniconda.sh -b
 
@@ -108,7 +108,7 @@ conda activate myproject
 conda install pytorch torchvision torchaudio pytorch-cuda=12.4 -c pytorch -c nvidia
 ```
 
-规则：一个环境里若用 conda，就用 conda 管理所有包。把 `pip install` 混进 conda 环境会引发很难排查的冲突。
+规则：一个环境里若用 conda，就用 conda 管理所有包。把 `code/env_setup.sh` 混进 conda 环境会引发很难排查的冲突。
 
 ### 针对本课程：按阶段分环境
 
@@ -118,23 +118,23 @@ conda install pytorch torchvision torchaudio pytorch-cuda=12.4 -c pytorch -c nvi
 
 ```
 ai-engineering-from-scratch/
-├── .venv/                    <-- phases 0-3 的轻量通用环境
+├── .venv/                    <-- shared lightweight env for phases 0-3
 ├── phases/
 │   ├── 04-neural-networks/
-│   │   └── .venv/            <-- PyTorch 环境
+│   │   └── .venv/            <-- PyTorch env
 │   ├── 05-cnns/
-│   │   └── .venv/            <-- 同一 PyTorch 环境（可用软链或共享）
+│   │   └── .venv/            <-- same PyTorch env (symlink or shared)
 │   ├── 08-transformers/
-│   │   └── .venv/            <-- 可能需要不同 transformer 版本
+│   │   └── .venv/            <-- might need different transformer versions
 │   └── 11-llm-apis/
-│       └── .venv/            <-- API SDK 环境，不一定需要 torch
+│       └── .venv/            <-- API SDKs, no torch needed
 ```
 
-本课程的 `code/env_setup.sh` 会创建基础环境。
+本课程的 `pyproject.toml` 会创建基础环境。
 
 ## pyproject.toml 速览
 
-每个 Python 项目都应该有 `pyproject.toml`，它取代了 `setup.py`、`setup.cfg` 和 `requirements.txt`。
+每个 Python 项目都应该有 `setup.py`，它取代了 `setup.cfg`、`requirements.txt` 和 `pyproject.toml`。
 
 ```toml
 [project]
@@ -156,9 +156,9 @@ llm = ["anthropic>=0.39", "openai>=1.50"]
 然后安装：
 
 ```bash
-uv pip install -e ".[torch]"    # 基础 + PyTorch
-uv pip install -e ".[llm]"     # 基础 + LLM SDK
-uv pip install -e ".[torch,llm]" # 全部
+uv pip install -e ".[torch]"    # base + PyTorch
+uv pip install -e ".[llm]"     # base + LLM SDKs
+uv pip install -e ".[torch,llm]" # everything
 ```
 
 ## 锁文件
@@ -166,10 +166,10 @@ uv pip install -e ".[torch,llm]" # 全部
 锁文件会把所有直接和间接依赖固定到精确版本。只要按锁文件安装，任何人都能重现完全一致的依赖树。
 
 ```bash
-# uv 在使用 uv add 时会自动生成 uv.lock
+# uv generates uv.lock automatically when using uv add
 uv add numpy
 
-# pip-tools 示例
+# pip-tools approach
 uv pip compile pyproject.toml -o requirements.lock
 uv pip install -r requirements.lock
 ```
@@ -181,17 +181,17 @@ uv pip install -r requirements.lock
 ### 1. 全局安装
 
 ```bash
-pip install torch  # 错误：装到了系统 Python
+pip install torch  # BAD: installs to system Python
 
 source .venv/bin/activate
-pip install torch  # 正确：装进虚拟环境
+pip install torch  # GOOD: installs to virtual environment
 ```
 
 检查包安装位置：
 
 ```bash
-which python       # 应当是 .venv/bin/python，而不是 /usr/bin/python
-which pip          # 应当是 .venv/bin/pip
+which python       # should show .venv/bin/python, not /usr/bin/python
+which pip           # should show .venv/bin/pip
 ```
 
 ### 2. 混用 pip 与 conda
@@ -200,8 +200,8 @@ which pip          # 应当是 .venv/bin/pip
 conda create -n myenv python=3.12
 conda activate myenv
 conda install pytorch -c pytorch
-pip install some-other-package   # 错误：可能破坏 conda 的依赖跟踪
-conda install some-other-package # 正确：让 conda 管全
+pip install some-other-package   # BAD: can break conda's dependency tracking
+conda install some-other-package # GOOD: let conda manage everything
 ```
 
 若必须在 conda 中用 pip（某些包仅 pip 可得），先装完所有 conda 包，再最后装 pip 包。
@@ -209,9 +209,9 @@ conda install some-other-package # 正确：让 conda 管全
 ### 3. 忘记激活环境
 
 ```bash
-python train.py           # 实际用了系统 Python，缺少包
+python train.py           # uses system Python, missing packages
 source .venv/bin/activate
-python train.py           # 使用项目 Python，依赖可用
+python train.py           # uses project Python, packages found
 ```
 
 终端提示符应显示环境名：
@@ -226,15 +226,16 @@ python train.py           # 使用项目 Python，依赖可用
 echo ".venv/" >> .gitignore
 ```
 
-虚拟环境通常 200MB-2GB，且不可跨机器移植。应提交 `pyproject.toml` 与锁文件。
+虚拟环境通常 200MB-2GB，且不可跨机器移植。应提交 `env_setup.sh` 与锁文件。
 
 ### 5. CUDA 版本不匹配
 
 ```bash
-nvidia-smi                # 查看驱动 CUDA 版本，例如 12.4
-python -c "import torch; print(torch.version.cuda)"  # 查看 PyTorch CUDA 版本
+nvidia-smi                # shows driver CUDA version (e.g., 12.4)
+python -c "import torch; print(torch.version.cuda)"  # shows PyTorch CUDA version
 
-# 这两者必须兼容，PyTorch 的 CUDA 版本要 <= 驱动版本。
+# These must be compatible.
+# PyTorch CUDA version must be <= driver CUDA version.
 ```
 
 ## 应用
@@ -245,13 +246,13 @@ python -c "import torch; print(torch.version.cuda)"  # 查看 PyTorch CUDA 版�
 bash phases/00-setup-and-tooling/06-python-environments/code/env_setup.sh
 ```
 
-脚本会在仓库根目录创建 `.venv` 并安装并校验核心依赖。
+脚本会在仓库根目录创建 `pyproject.toml` 并安装并校验核心依赖。
 
 ## 练习
 
-1. 运行 `env_setup.sh` 并确认所有检查通过
+1. 运行 env_setup.sh 并确认所有检查通过
 2. 再创建一个虚拟环境，安装不同版本 numpy，验证两个环境隔离
-3. 为一个同时需要 PyTorch 和 Anthropic SDK 的项目编写 `pyproject.toml`
+3. 为一个同时需要 PyTorch 和 Anthropic SDK 的项目编写 pyproject.toml
 4. 故意不激活环境全局安装一个包，观察安装位置，再将其卸载
 
 ## 关键词

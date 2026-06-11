@@ -100,14 +100,14 @@ f(tx + (1-t)y) <= t*f(x) + (1-t)*f(y)
 
 ```mermaid
 graph LR
-    subgraph "凸：唯一答案"
+    subgraph "Convex: ONE answer"
         direction TB
-        C1["损失面只有一个谷底"] --> C2["梯度下降一定收敛到全局最小值"]
+        C1["Loss surface has a single valley"] --> C2["Gradient descent ALWAYS finds the global minimum"]
     end
-    subgraph "非凸：多处陷阱"
+    subgraph "Non-convex: MANY traps"
         direction TB
-        N1["损失面有多个谷和峰"] --> N2["梯度下降可能困在局部最小"]
-        N2 --> N3["全局最小可能被错过"]
+        N1["Loss surface has multiple valleys and peaks"] --> N2["Gradient descent may get stuck in a local minimum"]
+        N2 --> N3["Global minimum might be missed"]
     end
 ```
 
@@ -137,7 +137,7 @@ graph LR
 函数 \(f:\mathbb R^n\to\mathbb R\) 的海森矩阵 \(H\) 是 \(n\times n\) 二阶偏导矩阵：
 
 ```
-H[i][j] = \frac{\partial^2 f}{\partial x_i \partial x_j}
+H[i][j] = d^2 f / (dx_i dx_j)
 ```
 
 对 \(f(x,y)=x^2+3xy+y^2\)：
@@ -163,10 +163,10 @@ H = [ 2  3 ]
 梯度下降用一阶信息（梯度）；牛顿法用二阶信息（海森）。它先对当前点做二次近似，然后直接跳到该二次函数的最小点。
 
 ```
-更新公式：
+Update rule:
   x_new = x - H^(-1) * gradient
 
-与梯度下降相比：
+Compare to gradient descent:
   x_new = x - lr * gradient
 ```
 
@@ -174,18 +174,18 @@ H = [ 2  3 ]
 
 ```mermaid
 graph TD
-    subgraph "梯度下降"
+    subgraph "Gradient Descent"
         GD1["Start"] --> GD2["Step 1"]
         GD2 --> GD3["Step 2"]
         GD3 --> GD4["..."]
         GD4 --> GD5["Step ~500: Converged"]
-        GD_note["盲目沿梯度方向，小步前进"]
+        GD_note["Follows gradient blindly — many small steps"]
     end
-    subgraph "牛顿法"
+    subgraph "Newton's Method"
         NM1["Start"] --> NM2["Step 1"]
         NM2 --> NM3["..."]
         NM3 --> NM4["Step ~5: Converged"]
-        NM_note["用曲率选最优步"]
+        NM_note["Uses curvature for optimal steps"]
     end
 ```
 
@@ -208,12 +208,12 @@ graph TD
 
 ```mermaid
 graph LR
-    subgraph "无约束"
-        U1["损失函数"] --> U2["自由最小点：损失曲面的最低点"]
+    subgraph "Unconstrained"
+        U1["Loss function"] --> U2["Free minimum: lowest point of the loss surface"]
     end
-    subgraph "有约束"
-        C1["损失函数"] --> C2["可行域中的最小点"]
-        C3["约束边界限制搜索空间"]
+    subgraph "Constrained"
+        C1["Loss function"] --> C2["Constrained minimum: lowest point within the feasible region"]
+        C3["Constraint boundary limits the search space"]
     end
 ```
 
@@ -226,36 +226,36 @@ graph LR
 引入新变量（拉格朗日乘子）\(\lambda\)，解：
 
 ```
-L(x,\lambda)=f(x)+\lambda g(x)
+L(x, lambda) = f(x) + lambda * g(x)
 ```
 
 在最优点，\(L\) 梯度为零：
 
 ```
-dL/dx = df/dx + λ dg/dx = 0
-dL/dλ = g(x) = 0
+dL/dx = df/dx + lambda * dg/dx = 0
+dL/dlambda = g(x) = 0
 ```
 
 几何直觉：在约束最优点，\(f\) 的梯度必须与约束 \(g\) 的梯度平行。若不平行，沿约束曲面还可以继续减小 \(f\)。
 
 ```mermaid
 graph LR
-    A["f(x,y) 等值线：同心椭圆"] --- S["解点"]
-    B["约束曲线 g(x,y)=0"] --- S
-    S --- C["在最优点，∇f 与 ∇g 平行"]
+    A["Contours of f(x,y): concentric ellipses"] --- S["Solution point"]
+    B["Constraint curve g(x,y) = 0"] --- S
+    S --- C["At the solution, gradient of f is parallel to gradient of g"]
 ```
 
 例子：最小化 \(f(x,y)=x^2+y^2\)，约束 \(x+y=1\)
 
 ```
-L = x^2 + y^2 + λ(x + y - 1)
+L = x^2 + y^2 + lambda(x + y - 1)
 
-dL/dx = 2x + λ = 0  => x = -λ/2
-dL/dy = 2y + λ = 0  => y = -λ/2
-dL/dλ = x + y - 1 = 0
+dL/dx = 2x + lambda = 0  =>  x = -lambda/2
+dL/dy = 2y + lambda = 0  =>  y = -lambda/2
+dL/dlambda = x + y - 1 = 0
 
-由前两式得 x = y
-代入约束：2x = 1，因此 x = y = 0.5，λ = -1
+From first two: x = y
+Substituting: 2x = 1, so x = y = 0.5, lambda = -1
 ```
 
 到原点最近的点就是 \((0.5,0.5)\)。
@@ -269,10 +269,10 @@ KKT 条件把拉格朗日乘子扩展到不等式约束。
 KKT（最优性必要条件）：
 
 ```
-1. 平稳性:         df/dx + Σ(λ_i dg_i/dx) = 0
-2. 原可行性:       g_i(x) <= 0, 对所有 i
-3. 对偶可行性:     λ_i >= 0, 对所有 i
-4. 互补松弛:       λ_i * g_i(x) = 0, 对所有 i
+1. Stationarity:    df/dx + sum(lambda_i * dg_i/dx) = 0
+2. Primal feasibility:  g_i(x) <= 0  for all i
+3. Dual feasibility:    lambda_i >= 0  for all i
+4. Complementary slackness:  lambda_i * g_i(x) = 0  for all i
 ```
 
 互补松弛是关键：要么约束激活（\(g_i=0\)，解在边界上），要么乘子为 0（约束不影响解）。不生效的约束对应 \(\lambda=0\)。
@@ -288,8 +288,8 @@ L1 与 L2 正则不是“技巧”，而是带约束的优化问题。
 ```
 minimize  Loss(w)  subject to  ||w||^2 <= t
 
-等价无约束形式：
-minimize  Loss(w) + λ ||w||^2
+Equivalent unconstrained form:
+minimize  Loss(w) + lambda * ||w||^2
 ```
 
 约束 \(\|w\|^2 \le t\) 是一个球（2D 下是圆，3D 下是球面）。最优点是损失等高线第一次接触该球的位置。
@@ -299,8 +299,8 @@ minimize  Loss(w) + λ ||w||^2
 ```
 minimize  Loss(w)  subject to  ||w||_1 <= t
 
-等价无约束形式：
-minimize  Loss(w) + λ ||w||_1
+Equivalent unconstrained form:
+minimize  Loss(w) + lambda * ||w||_1
 ```
 
 约束 \(\|w\|_1 \le t\) 形成菱形（2D 下是旋转正方形）。
@@ -322,9 +322,9 @@ minimize  Loss(w) + λ ||w||_1
 
 ```
 Primal: minimize f(x) subject to g(x) <= 0
-Lagrangian: L(x, λ) = f(x) + λ g(x)
-Dual function: d(λ) = min_x L(x, λ)
-Dual problem: maximize d(λ) subject to λ >= 0
+Lagrangian: L(x, lambda) = f(x) + lambda * g(x)
+Dual function: d(lambda) = min_x L(x, lambda)
+Dual problem: maximize d(lambda) subject to lambda >= 0
 ```
 
 对偶为何重要：
@@ -335,14 +335,14 @@ Dual problem: maximize d(λ) subject to λ >= 0
 SVM 例子：
 
 ```
-Primal: 找 w, b 使 2/||w|| 最大，且
-         y_i(w^T x_i + b) >= 1 对所有 i
+Primal: find w, b that maximize the margin 2/||w|| subject to
+        y_i(w^T x_i + b) >= 1 for all i
 
-Dual:   maximize Σ α_i - 0.5 Σ_ij (α_i α_j y_i y_j x_i^T x_j)
-        subject to α_i >= 0 且 Σ α_i y_i = 0
+Dual:   maximize sum(alpha_i) - 0.5 * sum_ij(alpha_i * alpha_j * y_i * y_j * x_i^T x_j)
+        subject to alpha_i >= 0 and sum(alpha_i * y_i) = 0
 
-对偶中只出现 x_i^T x_j。
-将 x_i^T x_j 换成 K(x_i,x_j) 即得核技巧。
+The dual only involves dot products x_i^T x_j.
+Replace x_i^T x_j with K(x_i, x_j) to get the kernel trick.
 ```
 
 ### 非凸神经网络为何仍能工作

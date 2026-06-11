@@ -22,10 +22,10 @@
 
 ```mermaid
 sequenceDiagram
-    participant C as 你的代码
-    participant S as API 服务
-    C->>S: HTTP 请求（带 API key）
-    S->>C: HTTP 响应（JSON）
+    participant C as Your Code
+    participant S as API Server
+    C->>S: HTTP Request (with API key)
+    S->>C: HTTP Response (JSON)
 ```
 
 每次 API 调用都包含：

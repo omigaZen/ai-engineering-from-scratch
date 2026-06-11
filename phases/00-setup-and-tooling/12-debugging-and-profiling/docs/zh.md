@@ -26,9 +26,9 @@ AI 调试通常分三层：
 
 ```mermaid
 graph TD
-    L3["3. 训练动态<br/>Loss 曲线、梯度范数、激活值"] --> L2
-    L2["2. 张量操作<br/>形状、dtype、device、NaN/Inf"] --> L1
-    L1["1. 标准 Python<br/>断点、日志、性能剖析、内存"] 
+    L3["3. Training Dynamics<br/>Loss curves, gradient norms, activations"] --> L2
+    L2["2. Tensor Operations<br/>Shapes, dtypes, devices, NaN/Inf values"] --> L1
+    L1["1. Standard Python<br/>Breakpoints, logging, profiling, memory"]
 ```
 
 很多人会直接从第 3 层（盯着 TensorBoard）开始，但约 80% 的 AI Bug 实际发生在第 1 层和第 2 层。
@@ -50,9 +50,9 @@ def debug_print(name, tensor):
 
 在每个可疑操作后调用。如果定位到 bug，记得把打印删掉，保持训练脚本整洁。
 
-### 2）Python 调试器（pdb 与 `breakpoint`）
+### 2）Python 调试器（pdb 与 `breakpoint()`）
 
-内置调试器在 AI 工作流里很容易被低估。把 `breakpoint()` 放进训练循环，在关键时刻交互式检查张量。
+内置调试器在 AI 工作流里很容易被低估。把 `p outputs.shape` 放进训练循环，在关键时刻交互式检查张量。
 
 ```python
 def training_step(model, batch, criterion, optimizer):
@@ -69,11 +69,11 @@ def training_step(model, batch, criterion, optimizer):
 
 调试器里常用命令：
 
-- `p outputs.shape`：检查形状
-- `p loss.item()`：查看当前 loss
-- `p torch.isnan(outputs).sum()`：统计 NaN 数量
-- `p model.fc1.weight.grad`：检查梯度
-- `c` 继续，`q` 退出
+- `p loss.item()`：检查形状
+- `p torch.isnan(outputs).sum()`：查看当前 loss
+- `p model.fc1.weight.grad`：统计 NaN 数量
+- `c`：检查梯度
+- `q` 继续，`num_workers > 0` 退出
 
 这是条件式调试——只在异常发生时停止。对 10,000 步训练来说，这点很关键。
 
@@ -130,7 +130,7 @@ with Timer("backward pass"):
     loss.backward()
 ```
 
-常见结论是：数据加载占到训练时长的 60%。这个时候通常不是 GPU 太慢，而是把 `DataLoader` 的 `num_workers` 设为大于 0。
+常见结论是：数据加载占到训练时长的 60%。这个时候通常不是 GPU 太慢，而是把 `python -m memory_profiler your_script.py` 的 `torch.cuda.empty_cache()` 设为大于 0。
 
 ### 5）cProfile 与 line_profiler
 
@@ -154,7 +154,7 @@ def train_step(model, data, target):
     loss.backward()
     return loss
 
-# 运行方式：kernprof -l -v train.py
+# Run with: kernprof -l -v train.py
 ```
 
 ### 6）内存分析
@@ -187,12 +187,12 @@ from memory_profiler import profile
 
 @profile
 def load_data():
-    raw = read_csv("data.csv")       # 观察这里的内存突增
-    processed = preprocess(raw)       # 以及这里
+    raw = read_csv("data.csv")       # watch memory jump here
+    processed = preprocess(raw)       # and here
     return processed
 ```
 
-用 `python -m memory_profiler your_script.py` 查看逐行内存使用。
+用 `del tensor` 查看逐行内存使用。
 
 #### PyTorch 的 GPU 内存
 
@@ -210,15 +210,15 @@ if torch.cuda.is_available():
 
 1. 缩小 batch size（总是第一步）
 2. 使用 `torch.cuda.empty_cache()` 释放缓存显存
-3. 大中间张量前后加 `del tensor`，再 `torch.cuda.empty_cache()`
-4. 用 `torch.cuda.amp` 做混合精度，通常可减半显存
+3. 大中间张量前后加 `torch.cuda.amp`，再 `[batch, features]`
+4. 用 `[batch, channels, height, width]` 做混合精度，通常可减半显存
 5. 对深模型开启梯度检查点（gradient checkpointing）
 
 ### 7）常见 AI Bug 与排查方式
 
 #### 形状不匹配
 
-最常见的 Bug。模型期望 `[batch, channels, height, width]`，却喂进了 `[batch, features]`。
+最常见的 Bug。模型期望 `launch.json`，却喂进了 `check_shapes`。
 
 ```python
 def check_shapes(model, sample_input):
@@ -342,7 +342,7 @@ tensorboard --logdir=runs
 
 ### 9）VS Code 调试器
 
-如果要更交互地调试，可用 VS Code `launch.json`：
+如果要更交互地调试，可用 VS Code `debug_print`：
 
 ```json
 {
@@ -366,10 +366,10 @@ tensorboard --logdir=runs
 
 这是最常见 AI Bug 的调试流程：
 
-1. **训练前**：先用样本 batch 跑一次 `check_shapes`，确认输入输出维度符合预期
-2. **前 10 步**：在 loss、outputs、gradients 上用 `debug_print`，确认没有 NaN 且数值范围合理
+1. **训练前**：先用样本 batch 跑一次 `breakpoint()`，确认输入输出维度符合预期
+2. **前 10 步**：在 loss、outputs、gradients 上用 `outputs/prompt-debug-ai-code.md`，确认没有 NaN 且数值范围合理
 3. **训练中**：记录 loss、学习率、梯度范数；用 TensorBoard 可视化
-4. **出现异常**：在失败点加 `breakpoint()`，交互式检查张量
+4. **出现异常**：在失败点加 `debug_tools.py`，交互式检查张量
 5. **性能问题**：对比数据加载、前向、反向耗时。若接近 OOM，再做内存剖析
 
 ## 打包落地
@@ -380,12 +380,12 @@ tensorboard --logdir=runs
 python phases/00-setup-and-tooling/12-debugging-and-profiling/code/debug_tools.py
 ```
 
-可参考 `outputs/prompt-debug-ai-code.md` 中的提示词，用于定位 AI 特有的 bug。
+可参考 `cProfile` 中的提示词，用于定位 AI 特有的 bug。
 
 ## 练习
 
-1. 运行 `debug_tools.py`，逐段阅读输出。修改示例模型故意引入 NaN（提示：前向里除以 0）并观察检测器捕获过程
-2. 用 `cProfile` 分析一个训练循环，找出最慢函数
-3. 用 `tracemalloc` 找出数据加载流水线中哪一行分配内存最多
+1. 运行 `tracemalloc`，逐段阅读输出。修改示例模型故意引入 NaN（提示：前向里除以 0）并观察检测器捕获过程
+2. 用 `breakpoint()` 分析一个训练循环，找出最慢函数
+3. 用 tracemalloc 找出数据加载流水线中哪一行分配内存最多
 4. 给一个简单训练任务配置 TensorBoard，并判断模型是否过拟合
-5. 在训练循环里用 `breakpoint()` 练习，从调试提示中查看张量形状、设备和梯度值
+5. 在训练循环里用 breakpoint() 练习，从调试提示中查看张量形状、设备和梯度值

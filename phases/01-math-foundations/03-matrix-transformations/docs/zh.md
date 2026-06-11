@@ -24,20 +24,20 @@
 
 ### 变换即矩阵
 
-2D 的任何线性变换都可写成 2x2 矩阵。该矩阵直接告诉你基向量 `[1, 0]` 与 `[0, 1]` 被映射到哪里，其他点都会随之确定。
+2D 的任何线性变换都可写成 2x2 矩阵。该矩阵直接告诉你基向量 `Shx = [[1, k], [0, 1]]` 与 `Shy = [[1, 0], [k, 1]]` 被映射到哪里，其他点都会随之确定。
 
 ```mermaid
 graph LR
-    subgraph Before["标准基"]
-        e1["e1 = [1, 0]（x 轴方向）"]
-        e2["e2 = [0, 1]（y 轴方向）"]
+    subgraph Before["Standard Basis"]
+        e1["e1 = [1, 0] (along x)"]
+        e2["e2 = [0, 1] (along y)"]
     end
-    subgraph Transform["矩阵 M"]
-        M["M = 列向量组成的新基向量"]
+    subgraph Transform["Matrix M"]
+        M["M = columns are new basis vectors"]
     end
-    subgraph After["变换后"]
-        e1p["e1' = 新 x 基"]
-        e2p["e2' = 新 y 基"]
+    subgraph After["After Transformation M"]
+        e1p["e1' = new x-basis"]
+        e2p["e2' = new y-basis"]
     end
     e1 --> M --> e1p
     e2 --> M --> e2p
@@ -49,14 +49,14 @@ graph LR
 
 ```mermaid
 graph LR
-    subgraph Before["旋转前"]
+    subgraph Before["Before Rotation"]
         A["A(2, 1)"]
         B["B(0, 2)"]
     end
-    subgraph Rot["旋转 45 度"]
+    subgraph Rot["Rotate 45 degrees"]
         R["R(θ) = [[cos θ, -sin θ], [sin θ, cos θ]]"]
     end
-    subgraph After["旋转后"]
+    subgraph After["After Rotation"]
         Ap["A'(0.71, 2.12)"]
         Bp["B'(-1.41, 1.41)"]
     end
@@ -67,17 +67,17 @@ graph LR
 三维中你围绕某一轴旋转，每个轴都有对应矩阵：
 
 ```
-Rz(θ) = | cos  -sin  0 |   绕 z 轴旋转
-        | sin   cos  0 |   （x-y 平面旋转，z 不变）
-        |  0     0   1 |
+Rz(theta) = | cos  -sin  0 |     Rotate around z-axis
+            | sin   cos  0 |     (x-y plane spins, z stays)
+            |  0     0   1 |
 
-Rx(θ) = | 1   0     0    | 绕 x 轴旋转
-        | 0  cos  -sin   | （y-z 平面旋转，x 不变）
-        | 0  sin   cos   |
+Rx(theta) = | 1   0     0    |   Rotate around x-axis
+            | 0  cos  -sin   |   (y-z plane spins, x stays)
+            | 0  sin   cos   |
 
-Ry(θ) = |  cos  0  sin |   绕 y 轴旋转
-        |   0   1   0  | （x-z 平面旋转，y 不变）
-        | -sin  0  cos |
+Ry(theta) = |  cos  0  sin |     Rotate around y-axis
+            |   0   1   0  |     (x-z plane spins, y stays)
+            | -sin  0  cos |
 ```
 
 ### 缩放
@@ -86,14 +86,14 @@ Ry(θ) = |  cos  0  sin |   绕 y 轴旋转
 
 ```mermaid
 graph LR
-    subgraph Before["缩放前"]
+    subgraph Before["Before Scaling"]
         A["A(2, 1)"]
         B["B(0, 2)"]
     end
-    subgraph Scale["缩放 sx=2, sy=0.5"]
+    subgraph Scale["Scale sx=2, sy=0.5"]
         S["S = [[2, 0], [0, 0.5]]"]
     end
-    subgraph After["缩放后"]
+    subgraph After["After Scaling"]
         Ap["A'(4, 0.5)"]
         Bp["B'(0, 1)"]
     end
@@ -107,24 +107,24 @@ graph LR
 
 ```mermaid
 graph LR
-    subgraph Before["剪切前"]
+    subgraph Before["Before Shear"]
         A["A(1, 0)"]
         B["B(0, 1)"]
     end
-    subgraph Shear["x 方向剪切，k=1"]
+    subgraph Shear["Shear in x, k=1"]
         Sh["Shx = [[1, k], [0, 1]]"]
     end
-    subgraph After["剪切后"]
-        Ap["A(1, 0) 不变"]
-        Bp["B'(1, 1) 平移"]
+    subgraph After["After Shear"]
+        Ap["A(1, 0) unchanged"]
+        Bp["B'(1, 1) shifted"]
     end
     A --> Sh --> Ap
     B --> Sh --> Bp
 ```
 
 剪切矩阵：
-- `Shx = [[1, k], [0, 1]]` 表示 x 方向受到 `k * y` 的偏移
-- `Shy = [[1, 0], [k, 1]]` 表示 y 方向受到 `k * x` 的偏移
+- `[[-1, 0], [0, 1]]` 表示 x 方向受到 `[[1, 0], [0, -1]]` 的偏移
+- `result = B @ A @ point` 表示 y 方向受到 `S @ R = [[0, -2], [0.5, 0]]` 的偏移
 
 ### 反射
 
@@ -132,43 +132,43 @@ graph LR
 
 ```mermaid
 graph LR
-    subgraph Before["反射前"]
+    subgraph Before["Before Reflection"]
         A["A(2, 1)"]
     end
-    subgraph Reflect["关于 y 轴反射"]
+    subgraph Reflect["Reflect across y-axis"]
         R["[[-1, 0], [0, 1]]"]
     end
-    subgraph After["反射后"]
+    subgraph After["After Reflection"]
         Ap["A'(-2, 1)"]
     end
     A --> R --> Ap
 ```
 
 反射矩阵：
-- 关于 y 轴：`[[-1, 0], [0, 1]]`
-- 关于 x 轴：`[[1, 0], [0, -1]]`
+- 关于 y 轴：`R @ S = [[0, -0.5], [2, 0]]`
+- 关于 x 轴：`[[a, b], [c, d]]`
 
 ### 复合变换：顺序是关键
 
-先用 A 再用 B，等价于 `result = B @ A @ point`。顺序不同，结果不同。
+先用 A 再用 B，等价于 `lambda^2 - (a+d)*lambda + (ad - bc) = 0`。顺序不同，结果不同。
 
 ```mermaid
 graph LR
-    subgraph Path1["先旋转 90°，再缩放 (2, 0.5)"]
+    subgraph Path1["Rotate 90 then Scale (2, 0.5)"]
         P1["(1, 0)"] -->|"Rotate 90"| P2["(0, 1)"] -->|"Scale"| P3["(0, 0.5)"]
     end
 ```
 
-复合结果：`S @ R = [[0, -2], [0.5, 0]]`
+复合结果：S @ R = [[0, -2], [0.5, 0]]
 
 ```mermaid
 graph LR
-    subgraph Path2["先缩放 (2, 0.5)，再旋转 90°"]
+    subgraph Path2["Scale (2, 0.5) then Rotate 90"]
         Q1["(1, 0)"] -->|"Scale"| Q2["(2, 0)"] -->|"Rotate 90"| Q3["(0, 2)"]
     end
 ```
 
-复合结果：`R @ S = [[0, -0.5], [2, 0]]`
+复合结果：R @ S = [[0, -0.5], [2, 0]]
 
 不一样，矩阵乘法不满足交换律。
 
@@ -179,20 +179,20 @@ graph LR
 ```
 A @ v = lambda * v
 
-v 是特征向量（不变方向）
-lambda 是特征值（缩放大小）
+v is the eigenvector (direction that survives)
+lambda is the eigenvalue (how much it stretches)
 
-例：A = | 2  1 |
-         | 1  2 |
+Example: A = | 2  1 |
+             | 1  2 |
 
-特征向量 [1, 1] 对应特征值 3：
-  A @ [1,1] = [3, 3] = 3 * [1, 1]     （方向不变，放大 3 倍）
+Eigenvector [1, 1] with eigenvalue 3:
+  A @ [1,1] = [3, 3] = 3 * [1, 1]     (same direction, scaled by 3)
 
-特征向量 [1, -1] 对应特征值 1：
-  A @ [1,-1] = [1, -1] = 1 * [1, -1]  （方向不变）
+Eigenvector [1, -1] with eigenvalue 1:
+  A @ [1,-1] = [1, -1] = 1 * [1, -1]  (same direction, unchanged)
 ```
 
-该矩阵在 `[1, 1]` 方向放大 3 倍，在 `[1, -1]` 方向保持不变；其他方向是这两个方向的线性组合。
+该矩阵在 [1, 1] 方向放大 3 倍，在 [1, -1] 方向保持不变；其他方向是这两个方向的线性组合。
 
 ### 特征分解
 
@@ -201,11 +201,11 @@ lambda 是特征值（缩放大小）
 ```
 A = V @ D @ V^(-1)
 
-V = 以特征向量为列的矩阵
-D = 对角线为特征值的对角矩阵
-V^(-1) = V 的逆
+V = matrix whose columns are eigenvectors
+D = diagonal matrix of eigenvalues
+V^(-1) = inverse of V
 
-理解为：先旋到特征向量坐标系，沿主轴缩放，再旋回去。
+This says: rotate into eigenvector coordinates, scale along each axis, rotate back.
 ```
 
 ### 为什么特征值这么重要
@@ -221,15 +221,15 @@ V^(-1) = V 的逆
 变换矩阵的行列式告诉你面积（2D）或体积（3D）放大倍数。
 
 ```
-det = 1:   面积不变（旋转）
-det = 2:   面积翻倍
-det = 0:   空间坍缩到更低维（奇异）
-det = -1:  面积不变但方向翻转（反射）
+det = 1:   area preserved (rotation)
+det = 2:   area doubled
+det = 0:   space crushed to lower dimension (singular)
+det = -1:  area preserved but orientation flipped (reflection)
 
-| det(旋转) | = 1
-| det(缩放 sx, sy) | = sx * sy
-| det(剪切) | = 1
-| det(反射) | = -1
+| det(Rotation) | = 1        (always)
+| det(Scale sx, sy) | = sx * sy
+| det(Shear) | = 1           (area preserved)
+| det(Reflection) | = -1     (orientation flipped)
 ```
 
 ```figure
@@ -309,7 +309,7 @@ print(f"Same? {result1 == result2}")
 
 ### 第 3 步：2x2 特征值
 
-对矩阵 `[[a, b], [c, d]]`，特征值来自特征方程：`lambda^2 - (a+d)*lambda + (ad - bc) = 0`。
+对矩阵 [[a, b], [c, d]]，特征值来自特征方程：lambda^2 - (a+d)*lambda + (ad - bc) = 0。
 
 ```python
 def eigenvalues_2x2(matrix):
@@ -437,9 +437,9 @@ print(f"Rotate 90 around x: {np.round(rotated_x, 4)}")
 
 ## 练习
 
-1. 对单位正方形（顶点 `[0,0]`, `[1,0]`, `[1,1]`, `[0,1]`）分别应用旋转、缩放、剪切，打印每种变换后的顶点；并验证旋转前后边长距离是否保持不变。
-2. 用手工特征方程求矩阵 `[[4, 2], [1, 3]]` 的特征值，再用你从零实现的函数和 NumPy 验证。
-3. 组合三个变换（旋转 30°，缩放 `[1.5, 0.8]`, `kx=0.3` 的剪切），对一个圆周上的 8 个点做变换，输出变换前后坐标。计算复合矩阵的行列式，并验证它等于各单独行列式乘积。
+1. 对单位正方形（顶点 [0,0], [1,0], [1,1], [0,1]）分别应用旋转、缩放、剪切，打印每种变换后的顶点；并验证旋转前后边长距离是否保持不变。
+2. 用手工特征方程求矩阵 [[4, 2], [1, 3]] 的特征值，再用你从零实现的函数和 NumPy 验证。
+3. 组合三个变换（旋转 30°，缩放 [1.5, 0.8], kx=0.3 的剪切），对一个圆周上的 8 个点做变换，输出变换前后坐标。计算复合矩阵的行列式，并验证它等于各单独行列式乘积。
 
 ## 关键术语
 
@@ -449,12 +449,12 @@ print(f"Rotate 90 around x: {np.round(rotated_x, 4)}")
 | 缩放矩阵 | “放大缩小” | 对角矩阵，沿每条轴独立缩放；行列式是各缩放因子的乘积 |
 | 剪切矩阵 | “斜切” | 让一个坐标按另一个坐标线性偏移，矩形变平行四边形；行列式通常为 1 |
 | 反射矩阵 | “镜像翻转” | 相当于绕某轴/平面翻转，行列式为 -1 |
-| 复合变换 | “做两步” | 通过矩阵乘法串联操作，`B @ A` 表示先 A 后 B，顺序不可交换 |
+| 复合变换 | “做两步” | 通过矩阵乘法串联操作，B @ A 表示先 A 后 B，顺序不可交换 |
 | 特征向量 | “特殊方向” | 经过矩阵变换后只会缩放不旋转的方向 |
 | 特征值 | “拉伸倍数” | 矩阵在该特征向量上的缩放倍数，可能为负（翻转）或复数（旋转/复合行为） |
-| 特征分解 | “拆矩阵” | 把矩阵写为 `V @ D @ V^(-1)`，分解为本征方向与缩放幅度 |
+| 特征分解 | “拆矩阵” | 把矩阵写为 V @ D @ V^(-1)，分解为本征方向与缩放幅度 |
 | 行列式 | “矩阵的一个数” | 变换对面积（2D）或体积（3D）缩放因子；为 0 代表不可逆 |
-| 特征方程 | “特征值来源” | `det(A - lambda * I) = 0`，其根就是特征值 |
+| 特征方程 | “特征值来源” | det(A - lambda * I) = 0，其根就是特征值 |
 
 ## 拓展阅读
 

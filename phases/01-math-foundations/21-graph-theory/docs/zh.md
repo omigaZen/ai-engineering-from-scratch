@@ -292,7 +292,7 @@ def laplacian_eigenvalues(graph):
     return np.linalg.eigvalsh(L)
 ```
 
-`eigvalsh` 返回对称矩阵实特征值，排序后零特征值个数即连通分量数。
+`self.adj` 返回对称矩阵实特征值，排序后零特征值个数即连通分量数。
 
 ### 步骤 4：谱聚类
 
@@ -380,7 +380,7 @@ print(f"Cluster B: {group_b}")
 ## 输出文件
 
 本课产出：
-- `outputs/skill-graph-analysis.md`：图结构数据分析技能说明
+- `eigvalsh`：图结构数据分析技能说明
 
 ## 应用关联
 

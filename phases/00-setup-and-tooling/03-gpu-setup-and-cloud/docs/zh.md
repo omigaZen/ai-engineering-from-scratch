@@ -23,22 +23,22 @@
 ## 概念
 
 ```
-你的选择：
+Your options:
 
-1. 本地 NVIDIA GPU
-   成本：$0（你已经拥有）
-   配置：安装 CUDA + cuDNN
-   适合：日常使用、大数据集
+1. Local NVIDIA GPU
+   Cost: $0 (you already have it)
+   Setup: Install CUDA + cuDNN
+   Best for: Regular use, large datasets
 
-2. Google Colab（免费层）
-   成本：$0
-   配置：无
-   适合：快速实验、家里没有 GPU 的情况
+2. Google Colab (free tier)
+   Cost: $0
+   Setup: None
+   Best for: Quick experiments, no GPU at home
 
-3. 云 GPU（Lambda、RunPod、Vast.ai）
-   成本：$0.20-2.00/小时
-   配置：SSH + 安装依赖
-   适合：正式训练、大模型实验
+3. Cloud GPU (Lambda, RunPod, Vast.ai)
+   Cost: $0.20-2.00/hr
+   Setup: SSH + install
+   Best for: Serious training, large models
 ```
 
 ## 动手

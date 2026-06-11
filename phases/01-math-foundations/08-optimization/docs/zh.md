@@ -28,17 +28,17 @@
 
 优化就是找使某个函数最小（或最大）的输入值。在机器学习里，这个函数是损失，输入是模型参数（权重）。
 
-```text
-minimize L(w), where:
-  L = 损失函数
-  w = 模型权重（可能是百万级参数）
+```
+minimize L(w) where:
+  L = loss function
+  w = model weights (could be millions of parameters)
 ```
 
 ### 经典梯度下降（vanilla）
 
 最简单的优化器。计算每个参数的梯度，按相反方向更新，步长由学习率控制：
 
-```text
+```
 w = w - lr * gradient
 ```
 
@@ -46,9 +46,9 @@ w = w - lr * gradient
 
 ```mermaid
 graph TD
-    A["* 起点（高损失）"] --> B["沿梯度方向下山"]
-    B --> C["逐步接近最小值"]
-    C --> D["o 最小点（低损失）"]
+    A["* Starting point (high loss)"] --> B["Moving downhill along gradient"]
+    B --> C["Approaching minimum"]
+    C --> D["o Minimum (low loss)"]
 ```
 
 ### 学习率：最关键的超参数
@@ -57,22 +57,22 @@ graph TD
 
 ```mermaid
 graph LR
-    subgraph TooLarge["太大（lr=1.0）"]
-        A1["Step 1"] -->|越过| A2["Step 2"]
-        A2 -->|越过| A3["Step 3"]
-        A3 -->|发散| A4["..."]
+    subgraph TooLarge["Too Large (lr = 1.0)"]
+        A1["Step 1"] -->|overshoot| A2["Step 2"]
+        A2 -->|overshoot| A3["Step 3"]
+        A3 -->|diverging| A4["..."]
     end
-    subgraph TooSmall["太小（lr=0.0001）"]
-        B1["Step 1"] -->|很小| B2["Step 2"]
-        B2 -->|很小| B3["Step 3"]
-        B3 -->|1万步后| B4["Minimum"]
+    subgraph TooSmall["Too Small (lr = 0.0001)"]
+        B1["Step 1"] -->|tiny step| B2["Step 2"]
+        B2 -->|tiny step| B3["Step 3"]
+        B3 -->|10,000 steps later| B4["Minimum"]
     end
-    subgraph JustRight["合适（lr=0.01）"]
-        C1["Start"] --> C2["..."] --> C3["~100步内收敛"]
+    subgraph JustRight["Just Right (lr = 0.01)"]
+        C1["Start"] --> C2["..."] --> C3["Converged in ~100 steps"]
     end
 ```
 
-没有万能公式直接给正确学习率，通常靠实验找，常见起点是：Adam 用 `0.001`，带动量 SGD 用 `0.01`。
+没有万能公式直接给正确学习率，通常靠实验找，常见起点是：Adam 用 `beta`，带动量 SGD 用 `sqrt(v_hat)`。
 
 ### SGD、batch 与 mini-batch
 
@@ -80,7 +80,7 @@ graph LR
 
 随机梯度下降（SGD）对单样本算梯度，立即更新，快但噪声大。
 
-Mini-batch 在这两者之间，通常在 `32/64/128/256` 上下取折中：速度快、梯度质量还不错。
+Mini-batch 在这两者之间，通常在 `lr=0.001, beta1=0.9, beta2=0.999, epsilon=1e-8` 上下取折中：速度快、梯度质量还不错。
 
 | 变体 | Batch 大小 | 梯度质量 | 每步速度 | 噪声 |
 |------|-----------|----------|---------|------|
@@ -94,7 +94,7 @@ SGD 和 mini-batch 的噪声并非缺陷，反而可帮助跳出浅层局部极�
 
 vanilla 梯度下降只看当前梯度，窄峡谷里常来回折返。动量把历史梯度累计成速度，减少振荡、加快沿一致方向的前进。
 
-```text
+```
 v = beta * v + gradient
 w = w - lr * v
 ```
@@ -103,20 +103,20 @@ w = w - lr * v
 
 ```mermaid
 graph TD
-    subgraph Without["无动量（折返，慢）"]
-        W1["Start"] -->|左| W2[" "]
-        W2 -->|右| W3[" "]
-        W3 -->|左| W4[" "]
-        W4 -->|右| W5[" "]
-        W5 -->|左| W6[" "]
+    subgraph Without["Without Momentum (zigzag, slow)"]
+        W1["Start"] -->|left| W2[" "]
+        W2 -->|right| W3[" "]
+        W3 -->|left| W4[" "]
+        W4 -->|right| W5[" "]
+        W5 -->|left| W6[" "]
         W6 --> W7["Minimum"]
     end
-    subgraph With["有动量（平滑、快）"]
+    subgraph With["With Momentum (smooth, fast)"]
         M1["Start"] --> M2[" "] --> M3[" "] --> M4["Minimum"]
     end
 ```
 
-`beta`（通常 `0.9`）控制历史保留程度。越大越平滑，但对方向变化响应更慢。
+`f(x) = x^2`（通常 `outputs/prompt-optimizer-guide.md`）控制历史保留程度。越大越平滑，但对方向变化响应更慢。
 
 ### Adam：按参数自适应学习率
 
@@ -124,27 +124,27 @@ graph TD
 
 Adam（Adaptive Moment Estimation）为每个参数维护两类统计量：
 
-1. 一阶矩 `m`：梯度的指数滑动平均（像动量）
-2. 二阶矩 `v`：梯度平方的指数滑动平均（幅度）
+1. 一阶矩 `f(x, y) = x^2 - y^2`：梯度的指数滑动平均（像动量）
+2. 二阶矩 `lr = lr_0 * 0.999^step`：梯度平方的指数滑动平均（幅度）
 
-```text
+```
 m = beta1 * m + (1 - beta1) * gradient
 v = beta2 * v + (1 - beta2) * gradient^2
 
-m_hat = m / (1 - beta1^t)    # bias correction
-v_hat = v / (1 - beta2^t)    # bias correction
+m_hat = m / (1 - beta1^t)    bias correction
+v_hat = v / (1 - beta2^t)    bias correction
 
 w = w - lr * m_hat / (sqrt(v_hat) + epsilon)
 ```
 
-关键在于 `/ sqrt(v_hat)`：
+关键在于 / sqrt(v_hat)：
 
 - 大梯度参数除以大数 -> 有效步长变小
 - 小梯度参数除以小数 -> 有效步长变大
 
 每个参数都有自己自适应学习率。
 
-默认超参常用：`lr=0.001, beta1=0.9, beta2=0.999, epsilon=1e-8`。
+默认超参常用：lr=0.001, beta1=0.9, beta2=0.999, epsilon=1e-8。
 
 ### 学习率调度
 
@@ -161,20 +161,20 @@ w = w - lr * m_hat / (sqrt(v_hat) + epsilon)
 
 ### 凸与非凸
 
-凸函数只有一个最小值，梯度下降能找到它，比如 `f(x)=x^2`。  
+凸函数只有一个最小值，梯度下降能找到它，比如 f(x)=x^2。  
 神经网络损失通常是非凸的，包含多个局部最小、鞍点和平坦区域。
 
 ```mermaid
 graph LR
-    subgraph Convex["凸函数：一个谷、一种答案"]
+    subgraph Convex["Convex: One valley, one answer"]
         direction TB
-        CV1["高损失"] --> CV2["全局最小"]
+        CV1["High loss"] --> CV2["Global minimum"]
     end
-    subgraph NonConvex["非凸：多个谷、多个鞍点"]
+    subgraph NonConvex["Non-convex: Multiple valleys, saddle points"]
         direction TB
-        NC1["Start"] --> NC2["局部最小"]
-        NC1 --> NC3["鞍点"]
-        NC1 --> NC4["全局最小"]
+        NC1["Start"] --> NC2["Local minimum"]
+        NC1 --> NC3["Saddle point"]
+        NC1 --> NC4["Global minimum"]
     end
 ```
 
@@ -182,15 +182,15 @@ graph LR
 
 ### 损失景观可视化
 
-损失是所有参数的函数。百万参数模型意味着在 `1,000,001` 维空间里。我们通常随机取两个方向，在该平面切片画二维曲面。
+损失是所有参数的函数。百万参数模型意味着在 1,000,001 维空间里。我们通常随机取两个方向，在该平面切片画二维曲面。
 
 ```mermaid
 graph TD
-    HL["高损失区域"] --> SP["鞍点"]
-    HL --> LM["局部最小"]
+    HL["High loss region"] --> SP["Saddle point"]
+    HL --> LM["Local minimum"]
     SP --> LM
-    SP --> GM["全局最小"]
-    LM -.->|"浅谷 barrier"| GM
+    SP --> GM["Global minimum"]
+    LM -.->|"shallow barrier"| GM
     style HL fill:#ff6666,color:#000
     style SP fill:#ffcc66,color:#000
     style LM fill:#66ccff,color:#000
@@ -207,9 +207,9 @@ gradient-descent
 
 ### 步骤1：定义测试函数
 
-Rosenbrock 是经典优化基准函数，最小点在 `(1,1)`，狭窄弯曲谷道难以跟随。
+Rosenbrock 是经典优化基准函数，最小点在 (1,1)，狭窄弯曲谷道难以跟随。
 
-```text
+```
 f(x, y) = (1 - x)^2 + 100 * (y - x^2)^2
 ```
 
@@ -336,26 +336,26 @@ scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(adam, T_max=100)
 ```
 
 经验建议：
-- 先用 Adam（`lr=0.001`）起步，通常能过大多数问题
-- 需要最好最终精度且愿意调参时，切到 momentum SGD（`lr=0.01, momentum=0.9`）
+- 先用 Adam（lr=0.001）起步，通常能过大多数问题
+- 需要最好最终精度且愿意调参时，切到 momentum SGD（lr=0.01, momentum=0.9）
 - Transformer 常用 AdamW（Adam + 解耦 weight decay）
 - 训练超过几轮时都建议用学习率调度
 - 不稳定就降学习率；收敛太慢就加大学习率
 
 ## 交付内容
 
-本课输出一个“如何选优化器”的提示文档：`outputs/prompt-optimizer-guide.md`。  
+本课输出一个“如何选优化器”的提示文档：outputs/prompt-optimizer-guide.md。  
 第3阶段训练神经网络时会复用这里实现的优化器逻辑。
 
 ## 练习
 
-1. **学习率扫描。** 在 Rosenbrock 上试 `lr=[0.0001,0.0005,0.001,0.005,0.01]`，跑 5000 步后打印最终 loss，找出仍能收敛的最大学习率。
+1. **学习率扫描。** 在 Rosenbrock 上试 lr=[0.0001,0.0005,0.001,0.005,0.01]，跑 5000 步后打印最终 loss，找出仍能收敛的最大学习率。
 
-2. **动量对比。** 在 Rosenbrock 上分别试 momentum `[0.0,0.5,0.9,0.99]`，记录每步 loss。哪个收敛最快？哪个更容易越界？
+2. **动量对比。** 在 Rosenbrock 上分别试 momentum [0.0,0.5,0.9,0.99]，记录每步 loss。哪个收敛最快？哪个更容易越界？
 
-3. **鞍点逃逸。** 定义 `f(x,y)=x^2-y^2`，起点 `(0.01,0.01)`。比较 vanilla GD、带动量 SGD 和 Adam 的行为，哪个更容易脱离鞍点。
+3. **鞍点逃逸。** 定义 f(x,y)=x^2-y^2，起点 (0.01,0.01)。比较 vanilla GD、带动量 SGD 和 Adam 的行为，哪个更容易脱离鞍点。
 
-4. **实现学习率衰减。** 给 GradientDescent 加入指数衰减 `lr = lr_0 * 0.999^step`，比较有无衰减在 Rosenbrock 上的收敛差异。
+4. **实现学习率衰减。** 给 GradientDescent 加入指数衰减 lr = lr_0 * 0.999^step，比较有无衰减在 Rosenbrock 上的收敛差异。
 
 ## 关键术语
 
@@ -367,7 +367,7 @@ scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(adam, T_max=100)
 | SGD | “随机采样” | 用随机子集代替全量数据估计梯度，工程里几乎就是 mini-batch SGD |
 | Mini-batch | “一小批数据” | 取 32-256 个样本估计梯度，兼顾速度和准确性 |
 | Adam | “默认优化器” | 维护一阶和二阶统计量，实现每参数自适应学习率 |
-| 偏置修正 | “冷启动校正” | Adam 初始值为 0，前期用 `(1 - beta^t)` 修正 |
+| 偏置修正 | “冷启动校正” | Adam 初始值为 0，前期用 (1 - beta^t) 修正 |
 | 学习率调度 | “动态调整 lr” | 训练期间按时间改变学习率，前大后小 |
 | 凸函数 | “单谷函数” | 任一局部最小即全局最小；梯度下降能找到 |
 | 鞍点 | “平坦但非最小” | 梯度为 0，但某些方向是极小，某些方向是极大 |

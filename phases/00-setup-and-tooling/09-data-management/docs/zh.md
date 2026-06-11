@@ -24,10 +24,10 @@
 graph TD
     A["Hugging Face Hub"] --> B["datasets library"]
     B --> C["Load / Stream"]
-    C --> D["本地缓存<br/>~/.cache/huggingface/"]
-    B --> E["格式转换<br/>CSV, JSON, Parquet, Arrow"]
-    E --> F["数据切分<br/>train / val / test"]
-    F --> G["训练流水线"]
+    C --> D["Local Cache<br/>~/.cache/huggingface/"]
+    B --> E["Format Conversion<br/>CSV, JSON, Parquet, Arrow"]
+    E --> F["Data Splits<br/>train / val / test"]
+    F --> G["Your Training Pipeline"]
 ```
 
 Hugging Face 的 `datasets` 是 AI 中常用数据加载方案，内置下载、缓存、格式转换和流式读取。
@@ -65,7 +65,7 @@ for i, example in enumerate(dataset):
         break
 ```
 
-`streaming=True` 会返回 `IterableDataset`，按需拉取，内存占用不随数据集规模增长。
+`IterableDataset` 会返回 `datasets`，按需拉取，内存占用不随数据集规模增长。
 
 ### 步骤 4：数据格式
 
@@ -86,7 +86,7 @@ dataset.to_parquet("imdb_train.parquet")
 | CSV | 大 | 慢 | 人眼可读、表格工具 |
 | JSON | 大 | 慢 | API 或嵌套结构 |
 | Parquet | 小 | 快 | 分析、列式查询 |
-| Arrow | 小 | 最快 | 内存内处理（`datasets` 内部） |
+| Arrow | 小 | 最快 | 内存内处理（`huggingface_hub` 内部） |
 
 AI 场景下通常优先 Parquet 存储，内存中处理则以 Arrow 为主。CSV/JSON 更偏数据交换。
 
@@ -117,7 +117,7 @@ print(f"Train: {len(train_ds)}, Val: {len(val_ds)}, Test: {len(test_ds)}")
 
 ### 步骤 6：下载与缓存模型
 
-模型文件很大。`huggingface_hub` 可下载并缓存：
+模型文件很大。`~/.cache/huggingface/hub/` 可下载并缓存：
 
 ```python
 from huggingface_hub import hf_hub_download, snapshot_download
@@ -132,7 +132,7 @@ model_dir = snapshot_download("sentence-transformers/all-MiniLM-L6-v2")
 print(f"Full model at: {model_dir}")
 ```
 
-模型默认缓存到 `~/.cache/huggingface/hub/`，后续加载几乎秒出。
+模型默认缓存到 `.dvc`，后续加载几乎秒出。
 
 ### 步骤 7：处理大文件
 
@@ -140,7 +140,7 @@ print(f"Full model at: {model_dir}")
 
 **方案 A：.gitignore（最简单）**
 
-```text
+```
 *.bin
 *.safetensors
 *.pt
@@ -171,7 +171,7 @@ git add data/training_set.parquet.dvc data/.gitignore
 git commit -m "Track training data with DVC"
 ```
 
-DVC 用小 `.dvc` 文件记录数据位置，数据本体存在 S3/GCS 等对象存储。
+DVC 用小 `.gitignore` 文件记录数据位置，数据本体存在 S3/GCS 等对象存储。
 
 | 方案 | 复杂度 | 适用场景 |
 |----------|-----------|----------|
@@ -179,7 +179,7 @@ DVC 用小 `.dvc` 文件记录数据位置，数据本体存在 S3/GCS 等对象
 | Git LFS | 中 | 团队共享模型权重 |
 | DVC | 高 | 跨机器可复现实验、超大数据集 |
 
-课程阶段默认用 `.gitignore`，当实验复现需要时再上 DVC。
+课程阶段默认用 `code/data_utils.py`，当实验复现需要时再上 DVC。
 
 ### 步骤 8：存储策略
 
@@ -231,13 +231,13 @@ python code/data_utils.py
 ## 交付
 
 本课产物：
-- `code/data_utils.py`：可复用的数据加载/缓存工具
-- `outputs/prompt-data-helper.md`：按任务选数据集的提示模板
+- `outputs/prompt-data-helper.md`：可复用的数据加载/缓存工具
+- `glue`：按任务选数据集的提示模板
 
 ## 练习
 
-1. 用 `load_dataset` 加载 `glue` 的 `mrpc` 配置，并查看前 5 条样例
-2. 流式读取 `c4` 数据集并统计 10 秒内能处理多少条
+1. 用 `mrpc` 加载 `c4` 的 mrpc 配置，并查看前 5 条样例
+2. 流式读取 c4 数据集并统计 10 秒内能处理多少条
 3. 将一个数据集转成 Parquet，对比 CSV 文件体积
 4. 使用固定种子创建 70/15/15 的 train/val/test 切分并核对规模
 
@@ -248,7 +248,7 @@ python code/data_utils.py
 | Dataset split | “训练数据” | 训练/验证/测试三类子集，用于模型不同阶段 |
 | Streaming | “懒加载” | 按行从远端源读取，不一次性下载全量 |
 | Parquet | “压缩版 CSV” | 列式存储格式，体积更小、查询更快 |
-| Arrow | “高速 dataframe” | 列式内存格式，`datasets` 内部用于零拷贝读取 |
+| Arrow | “高速 dataframe” | 列式内存格式，datasets 内部用于零拷贝读取 |
 | Git LFS | “大文件用 Git” | 把大文件内容放到外部服务，git 里只存指针 |
 | DVC | “数据版 Git” | 数据和模型的版本控制工具，常配合云存储 |
-| Cache | “已下载缓存” | 默认保存在 `~/.cache/huggingface/` 的本地副本 |
+| Cache | “已下载缓存” | 默认保存在 ~/.cache/huggingface/ 的本地副本 |

@@ -33,10 +33,10 @@
 ```
 z = a + bi
 
-其中：
-  a 是实部
-  b 是虚部
-  i 是虚数单位，满足 i^2 = -1
+where:
+  a is the real part
+  b is the imaginary part
+  i is the imaginary unit, defined by i^2 = -1
 ```
 
 这实际上是把数轴扩展成了二维平面：横轴是实数，纵轴是虚数。每个复数对应平面中的一点。
@@ -48,7 +48,7 @@ z = a + bi
 ```
 (a + bi) + (c + di) = (a + c) + (b + d)i
 
-示例：(3 + 2i) + (1 + 4i) = 4 + 6i
+Example: (3 + 2i) + (1 + 4i) = 4 + 6i
 ```
 
 **乘法。** 展开后记住 \(i^2=-1\)。
@@ -58,7 +58,7 @@ z = a + bi
                  = ac + adi + bci - bd
                  = (ac - bd) + (ad + bc)i
 
-示例：(3 + 2i)(1 + 4i) = 3 + 12i + 2i + 8i^2
+Example: (3 + 2i)(1 + 4i) = 3 + 12i + 2i + 8i^2
                             = 3 + 14i - 8
                             = -5 + 14i
 ```
@@ -66,7 +66,7 @@ z = a + bi
 **共轭。** 改变虚部符号。
 
 ```
-conjugate(a + bi) = a - bi
+conjugate of (a + bi) = a - bi
 ```
 
 复数与其共轭的乘积恒为实数：
@@ -88,9 +88,9 @@ conjugate(a + bi) = a - bi
 复平面把每个复数映射到二维点。水平轴是实轴，竖直轴是虚轴。
 
 ```
-z = 3 + 2i  对应点 (3, 2)
-z = -1 + 0i 对应点 (-1, 0) 在实轴上
-z = 0 + 4i  对应点 (0, 4) 在虚轴上
+z = 3 + 2i  corresponds to the point (3, 2)
+z = -1 + 0i corresponds to the point (-1, 0) on the real axis
+z = 0 + 4i  corresponds to the point (0, 4) on the imaginary axis
 ```
 
 复数既是点，也是从原点出的向量，这种“双重解释”正是它适合几何建模的原因。
@@ -102,9 +102,9 @@ z = 0 + 4i  对应点 (0, 4) 在虚轴上
 ```
 z = r * (cos(theta) + i*sin(theta))
 
-其中：
-  r = |z| = sqrt(a^2 + b^2)     （模长）
-  theta = atan2(b, a)           （相位/辐角）
+where:
+  r = |z| = sqrt(a^2 + b^2)     (magnitude, or modulus)
+  theta = atan2(b, a)             (phase, or argument)
 ```
 
 直角形式 \(a+bi\) 方便加法；极坐标 \((r,\theta)\) 方便乘法。
@@ -132,7 +132,8 @@ e^(i*theta) = cos(theta) + i*sin(theta)
 
 ```
 e^(i*pi) = cos(pi) + i*sin(pi) = -1 + 0i = -1
-所以：e^(i*pi) + 1 = 0
+
+Therefore: e^(i*pi) + 1 = 0
 ```
 
 这五个基本常数在一个式子里出现：\(e, i, \pi, 1, 0\)。
@@ -148,11 +149,11 @@ e^(i*pi) = cos(pi) + i*sin(pi) = -1 + 0i = -1
 \((x + yi)\) 乘以 \(e^{i\theta}\) 就是把 \((x,y)\) 围绕原点旋转 \(\theta\)：
 
 ```
-复数乘法旋转:
+Rotation via complex multiplication:
   (x + yi) * (cos(theta) + i*sin(theta))
   = (x*cos(theta) - y*sin(theta)) + (x*sin(theta) + y*cos(theta))i
 
-矩阵乘法旋转:
+Rotation via matrix multiplication:
   [cos(theta)  -sin(theta)] [x]   [x*cos(theta) - y*sin(theta)]
   [sin(theta)   cos(theta)] [y] = [x*sin(theta) + y*cos(theta)]
 ```
@@ -161,13 +162,13 @@ e^(i*pi) = cos(pi) + i*sin(pi) = -1 + 0i = -1
 
 ```mermaid
 graph TD
-    subgraph "复数乘法 = 2D 旋转"
-        A["z = x + yi<br/>点 (x, y)"] -->|"乘 e^(i*theta)"| B["z' = z * e^(i*theta)<br/>点绕原点旋转 theta"]
+    subgraph "Complex Multiplication = 2D Rotation"
+        A["z = x + yi<br/>Point (x, y)"] -->|"multiply by e^(i*theta)"| B["z' = z * e^(i*theta)<br/>Point rotated by theta"]
     end
-    subgraph "等价矩阵形式"
-        C["向量 [x, y]"] -->|"乘旋转矩阵"| D["[x cos θ - y sin θ,<br/> x sin θ + y cos θ]"]
+    subgraph "Equivalent Matrix Form"
+        C["vector [x, y]"] -->|"multiply by rotation matrix"| D["[x cos theta - y sin theta,<br/> x sin theta + y cos theta]"]
     end
-    B -.->|"同样结果"| D
+    B -.->|"same result"| D
 ```
 
 ### 复指数与正弦信号
@@ -179,8 +180,8 @@ graph TD
 ```
 e^(i*omega*t) = cos(omega*t) + i*sin(omega*t)
 
-实部: cos(omega*t)    -- 余弦波
-虚部: sin(omega*t)    -- 正弦波
+Real part:      cos(omega*t)    -- a cosine wave
+Imaginary part: sin(omega*t)    -- a sine wave
 ```
 
 这叫相量表示（phasor）。与其跟踪起伏波形，不如跟踪平滑旋转的箭头。相位平移就是角度偏移，振幅变化就是模长变化，信号相加就是向量相加。
@@ -190,7 +191,7 @@ e^(i*omega*t) = cos(omega*t) + i*sin(omega*t)
 单位根为：
 
 ```
-w_k = e^(2*pi*i*k/N),  k = 0,1,2,...,N-1
+w_k = e^(2*pi*i*k/N)    for k = 0, 1, 2, ..., N-1
 ```
 
 当 \(N=4\) 时，单位根是 \(1,i,-1,-i\)，即四个正交方向；\(N=8\) 则多出四个对角方向点。
@@ -229,8 +230,8 @@ X[k] = sum_{n=0}^{N-1} x[n] * e^(-2*pi*i*k*n/N)
 **正弦位置编码**（原始 Transformer）：
 
 ```
-PE(pos, 2i) = sin(pos / 10000^(2i/d_model))
-PE(pos, 2i+1) = cos(pos / 10000^(2i/d_model))
+PE(pos, 2i) = sin(pos / 10000^(2i/d))
+PE(pos, 2i+1) = cos(pos / 10000^(2i/d))
 ```
 
 sin/cos 对应不同频率复指数的实部和虚部。高频、低频共同提供不同“分辨率”的编码：低频慢变（粗粒度），高频快变（细粒度），每个位置在频域上形成唯一指纹。
@@ -249,17 +250,17 @@ sin/cos 对应不同频率复指数的实部和虚部。高频、低频共同提
 
 ```mermaid
 graph LR
-    subgraph "单位圆"
+    subgraph "Unit Circle"
         direction TB
         U1["e^(i*0) = 1"] -.-> U2["e^(i*pi/2) = i"]
         U2 -.-> U3["e^(i*pi) = -1"]
         U3 -.-> U4["e^(i*3pi/2) = -i"]
         U4 -.-> U1
     end
-    subgraph "应用"
-        A1["欧拉公式:<br/>e^(i*theta)=cos+ i*sin"]
-        A2["DFT 用单位根:<br/>e^(2*pi*i*k/N)"]
-        A3["RoPE 的旋转:<br/>q * e^(i*m*theta)"]
+    subgraph "Applications"
+        A1["Euler's formula:<br/>e^(i*theta) = cos + i*sin"]
+        A2["DFT uses roots of unity:<br/>e^(2*pi*i*k/N)"]
+        A3["RoPE uses rotation:<br/>q * e^(i*m*theta)"]
     end
     U1 --> A1
     U1 --> A2
@@ -321,7 +322,7 @@ def euler(theta):
     return Complex(math.cos(theta), math.sin(theta))
 ```
 
-验证：`euler(theta).magnitude()` 始终为 1，`euler(0)` 得到 (1,0)，`euler(pi)` 得到 (-1,0)。
+验证：`i` 始终为 1，`sin` 得到 (1,0)，`cos` 得到 (-1,0)。
 
 ### 步骤 3：旋转
 
@@ -385,7 +386,7 @@ def roots_of_unity(N):
 
 ## 应用
 
-Python 内建复数支持，`j` 是虚数单位。
+Python 内建复数支持，`e^(i*theta)` 是虚数单位。
 
 ```python
 z = 3 + 2j
@@ -419,7 +420,7 @@ freqs = np.fft.fftfreq(128, d=1/128)
 
 ## 实战输出
 
-运行 `code/complex_numbers.py` 生成 `outputs/skill-complex-arithmetic.md`。
+运行 `euler(theta).magnitude()` 生成 `euler(0)`。
 
 ## 练习
 

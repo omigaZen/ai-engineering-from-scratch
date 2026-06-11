@@ -46,15 +46,15 @@
 ```mermaid
 graph LR
     subgraph Before
-        A["点 A"]
-        B["点 B"]
+        A["Point A"]
+        B["Point B"]
     end
-    subgraph Matrix["矩阵乘法"]
-        M["M（变换）"]
+    subgraph Matrix["Matrix Multiplication"]
+        M["M (transformation)"]
     end
     subgraph After
-        A2["点 A'"]
-        B2["点 B'"]
+        A2["Point A'"]
+        B2["Point B'"]
     end
     A --> M
     B --> M
@@ -71,12 +71,12 @@ graph LR
 
 两个向量的点积告诉你它们是否同向、正交或反向。
 
-```text
-a · b = a1*b1 + a2*b2 + ... + an*bn
+```
+a · b = a₁×b₁ + a₂×b₂ + ... + aₙ×bₙ
 
-同向：      a · b > 0  （相似）
-正交：      a · b = 0  （无关）
-反向：      a · b < 0  （不相似）
+Same direction:      a · b > 0  (similar)
+Perpendicular:       a · b = 0  (unrelated)
+Opposite direction:  a · b < 0  (dissimilar)
 ```
 
 这也是搜索、推荐和 RAG 的核心逻辑之一：找点积大的向量（更相似）。
@@ -123,7 +123,7 @@ v1 和 v2 独立，彼此既不是倍数也不是组合关系，但 v3 = 2*v1 + 
 向量 **a** 在 **b** 上的投影，给出了 a 在 b 方向上的分量：
 
 ```
-proj_b(a) = (a·b / b·b) * b
+proj_b(a) = (a dot b / b dot b) * b
 ```
 
 残差（a - proj_b(a)）与 b 正交。这个正交分解是最小二乘方法的核心。
@@ -135,12 +135,12 @@ proj_b(a) = (a·b / b·b) * b
 
 ```mermaid
 graph LR
-    subgraph Projection["把 a 投影到 b 上"]
+    subgraph Projection["Projection of a onto b"]
         direction TB
-        O["原点"] --> |"b（方向）"| B["b"]
-        O --> |"a（原向量）"| A["a"]
-        O --> |"proj_b(a)"| P["投影"]
-        A -.-> |"残差（垂直）"| P
+        O["Origin"] --> |"b (direction)"| B["b"]
+        O --> |"a (original)"| A["a"]
+        O --> |"proj_b(a)"| P["projection"]
+        A -.-> |"residual (perpendicular)"| P
     end
 ```
 
@@ -171,7 +171,7 @@ u2 = w2 / |w2|
 w3 = v3 - (v3 dot u1) * u1 - (v3 dot u2) * u2
 u3 = w3 / |w3|
 
-Output: u1, u2, u3, ... (正交单位基)
+Output: u1, u2, u3, ... (orthonormal basis)
 ```
 
 这与 QR 分解直接相关：Q 是正交基，R 记录了投影系数。QR 常用于：
@@ -280,7 +280,7 @@ input_vector = Vector([1.0, 0.5, -0.3])
 output = weights @ input_vector
 print(f"Input (3D): {input_vector}")
 print(f"Output (2D): {output}")
-print("这正是神经网络一层在做的事：矩阵乘法。")
+print("This is what a neural network layer does -- matrix multiplication.")
 ```
 
 ### 第 4 步：Julia 实现
@@ -290,15 +290,15 @@ a = [1.0, 2.0, 3.0]
 b = [4.0, 5.0, 6.0]
 
 println("a + b = ", a + b)
-println("a · b = ", a ⋅ b)       # Julia 支持 Unicode 运算符
-println("|a| = ", norm(a))
-println("cosine = ", (a ⋅ b) / (norm(a) * norm(b)))
+println("a · b = ", a ⋅ b)       # Julia supports unicode operators
+println("|a| = ", √(a ⋅ a))
+println("cosine = ", (a ⋅ b) / (√(a ⋅ a) * √(b ⋅ b)))
 
-# 矩阵-向量乘法
+# Matrix-vector multiplication
 W = [0.1 -0.2 0.3; 0.4 0.5 -0.1]
 x = [1.0, 0.5, -0.3]
 println("Wx = ", W * x)
-println("这就是一个神经网络层。")
+println("This is a neural network layer.")
 ```
 
 ### 第 5 步：线性独立与投影（Python）

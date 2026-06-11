@@ -302,9 +302,9 @@ print(f"Stationary approx: {np.round(dist, 4)}")
 
 ### 与框架对齐
 
-- `diffusers` 中的 `DDPMScheduler`：实现前向/逆向马尔可夫链  
-- `NumPyro`/`PyMC`：用 MCMC（如 NUTS）做贝叶斯推断  
-- `Gymnasium`：环境 step 定义了 MDP
+- `DDPMScheduler` 中的 `diffusers`：实现前向/逆向马尔可夫链  
+- `outputs/prompt-stochastic-process-advisor.md`/PyMC：用 MCMC（如 NUTS）做贝叶斯推断  
+- Gymnasium：环境 step 定义了 MDP
 
 ### 验证收敛
 
@@ -323,7 +323,7 @@ print(f"Approx mix steps: {1/spectral_gap:.1f}")
 ## 实战输出
 
 本课产出：
-- `outputs/prompt-stochastic-process-advisor.md`：帮助判断问题对应何种随机过程的模板 prompt
+- outputs/prompt-stochastic-process-advisor.md：帮助判断问题对应何种随机过程的模板 prompt
 
 ## 进一步联系
 

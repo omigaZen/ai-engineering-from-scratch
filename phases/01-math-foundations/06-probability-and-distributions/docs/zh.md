@@ -25,43 +25,43 @@
 
 ### 事件、样本空间与概率
 
-样本空间 `S` 是所有可能结果的集合。事件是样本空间的子集。概率把事件映射到 `[0,1]` 的数字。
+样本空间 `code/probability.py` 是所有可能结果的集合。事件是样本空间的子集。概率把事件映射到 `[2.0, 0.5, -1.0, 3.0, 0.1]` 的数字。
 
 ```
-抛硬币:
+Coin flip:
   S = {H, T}
   P(H) = 0.5,  P(T) = 0.5
 
-单次掷骰:
+Single die roll:
   S = {1, 2, 3, 4, 5, 6}
-  P(偶数) = P({2, 4, 6}) = 3/6 = 0.5
+  P(even) = P({2, 4, 6}) = 3/6 = 0.5
 ```
 
 三条公理定义了概率论：
-1. 任意事件 A 都有 `P(A) >= 0`
-2. `P(S) = 1`（一定会发生某个事件）
-3. `P(A or B) = P(A) + P(B)`，当且仅当 A 与 B 不会同时发生时
+1. 任意事件 A 都有 `nn.CrossEntropyLoss`
+2. P(S) = 1（一定会发生某个事件）
+3. P(A or B) = P(A) + P(B)，当且仅当 A 与 B 不会同时发生时
 
 贝叶斯定理、期望、分布等内容都来自这三条规则。
 
 ### 条件概率与独立性
 
-`P(A|B)` 是在事件 `B` 发生时 `A` 的概率。
+P(A|B) 是在事件 B 发生时 A 的概率。
 
 ```
 P(A|B) = P(A and B) / P(B)
 
-例子：一副扑克牌
-  P(王 | 人头牌) = P(王 and 人头牌) / P(人头牌)
-                = (4/52) / (12/52)
-                = 4/12 = 1/3
+Example: deck of cards
+  P(King | Face card) = P(King and Face card) / P(Face card)
+                      = (4/52) / (12/52)
+                      = 4/12 = 1/3
 ```
 
 两个事件独立时，知道一个不提供另一个的信息：
 
 ```
-独立:   P(A|B) = P(A)
-等价于: P(A and B) = P(A) * P(B)
+Independent:   P(A|B) = P(A)
+Equivalent to: P(A and B) = P(A) * P(B)
 ```
 
 抛硬币独立；不放回抽牌不独立。
@@ -73,13 +73,13 @@ P(A|B) = P(A and B) / P(B)
 ```
 PMF: P(X = k)
 
-公平骰子:
+Fair die:
   P(X = 1) = 1/6
   P(X = 2) = 1/6
   ...
   P(X = 6) = 1/6
 
-  所有概率之和 = 1
+  Sum of all probabilities = 1
 ```
 
 连续随机变量有概率密度函数（PDF）。单点处的密度不是概率，概率来自区间积分。
@@ -87,10 +87,10 @@ PMF: P(X = k)
 ```
 PDF: f(x)
 
-P(a <= X <= b) = f(x) 在 [a,b] 上的积分
+P(a <= X <= b) = integral of f(x) from a to b
 
-f(x) 可能大于 1（因为它是密度，不是概率）
-从 -inf 到 +inf 的积分 ∫ f(x)dx = 1
+f(x) can be greater than 1 (density, not probability)
+integral from -inf to +inf of f(x) dx = 1
 ```
 
 这个区别在 ML 里很重要。分类输出是 PMF（离散选择）；VAE 潜变量通常用 PDF（连续）。
@@ -102,39 +102,39 @@ f(x) 可能大于 1（因为它是密度，不是概率）
 ```
 P(X = 1) = p
 P(X = 0) = 1 - p
-均值 = p, 方差 = p(1-p)
+Mean = p,  Variance = p(1-p)
 ```
 
 **Categorical 分布：** 一次试验、k 个结果，多分类（softmax 输出）常用。
 
 ```
-P(X = i) = p_i,  且 sum(p_i)=1
-示例: P(猫) = 0.7,  P(狗) = 0.2,  P(鸟) = 0.1
+P(X = i) = p_i,  where sum of p_i = 1
+Example: P(cat) = 0.7,  P(dog) = 0.2,  P(bird) = 0.1
 ```
 
 **均匀分布：** 所有结果等可能，常用于随机初始化。
 
 ```
-离散: P(X = k) = 1/n (k ∈ {1,...,n})
-连续: f(x) = 1/(b-a), x ∈ [a,b]
+Discrete: P(X = k) = 1/n for k in {1, ..., n}
+Continuous: f(x) = 1/(b-a) for x in [a, b]
 ```
 
-**正态分布（Gaussian）：** 钟形曲线，由均值 `mu` 与方差 `sigma^2` 参数化。
+**正态分布（Gaussian）：** 钟形曲线，由均值 mu 与方差 sigma^2 参数化。
 
 ```
 f(x) = (1 / sqrt(2*pi*sigma^2)) * exp(-(x - mu)^2 / (2*sigma^2))
 
-标准正态: mu = 0, sigma = 1
-  1 sigma 内约 68% 的数据
-  2 sigma 内约 95% 的数据
-  3 sigma 内约 99.7% 的数据
+Standard normal: mu = 0, sigma = 1
+  68% of data within 1 sigma
+  95% within 2 sigma
+  99.7% within 3 sigma
 ```
 
 **Poisson 分布：** 固定区间内稀有事件计数。
 
 ```
 P(X = k) = (lambda^k * e^(-lambda)) / k!
-均值 = lambda, 方差 = lambda
+Mean = lambda,  Variance = lambda
 ```
 
 ### 期望与方差
@@ -142,35 +142,35 @@ P(X = k) = (lambda^k * e^(-lambda)) / k!
 期望是加权平均值。
 
 ```
-离散:   E[X] = sum{x_i * P(X = x_i)}
-连续:   E[X] = ∫ x * f(x) dx
+Discrete:   E[X] = sum of x_i * P(X = x_i)
+Continuous: E[X] = integral of x * f(x) dx
 ```
 
 方差描述绕均值的波动：
 
 ```
 Var(X) = E[(X - E[X])^2] = E[X^2] - (E[X])^2
-标准差 = sqrt(Var(X))
+Standard deviation = sqrt(Var(X))
 ```
 
 在 ML 中，期望常以“数据分布上损失的平均值”出现。方差告诉你模型训练是否稳定，梯度方差大通常意味着训练噪声更大。
 
 ### 联合分布与边缘分布
 
-联合分布 `P(X, Y)` 一起描述两个随机变量。
+联合分布 P(X, Y) 一起描述两个随机变量。
 
-联合 PMF 示例（`X` 为天气，`Y` 为是否带伞）：
+联合 PMF 示例（X 为天气，Y 为是否带伞）：
 
-| | Y=0（不带伞） | Y=1（带伞） | 边缘 `P(X)` |
+| | Y=0（不带伞） | Y=1（带伞） | 边缘 P(X) |
 |---|---|---|---|
 | X=0（晴） | 0.40 | 0.10 | P(X=0) = 0.50 |
 | X=1（雨） | 0.05 | 0.45 | P(X=1) = 0.50 |
-| **边缘 `P(Y)`** | P(Y=0) = 0.45 | P(Y=1) = 0.55 | 1.00 |
+| **边缘 P(Y)** | P(Y=0) = 0.45 | P(Y=1) = 0.55 | 1.00 |
 
 边缘分布就是对另一变量求和消去：
 
 ```
-P(X = x) = sum_y P(X = x, Y = y)
+P(X = x) = sum over all y of P(X = x, Y = y)
 ```
 
 上表里每一行/列的和就是对应的边缘分布。
@@ -180,11 +180,11 @@ P(X = x) = sum_y P(X = x, Y = y)
 中心极限定理（CLT）：多个独立随机变量的和（或平均）会收敛到正态分布，不依赖于原始分布形状。
 
 ```
-掷 1 个骰子: 均匀分布（平）
-平均 2 个骰子: 三角形（峰）
-平均 30 个骰子: 几乎标准钟形
+Roll 1 die:  uniform distribution (flat)
+Average of 2 dice:  triangular (peaked)
+Average of 30 dice: nearly perfect bell curve
 
-对任何初始分布都成立。
+This works for ANY starting distribution.
 ```
 
 这解释了：
@@ -197,23 +197,23 @@ P(X = x) = sum_y P(X = x, Y = y)
 
 原始概率在数值上容易出问题。很多小概率连乘很快下溢到 0。
 
-```text
+```
 P(sentence) = P(word1) * P(word2) * ... * P(word_n)
             = 0.01 * 0.003 * 0.02 * ...
-            -> 0.0（约 30 项后下溢）
+            -> 0.0 (underflow after ~30 terms)
 ```
 
 对数概率可避免这个问题，乘法会变加法。
 
-```text
-log P(sentence) = log P(word1) + log P(word2) + ...
+```
+log P(sentence) = log P(word1) + log P(word2) + ... + log P(word_n)
                 = -4.6 + -5.8 + -3.9 + ...
-                -> 有限值（不下溢）
+                -> finite number (no underflow)
 ```
 
 规则：
-- `log(a * b) = log(a) + log(b)`
-- 对数概率恒小于等于 0（因为 `0 < P <= 1`）
+- log(a * b) = log(a) + log(b)
+- 对数概率恒小于等于 0（因为 0 < P <= 1）
 - 越负代表越不可能
 - 交叉熵损失就是正确类别概率的负对数
 
@@ -221,26 +221,26 @@ log P(sentence) = log P(word1) + log P(word2) + ...
 
 神经网络通常先输出 logits（原始分数），softmax 把它们变成合法概率分布。
 
-```text
-softmax(z_i) = exp(z_i) / sum(exp(z_j), j all)
+```
+softmax(z_i) = exp(z_i) / sum(exp(z_j) for all j)
 
-性质:
-  - 输出位于 (0,1)
-  - 所有输出和为 1
-  - 保留输入相对次序
-  - exp 会放大 logits 差异
+Properties:
+  - All outputs are in (0, 1)
+  - All outputs sum to 1
+  - Preserves relative ordering of inputs
+  - exp() amplifies differences between logits
 ```
 
 softmax 的数值稳定技巧：在指数运算前先减去最大 logit。
 
-```text
+```
 z = [100, 101, 102]
-exp(102) 溢出
+exp(102) = overflow
 
 z_shifted = z - max(z) = [-2, -1, 0]
-exp(0) = 1  （安全）
+exp(0) = 1  (safe)
 
-结果相同，但不会溢出。
+Same result, no overflow.
 ```
 
 Log-softmax 将 softmax 与 log 合并以提升数值稳定性。PyTorch 在计算交叉熵时内部就是这样实现的。
@@ -396,7 +396,7 @@ ys = [normal_pdf(x, mu, sigma) for x, mu, sigma in ...]
 plt.plot(xs, ys)
 ```
 
-完整实现在 `code/probability.py` 中。
+完整实现在 code/probability.py 中。
 
 ## 使用实践
 
@@ -425,27 +425,27 @@ print(f"Log-softmax: {log_probs}")
 
 1. 实现指数分布的反变换采样。采样 10,000 个值并与真实 PDF 直方图对比。
 2. 为两颗不均匀骰子建立联合分布表，计算边缘分布并判断是否独立。
-3. 对 5 分类器，输出 logits `[2.0, 0.5, -1.0, 3.0, 0.1]`，真实类别是索引 3，计算交叉熵损失，并用 PyTorch 的 `nn.CrossEntropyLoss` 验证。
+3. 对 5 分类器，输出 logits [2.0, 0.5, -1.0, 3.0, 0.1]，真实类别是索引 3，计算交叉熵损失，并用 PyTorch 的 nn.CrossEntropyLoss 验证。
 4. 写一个函数：输入对数概率列表，返回最可能序列、对数总概率和对应原始概率。测试 50 词句子，假设每词概率为 0.01。
 
 ## 关键术语
 
 | 术语 | 常见说法 | 实际含义 |
 |------|----------|---------|
-| 样本空间 | “所有可能性” | 实验所有可能结果的集合 `S` |
+| 样本空间 | “所有可能性” | 实验所有可能结果的集合 S |
 | PMF | “概率函数” | 给离散变量每个取值赋具体概率的函数，且总和为 1 |
 | PDF | “概率曲线” | 连续变量的密度函数。对区间积分得到该区间概率 |
-| 条件概率 | “在某个条件下发生” | `P(A|B) = P(A and B) / P(B)`，贝叶斯与贝叶斯定理的基础 |
-| 独立性 | “互不影响” | `P(A and B) = P(A) * P(B)`。知道一个事件不改变另一个事件概率 |
+| 条件概率 | “在某个条件下发生” | P(A|B) = P(A and B) / P(B)，贝叶斯与贝叶斯定理的基础 |
+| 独立性 | “互不影响” | P(A and B) = P(A) * P(B)。知道一个事件不改变另一个事件概率 |
 | 期望 | “平均值” | 所有结果按概率加权后的和。损失常见是“期望损失” |
-| 方差 | “离散程度” | `E[(X-均值)^2]`，衡量波动。方差大通常更嘈杂不稳定 |
-| 正态分布 | “钟形曲线” | `f(x) = (1/sqrt(2*pi*sigma^2))*exp(-(x-mu)^2/(2*sigma^2))`，因 CLT 几乎处处出现 |
+| 方差 | “离散程度” | E[(X-均值)^2]，衡量波动。方差大通常更嘈杂不稳定 |
+| 正态分布 | “钟形曲线” | f(x) = (1/sqrt(2*pi*sigma^2))*exp(-(x-mu)^2/(2*sigma^2))，因 CLT 几乎处处出现 |
 | 中心极限定理 | “平均值趋于正态” | 大量独立样本的均值趋于正态，且与原始分布无关 |
-| 联合分布 | “两个变量一起” | `P(X, Y)` 给出 `X` 与 `Y` 所有取值组合的概率 |
-| 边缘分布 | “对另一变量求和” | `P(X) = sum_y P(X, Y)`，由联合分布恢复单变量分布 |
-| 对数概率 | “概率取对数” | `log P(x)`。把乘法变加法，避免长序列下溢 |
-| Softmax | “分数转概率” | `softmax(z_i)=exp(z_i)/sum(exp(z_j))`，把实数 logits 映射为概率分布 |
-| 交叉熵 | “损失函数” | `-sum(p_true * log(p_predicted))`，衡量分布差异，越小越好 |
+| 联合分布 | “两个变量一起” | P(X, Y) 给出 X 与 Y 所有取值组合的概率 |
+| 边缘分布 | “对另一变量求和” | P(X) = sum_y P(X, Y)，由联合分布恢复单变量分布 |
+| 对数概率 | “概率取对数” | log P(x)。把乘法变加法，避免长序列下溢 |
+| Softmax | “分数转概率” | softmax(z_i)=exp(z_i)/sum(exp(z_j))，把实数 logits 映射为概率分布 |
+| 交叉熵 | “损失函数” | -sum(p_true * log(p_predicted))，衡量分布差异，越小越好 |
 | Logits | “原始输出分数” | softmax 前的未归一化打分，名字来自 logistic 函数 |
 | 采样 | “随机取值” | 按分布规则生成样本值。模型生成输出常基于采样 |
 

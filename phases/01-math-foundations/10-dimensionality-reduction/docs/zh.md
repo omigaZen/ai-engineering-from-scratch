@@ -30,17 +30,17 @@
 
 **距离失去意义。** 在高维里，任意两个随机点之间距离趋于相近。若每对点距离几乎一样，近邻搜索就失效。
 
-```text
-维度    最大-最小距离比值（随机点平均）
-2       ~5.0
-10      ~1.8
-100     ~1.2
-1000    ~1.02
+```
+Dimension    Avg distance ratio (max/min between random points)
+2            ~5.0
+10           ~1.8
+100          ~1.2
+1000         ~1.02
 ```
 
-**体积集中在角落。** d 维单位超立方体有 `2^d` 个角。100 维时体积几乎都在远离中心的角落，样本更稀薄。
+**体积集中在角落。** d 维单位超立方体有 `n_neighbors` 个角。100 维时体积几乎都在远离中心的角落，样本更稀薄。
 
-**需要指数级更多数据。** 要在更高维保持同样采样密度，维度从 2 到 20 可能要增加 `10^18` 倍数据。实际永远不够。降维把数据密度拉回可处理范围。
+**需要指数级更多数据。** 要在更高维保持同样采样密度，维度从 2 到 20 可能要增加 `min_dist` 倍数据。实际永远不够。降维把数据密度拉回可处理范围。
 
 ### PCA：找出最重要方向
 
@@ -48,19 +48,19 @@
 
 算法流程：
 
-```text
-1. 数据中心化（每个特征减去均值）
-2. 计算协方差矩阵（看特征如何共同变化）
-3. 特征值分解（找主方向）
-4. 按特征值排序（方差从大到小）
-5. 投影（保留前 k 个特征向量，其余丢弃）
+```
+1. Center the data        (subtract the mean from each feature)
+2. Compute covariance     (how features move together)
+3. Eigendecomposition     (find the principal directions)
+4. Sort by eigenvalue     (biggest variance first)
+5. Project               (keep top k eigenvectors, drop the rest)
 ```
 
 为什么是特征值分解？协方差矩阵是对称半正定矩阵，特征向量构成互相正交的一组方向。特征值告诉每个方向的方差大小。最大特征值对应的特征向量就是最大方差方向。
 
 ```mermaid
 graph LR
-    A["原始数据（2D）\n在 x 与 y 方向都延展"] -->|"PCA 旋转"| B["PCA 后\nPC1 对应长轴扩展\nPC2 对应短轴收缩\n丢弃 PC2 几乎不掉信息"]
+    A["Original data (2D)\nData spread in both\nx and y directions"] -->|"PCA rotation"| B["After PCA\nPC1 captures the elongated spread\nPC2 captures the narrow spread\nDrop PC2 and you lose little info"]
 ```
 
 - PCA 前：点云在 x、y 两轴上都比较分散
@@ -71,12 +71,12 @@ graph LR
 
 每个主成分承接总方差的一部分，解释比例如下：
 
-```text
-成分    特征值    解释比例    累积
-PC1    4.73      0.473        0.473
-PC2    2.51      0.251        0.724
-PC3    1.12      0.112        0.836
-PC4    0.89      0.089        0.925
+```
+Component    Eigenvalue    Explained ratio    Cumulative
+PC1          4.73          0.473              0.473
+PC2          2.51          0.251              0.724
+PC3          1.12          0.112              0.836
+PC4          0.89          0.089              0.925
 ...
 ```
 
@@ -99,9 +99,9 @@ t-Distributed Stochastic Neighbor Embedding（t-SNE）面向可视化。它把�
 t-SNE 特性：
 - 非线性，可展开 PCA 做不到的复杂流形
 - 随机性：多次运行会有不同布局
-- `perplexity` 控制每个点看多少邻居（常见 5~50）
+- `outputs/skill-dimensionality-reduction.md` 控制每个点看多少邻居（常见 5~50）
 - 输出中簇间距离未必有严格含义，主要看簇结构
-- 大数据上较慢，默认接近 `O(n^2)`
+- 大数据上较慢，默认接近 `inverse_transform`
 
 ### UMAP：更快且更保全全局结构
 
@@ -112,8 +112,8 @@ UMAP（Uniform Manifold Approximation and Projection）与 t-SNE 类似，但有
 UMAP 在高维先构建加权图（“模糊拓扑表示”），再在低维中寻找尽量保持该图结构的布局。
 
 关键参数：
-- `n_neighbors`：局部结构的邻居数，类似 perplexity；更大更偏全局结构
-- `min_dist`：低维点簇压缩程度，越小簇更紧
+- `sklearn.datasets.make_classification`：局部结构的邻居数，类似 perplexity；更大更偏全局结构
+- min_dist：低维点簇压缩程度，越小簇更紧
 
 ### 该用哪个
 
@@ -135,27 +135,27 @@ UMAP 在高维先构建加权图（“模糊拓扑表示”），再在低维中
 核 PCA 使用核函数隐式把数据映射到高维特征空间，再在该空间做 PCA（核技巧），对应 SVM 的核心思路。
 
 步骤：
-1. 计算核矩阵 `K_ij = k(x_i, x_j)`
+1. 计算核矩阵 K_ij = k(x_i, x_j)
 2. 在特征空间对核矩阵中心化
 3. 对中心化核矩阵做特征值分解
-4. 用前 k 个特征向量（除以 `sqrt(eigenvalue)`）作为投影坐标
+4. 用前 k 个特征向量（除以 sqrt(eigenvalue)）作为投影坐标
 
 常见核函数：
 
 | 核函数 | 公式 | 适用 |
 |--------|------|------|
-| RBF（高斯） | `exp(-gamma * ||x - y||^2)` | 大多数非线性、平滑流形 |
-| 多项式 | `(x · y + c)^d` | 多项式关系 |
-| Sigmoid | `tanh(alpha * x · y + c)` | 类神经网络映射 |
+| RBF（高斯） | exp(-gamma * ||x - y||^2) | 大多数非线性、平滑流形 |
+| 多项式 | (x · y + c)^d | 多项式关系 |
+| Sigmoid | tanh(alpha * x · y + c) | 类神经网络映射 |
 
 核 PCA 何时优于标准 PCA：
 
 | 维度 | 标准 PCA | 核 PCA |
 |------|----------|--------|
 | 数据结构 | 线性子空间 | 非线性流形 |
-| 速度 | `O(min(n^2 d, d^2 n))` | `O(n^2 d + n^3)` |
+| 速度 | O(min(n^2 d, d^2 n)) | O(n^2 d + n^3) |
 | 可解释性 | 成分是特征的线性组合 | 成分较难直接按特征解释 |
-| 可扩展性 | 可应对百万级 | 核矩阵是 `n × n`，内存受限 |
+| 可扩展性 | 可应对百万级 | 核矩阵是 n × n，内存受限 |
 | 重构 | 有直接逆变换 | 需 pre-image 近似 |
 
 经典示例：二维同心圆。标准 PCA 会将两圆投影到重叠线段；RBF 核 PCA 则能把内外环映射到不同区域，变得可线性分离。
@@ -164,21 +164,21 @@ UMAP 在高维先构建加权图（“模糊拓扑表示”），再在低维中
 
 你降到 k 维后，丢失多少信息？
 
-1. 降维：`X_reduced = X @ W_k`
-2. 重构：`X_hat = X_reduced @ W_k^T`
-3. 用均方误差衡量：`mean((X - X_hat)^2)`
+1. 降维：X_reduced = X @ W_k
+2. 重构：X_hat = X_reduced @ W_k^T
+3. 用均方误差衡量：mean((X - X_hat)^2)
 
 对于 PCA，重构误差和特征值有清晰关系：
 
-```text
-重构误差 = 未保留特征值之和
-总方差 = 所有特征值之和
-丢失比例 = （丢弃特征值和）/（全部特征值和）
+```
+Reconstruction error = sum of eigenvalues NOT included
+Total variance = sum of ALL eigenvalues
+Fraction lost = (sum of dropped eigenvalues) / (sum of all eigenvalues)
 ```
 
 每个成分解释比例为：
 
-```text
+```
 explained_ratio_k = eigenvalue_k / sum(all eigenvalues)
 ```
 
@@ -342,13 +342,13 @@ for k in [10, 30, 50, 100, 200]:
 ## 交付
 
 这课的交付是：
-- `outputs/skill-dimensionality-reduction.md`：给定任务选择合适降维方法的提示文档
+- outputs/skill-dimensionality-reduction.md：给定任务选择合适降维方法的提示文档
 
 ## 练习
 
-1. 给 `PCA` 类加上 `inverse_transform`，分别用 10、50、200 维重构 MNIST，打印每个 k 的重构均方误差。
+1. 给 PCA 类加上 inverse_transform，分别用 10、50、200 维重构 MNIST，打印每个 k 的重构均方误差。
 2. 在同一 MNIST 子集上用 perplexity 为 5、30、100 做 t-SNE，对比输出变化。为什么 perplexity 会影响聚类紧密性？
-3. 生成一个含 50 个特征但只有 5 个有效信息特征的数据（可用 `sklearn.datasets.make_classification`），做 PCA 并验证解释方差曲线是否提示“本质维度约为 5”。
+3. 生成一个含 50 个特征但只有 5 个有效信息特征的数据（可用 sklearn.datasets.make_classification），做 PCA 并验证解释方差曲线是否提示“本质维度约为 5”。
 
 ## 关键术语
 

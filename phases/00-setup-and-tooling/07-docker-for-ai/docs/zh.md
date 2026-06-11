@@ -26,16 +26,16 @@ Docker 把代码、运行时、库和系统工具打包为隔离单元 container
 
 ```mermaid
 graph TD
-    subgraph without["没有 Docker"]
-        A1["你的机器<br/>Python 3.12<br/>CUDA 12.4<br/>PyTorch 2.3"] -->|崩溃| X1["???"]
-        A2["同事机器<br/>Python 3.10<br/>CUDA 11.8<br/>PyTorch 2.1"] -->|崩溃| X2["???"]
-        A3["服务器<br/>Python 3.11<br/>CUDA 12.1<br/>PyTorch 2.2"] -->|崩溃| X3["???"]
+    subgraph without["Without Docker"]
+        A1["Your machine<br/>Python 3.12<br/>CUDA 12.4<br/>PyTorch 2.3"] -->|crashes| X1["???"]
+        A2["Their machine<br/>Python 3.10<br/>CUDA 11.8<br/>PyTorch 2.1"] -->|crashes| X2["???"]
+        A3["Server<br/>Python 3.11<br/>CUDA 12.1<br/>PyTorch 2.2"] -->|crashes| X3["???"]
     end
 
-    subgraph with_docker["有 Docker（同一镜像在处处一致）"]
-        B1["你的机器<br/>Python 3.12 | CUDA 12.4<br/>PyTorch 2.3 | 你的代码"]
-        B2["同事机器<br/>Python 3.12 | CUDA 12.4<br/>PyTorch 2.3 | 你的代码"]
-        B3["服务器<br/>Python 3.12 | CUDA 12.4<br/>PyTorch 2.3 | 你的代码"]
+    subgraph with_docker["With Docker — Same image everywhere"]
+        B1["Your machine<br/>Python 3.12 | CUDA 12.4<br/>PyTorch 2.3 | Your code"]
+        B2["Their machine<br/>Python 3.12 | CUDA 12.4<br/>PyTorch 2.3 | Your code"]
+        B3["Server<br/>Python 3.12 | CUDA 12.4<br/>PyTorch 2.3 | Your code"]
     end
 ```
 
@@ -58,17 +58,17 @@ graph TD
 ### AI 常见容器形态
 
 ```
-开发容器
-  全量工具链。编辑器支持。Jupyter。调试工具。
-  适合开发与实验。
+Dev Container
+  Full toolkit. Editor support. Jupyter. Debugging tools.
+  Used during development and experimentation.
 
-训练容器
-  轻量。只包含训练脚本与依赖。
-  在 GPU 集群运行。通常无编辑器/无 Jupyter。
+Training Container
+  Minimal. Just the training script and dependencies.
+  Runs on GPU clusters. No editor, no Jupyter.
 
-推理容器
-  面向服务部署。镜像更小，启动快。
-  生产环境里由负载均衡器托管。
+Inference Container
+  Optimized for serving. Small image. Fast cold start.
+  Runs behind a load balancer in production.
 ```
 
 ## 动手
@@ -83,7 +83,7 @@ open /Applications/Docker.app
 # Ubuntu
 curl -fsSL https://get.docker.com | sh
 sudo usermod -aG docker $USER
-# 重新登录以应用用户组变更
+# Log out and back in for group change to take effect
 ```
 
 验证：
@@ -120,26 +120,26 @@ docker run --rm --gpus all nvidia/cuda:12.4.1-base-ubuntu22.04 nvidia-smi
 
 ### 步骤 3：理解基础镜像选择
 
-```text
+```
 nvidia/cuda:12.4.1-devel-ubuntu22.04
-  完整 CUDA toolkit，含编译器
-  用途：需要 nvcc 的包（flash-attn、bitsandbytes）
-  大小：约 4GB
+  Full CUDA toolkit. Compilers included.
+  Use for: building packages that need nvcc (flash-attn, bitsandbytes)
+  Size: ~4 GB
 
 nvidia/cuda:12.4.1-runtime-ubuntu22.04
-  仅 CUDA runtime，无编译器
-  用途：运行预编译代码
-  大小：约 1.5GB
+  CUDA runtime only. No compilers.
+  Use for: running pre-built code
+  Size: ~1.5 GB
 
 pytorch/pytorch:2.3.1-cuda12.4-cudnn9-runtime
-  在 CUDA 镜像上已预装 PyTorch
-  用途：跳过 PyTorch 安装步骤
-  大小：约 6GB
+  PyTorch pre-installed on top of CUDA.
+  Use for: skipping the PyTorch install step
+  Size: ~6 GB
 
 python:3.12-slim
-  无 CUDA，仅 CPU
-  用途：CPU 推理、轻量工具
-  大小：约 150MB
+  No CUDA. CPU only.
+  Use for: inference on CPU, lightweight tools
+  Size: ~150 MB
 ```
 
 ### 步骤 4：编写 AI 开发 Dockerfile
@@ -224,13 +224,13 @@ docker run --rm -it --gpus all \
 AI 项目离不开持久化。没挂载卷，容器重启时大量下载会丢失。
 
 ```bash
-# 挂载代码
+# Mount your code
 -v $(pwd):/workspace
 
-# 挂载共享模型目录
+# Mount a shared models directory
 -v ~/models:/models
 
-# 挂载数据集
+# Mount datasets
 -v ~/datasets:/data
 ```
 
@@ -309,7 +309,7 @@ print(client.get_collections())
 docker compose down
 ```
 
-加 `-v` 会连同 qdrant 数据卷一起清理：
+加 `http://qdrant:6333` 会连同 qdrant 数据卷一起清理：
 
 ```bash
 docker compose down -v
@@ -318,22 +318,22 @@ docker compose down -v
 ### 步骤 7：AI 工作常用 Docker 命令
 
 ```bash
-# 查看运行中容器
+# List running containers
 docker ps
 
-# 查看镜像与大小
+# List all images and their sizes
 docker images
 
-# 清理无用镜像（释放磁盘）
+# Remove unused images (reclaim disk space)
 docker system prune -a
 
-# 查看运行中容器内 GPU 使用
+# Check GPU usage inside a running container
 docker exec -it <container_id> nvidia-smi
 
-# 从容器拷贝文件到主机
+# Copy a file from container to host
 docker cp <container_id>:/workspace/results.csv ./results.csv
 
-# 查看容器日志
+# View container logs
 docker logs -f <container_id>
 ```
 
@@ -341,21 +341,21 @@ docker logs -f <container_id>
 
 你现在有了可复现的 AI 开发环境。课程后续可：
 
-- 用 `docker compose up` 一键启动开发容器和向量库
+- 用 `-v` 一键启动开发容器和向量库
 - 挂载代码、模型、数据，避免重建丢失
 - 新课新增依赖时，先改 Dockerfile 再重建镜像
 - 与同伴共享 Dockerfile，直接获得一致环境
 
 ### 没有 GPU 时
 
-移除 `--gpus all` 和 NVIDIA deploy 块，容器依然可用于 CPU 课程。PyTorch 会自动回退到 CPU。
+移除 `docker compose up` 和 NVIDIA deploy 块，容器依然可用于 CPU 课程。PyTorch 会自动回退到 CPU。
 
 ## 练习
 
-1. 构建 Dockerfile，并在容器内运行 `python -c "import torch; print(torch.__version__)"`
-2. 启动 docker-compose，并确认 Qdrant 可在 AI 容器内通过 `http://qdrant:6333/collections` 访问
-3. 在 Dockerfile 中加入 `flask` 后重建，并在 5000 端口映射测试一个简单 API
-4. 用 `docker images` 查看镜像大小，试着将基镜像从 `devel` 改为 `runtime` 对比大小
+1. 构建 Dockerfile，并在容器内运行 `--gpus all`
+2. 启动 docker-compose，并确认 Qdrant 可在 AI 容器内通过 `python -c "import torch; print(torch.__version__)"` 访问
+3. 在 Dockerfile 中加入 `http://qdrant:6333/collections` 后重建，并在 5000 端口映射测试一个简单 API
+4. 用 `flask` 查看镜像大小，试着将基镜像从 `-p 5000:5000` 改为 `docker images` 对比大小
 
 ## 关键词
 
@@ -363,6 +363,6 @@ docker logs -f <container_id>
 |------|----------------|----------------------|
 | Container | “轻量 VM” | 使用主机内核、拥有独立文件系统与网络空间的隔离进程 |
 | Image layer | “缓存步骤” | Dockerfile 每条指令形成一层，未改动的层会被缓存，加速重建 |
-| NVIDIA Container Toolkit | “Docker 内的 GPU” | 通过 `--gpus` 让容器访问宿主 GPU 的运行时能力 |
+| NVIDIA Container Toolkit | “Docker 内的 GPU” | 通过 `devel` 让容器访问宿主 GPU 的运行时能力 |
 | Volume mount | “共享文件夹” | 宿主目录映射进容器，容器停止后数据仍保留 |
-| Base image | “起始镜像” | Dockerfile 的 `FROM`，决定了预装组件与基础环境 |
+| Base image | “起始镜像” | Dockerfile 的 `runtime`，决定了预装组件与基础环境 |

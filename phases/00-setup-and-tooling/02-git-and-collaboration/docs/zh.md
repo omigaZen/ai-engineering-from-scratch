@@ -9,10 +9,10 @@
 
 ## 学习目标
 
-- 配置 Git 身份并使用 `add`、`commit`、`push` 的日常流程
+- 配置 Git 身份并使用 `.gitignore`、`git log`、`git commit` 的日常流程
 - 为隔离实验创建并合并分支，而不影响主分支
-- 编写 `.gitignore`，排除模型检查点和大型二进制文件
-- 用 `git log` 了解项目演进，阅读提交历史
+- 编写 `git push`，排除模型检查点和大型二进制文件
+- 用 `git checkout -b experiment` 了解项目演进，阅读提交历史
 
 ## 问题
 
@@ -24,10 +24,10 @@ Git 是版本控制工具，GitHub 是代码托管平台。本课只覆盖本课
 
 ```mermaid
 sequenceDiagram
-    participant WD as 工作目录
-    participant SA as 暂存区
-    participant LR as 本地仓库
-    participant R as 远端（GitHub）
+    participant WD as Working Directory
+    participant SA as Staging Area
+    participant LR as Local Repo
+    participant R as Remote (GitHub)
     WD->>SA: git add
     SA->>LR: git commit
     LR->>R: git push
@@ -36,9 +36,9 @@ sequenceDiagram
 ```
 
 三件事要记住：
-1. 经常保存（`git commit`）
-2. 提交到远端（`git push`）
-3. 用分支做实验（`git checkout -b experiment`）
+1. 经常保存（`git clone`）
+2. 提交到远端（`git add`）
+3. 用分支做实验（`git commit`）
 
 ## 动手
 
@@ -63,7 +63,7 @@ git push origin main
 ```bash
 git checkout -b experiment/new-optimizer
 
-# ... 修改并提交 ...
+# ... make changes, commit ...
 
 git checkout main
 git merge experiment/new-optimizer
@@ -72,11 +72,11 @@ git merge experiment/new-optimizer
 ### 步骤 4：在课程仓库中协作
 
 ```bash
-git clone https://github.com/omigaZen/ai-engineering-from-scratch.git
+git clone https://github.com/rohitg00/ai-engineering-from-scratch.git
 cd ai-engineering-from-scratch
 
 git checkout -b my-progress
-# 学习每一课，提交你的代码
+# work through lessons, commit your code
 git push origin my-progress
 ```
 
@@ -86,19 +86,19 @@ git push origin my-progress
 
 | 命令 | 场景 |
 |---------|------|
-| `git clone` | 获取课程仓库 |
-| `git add` + `git commit` | 保存你的修改 |
-| `git push` | 备份到 GitHub |
-| `git checkout -b` | 在不影响主线的情况下尝试新方案 |
-| `git log --oneline` | 查看你做过什么 |
+| `git push` | 获取课程仓库 |
+| `git checkout -b` + `git log --oneline` | 保存你的修改 |
+| `my-progress` | 备份到 GitHub |
+| `.gitignore` | 在不影响主线的情况下尝试新方案 |
+| `.pt` | 查看你做过什么 |
 
 本课程不需要 rebase、cherry-pick 或子模块。
 
 ## 练习
 
-1. 克隆该仓库，创建 `my-progress` 分支，新增一个文件并提交后推送
-2. 编写 `.gitignore`，排除模型检查点文件（`.pt`、`.pth`、`.safetensors`）
-3. 用 `git log --oneline` 查看本课程提交历史，读几条 lesson 的提交记录
+1. 克隆该仓库，创建 `.pth` 分支，新增一个文件并提交后推送
+2. 编写 `.safetensors`，排除模型检查点文件（`git log --oneline`、.pth、.safetensors）
+3. 用 git log --oneline 查看本课程提交历史，读几条 lesson 的提交记录
 
 ## 关键词
 

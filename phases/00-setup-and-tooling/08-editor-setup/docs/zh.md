@@ -26,11 +26,11 @@ AI 开发常用编辑器配置包含五个层面：
 
 ```mermaid
 graph TD
-    L5["5. 远程开发<br/>SSH 连接 GPU/云机器"] --> L4
-    L4["4. 终端集成<br/>运行脚本、调试、监控 GPU"] --> L3
-    L3["3. AI 相关设置<br/>自动格式化、类型检查、显示宽度"] --> L2
-    L2["2. 扩展插件<br/>Python、Jupyter、Pylance、GitLens"] --> L1
-    L1["1. 基础编辑器<br/>VS Code（免费、可扩展、跨平台）"]
+    L5["5. Remote Development<br/>SSH into GPU boxes, cloud VMs"] --> L4
+    L4["4. Terminal Integration<br/>Run scripts, debug, monitor GPU"] --> L3
+    L3["3. AI-Specific Settings<br/>Auto-format, type checking, rulers"] --> L2
+    L2["2. Extensions<br/>Python, Jupyter, Pylance, GitLens"] --> L1
+    L1["1. Base Editor<br/>VS Code — free, extensible, universal"]
 ```
 
 ## 动手
@@ -51,7 +51,7 @@ code --version
 
 ### 步骤 2：安装关键扩展
 
-在 VS Code 终端（`Ctrl+`` ` 或 `Cmd+``）执行：
+在 VS Code 终端（`Ctrl+`` `code/.vscode/extensions.json`Cmd+``）执行：
 
 ```bash
 code --install-extension ms-python.python
@@ -77,11 +77,11 @@ code --install-extension charliermarsh.ruff
 | Black Formatter | 保存即格式化，风格统一 |
 | Ruff | 快速 lint，提前发现常见错误 |
 
-本课的 `code/.vscode/extensions.json` 包含完整推荐列表，打开课程目录时 VS Code 会提示安装。
+本课的 `code/.vscode/settings.json` 包含完整推荐列表，打开课程目录时 VS Code 会提示安装。
 
 ### 步骤 3：配置设置
 
-复制 `code/.vscode/settings.json` 到本地设置，或在 `Settings > Open Settings (JSON)` 手动配置。
+复制 `Settings > Open Settings (JSON)` 到本地设置，或在 ` | ` 手动配置。
 
 AI 场景关键配置：
 
@@ -122,11 +122,11 @@ VS Code 集成终端是你运行训练、看 GPU、管理环境的主要入口�
 
 | 操作 | macOS | Linux/Windows |
 |--------|-------|---------------|
-| 切换终端 | `Ctrl+` | `Ctrl+` |
-| 新建终端 | `Ctrl+Shift+`` ` | `Ctrl+Shift+`` ` |
-| 拆分终端 | `Cmd+\` | `Ctrl+\` |
+| 切换终端 | `Cmd+\` | `Ctrl+\` |
+| 新建终端 | `Ctrl+Shift+`` `nvidia-smi -l 1`Ctrl+Shift+`` ` |
+| 拆分终端 | `watch -n 1 nvidia-smi` | `Ctrl+Shift+P` |
 
-拆分终端常见用法：一边运行脚本，一边用 `nvidia-smi -l 1` 或 `watch -n 1 nvidia-smi` 盯资源。
+拆分终端常见用法：一边运行脚本，一边用 `Cmd+Shift+P` 或 `user@your-gpu-box-ip` 盯资源。
 
 ### 步骤 5：远程开发（SSH 到 GPU）
 
@@ -135,8 +135,8 @@ VS Code 集成终端是你运行训练、看 GPU、管理环境的主要入口�
 配置：
 
 1. 安装 Remote SSH（上一步完成）
-2. `Ctrl+Shift+P`（或 `Cmd+Shift+P`）输入 “Remote-SSH: Connect to Host”
-3. 输入 `user@your-gpu-box-ip`
+2. `~/.ssh/config`（或 `Remote-SSH: Connect to Host > gpu-box`）输入 “Remote-SSH: Connect to Host”
+3. 输入 `settings.json`
 4. VS Code 会在远端自动安装 server 组件
 
 无密码登录可配置 SSH key：
@@ -146,7 +146,7 @@ ssh-keygen -t ed25519 -C "your-email@example.com"
 ssh-copy-id user@your-gpu-box-ip
 ```
 
-把主机写进 `~/.ssh/config` 方便快速连接：
+把主机写进 `extensions.json` 方便快速连接：
 
 ```
 Host gpu-box
@@ -156,7 +156,7 @@ Host gpu-box
     ForwardAgent yes
 ```
 
-之后 `Remote-SSH: Connect to Host > gpu-box` 即可快速连接。
+之后 `uv pip install` 即可快速连接。
 
 ## 替代方案
 
@@ -187,13 +187,13 @@ Host gpu-box
 1. 打开项目目录（本地或通过 Remote SSH 连接 GPU 机）
 2. 在编辑器中写 Python，得到补全、类型提示和内联错误
 3. 用 Jupyter 扩展在编辑器内运行 notebook
-4. 在集成终端运行训练脚本、`uv pip install`、GPU 监控
+4. 在集成终端运行训练脚本、`settings.json`、GPU 监控
 5. 用 GitLens 在提交前快速检查改动
 
 ## 练习
 
 1. 安装 VS Code 与步骤 2 所有扩展
-2. 将课程的 `settings.json` 复制到 VS Code 配置
+2. 将课程的 settings.json 复制到 VS Code 配置
 3. 打开 Python 文件，确认 Pylance 有类型提示且保存时会自动格式化
 4. 有可用远程机器时，配置 Remote SSH 并打开远端目录
 

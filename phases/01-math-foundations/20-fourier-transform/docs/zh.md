@@ -45,7 +45,7 @@ for k = 0, 1, ..., N-1
 **\(X[0]\)：DC 分量。** 是所有样本之和，和平均值成正比，代表零频常量偏置。
 
 ```
-X[0] = sum_{n=0}^{N-1} x[n] * e^0 = 所有样本之和
+X[0] = sum_{n=0}^{N-1} x[n] * e^0 = sum of all samples
 ```
 
 **\(X[k]\)，\(1 \le k \le N/2\)：正频率。** 表示每 \(N\) 个采样点里的 \(k\) 个周期。\(k\) 越大，频率越高、振荡越快。
@@ -61,7 +61,7 @@ X[0] = sum_{n=0}^{N-1} x[n] * e^0 = 所有样本之和
 ```
 x[n] = (1/N) * sum_{k=0}^{N-1} X[k] * e^(2*pi*i*k*n/N)
 
-for n = 0,1,...,N-1
+for n = 0, 1, ..., N-1
 ```
 
 与前向 DFT 的区别是指数号变正，以及额外的 \(1/N\) 归一化。
@@ -84,25 +84,25 @@ Cooley-Tukey（最常见 FFT）采用分治：
 X[k] = E[k] + e^(-2*pi*i*k/N) * O[k]          for k = 0, ..., N/2 - 1
 X[k + N/2] = E[k] - e^(-2*pi*i*k/N) * O[k]    for k = 0, ..., N/2 - 1
 
-E 是偶数下标样本的 DFT
-O 是奇数下标样本的 DFT
+where E = DFT of even-indexed samples
+      O = DFT of odd-indexed samples
 ```
 
 每一层递归做 \(O(N)\) 工作，深度 \(\log_2 N\)，总复杂度 \(O(N\log N)\)。
 
 ```mermaid
 graph TD
-    subgraph "8 点 FFT（Cooley-Tukey）"
-        X["x[0..7]<br/>8 个样本"] -->|"split even/odd"| E["偶数: x[0,2,4,6]"]
-        X -->|"split even/odd"| O["奇数: x[1,3,5,7]"]
-        E -->|"4 点 FFT"| EK["E[0..3]"]
-        O -->|"4 点 FFT"| OK["O[0..3]"]
-        EK -->|"用旋转因子合并"| XK["X[0..7]"]
-        OK -->|"用旋转因子合并"| XK
+    subgraph "8-point FFT (Cooley-Tukey)"
+        X["x[0..7]<br/>8 samples"] -->|"split even/odd"| E["Even: x[0,2,4,6]"]
+        X -->|"split even/odd"| O["Odd: x[1,3,5,7]"]
+        E -->|"4-pt FFT"| EK["E[0..3]"]
+        O -->|"4-pt FFT"| OK["O[0..3]"]
+        EK -->|"combine with twiddle factors"| XK["X[0..7]"]
+        OK -->|"combine with twiddle factors"| XK
     end
-    subgraph "复杂度"
-        C1["DFT: O(N^2) = 64 次乘法"]
-        C2["FFT: O(N log N) = 24 次乘法"]
+    subgraph "Complexity"
+        C1["DFT: O(N^2) = 64 multiplications"]
+        C2["FFT: O(N log N) = 24 multiplications"]
     end
 ```
 
@@ -115,8 +115,8 @@ FFT 要求长度为 2 的整数次幂，实际会补零到下一个 2 的幂。
 **相位谱** 是 \(\angle(X[k])\)，表示每个频率的相位偏移。多数分析任务里主要看功率谱，忽略相位。
 
 ```
-频率 k 的功率:  P[k] = |X[k]|^2 = X[k].real^2 + X[k].imag^2
-频率 k 的相位:  phi[k] = atan2(X[k].imag, X[k].real)
+Power at frequency k:  P[k] = |X[k]|^2 = X[k].real^2 + X[k].imag^2
+Phase at frequency k:  phi[k] = atan2(X[k].imag, X[k].real)
 ```
 
 ### 频率分辨率
@@ -124,9 +124,9 @@ FFT 要求长度为 2 的整数次幂，实际会补零到下一个 2 的幂。
 DFT 的分辨率由样本数 \(N\) 和采样率 \(f_s\) 决定：
 
 ```
-频率桶 k:         f_k = k * f_s / N
-频率分辨率:       delta_f = f_s / N
-最高频率:         f_max = f_s / 2（奈奎斯特）
+Frequency of bin k:      f_k = k * fs / N
+Frequency resolution:    delta_f = fs / N
+Maximum frequency:       f_max = fs / 2  (Nyquist)
 ```
 
 要区分更接近的两个频率，需要更多样本；要看更高频，需要更高采样率。
@@ -140,7 +140,7 @@ DFT 的分辨率由样本数 \(N\) 和采样率 \(f_s\) 决定：
 ```
 x * h = IFFT(FFT(x) . FFT(h))
 
-其中 * 表示卷积，. 表示逐点乘法
+where * is convolution and . is element-wise multiplication
 ```
 
 为什么重要：
@@ -154,13 +154,13 @@ x * h = IFFT(FFT(x) . FFT(h))
 
 ```mermaid
 graph LR
-    subgraph "时域"
-        TA["信号 x[n]"] -->|"卷积（慢: O(NM))"| TC["输出 y[n]"]
-        TB["滤波 h[n]"] -->|"卷积"| TC
+    subgraph "Time Domain"
+        TA["Signal x[n]"] -->|"convolve (slow: O(NM))"| TC["Output y[n]"]
+        TB["Filter h[n]"] -->|"convolve"| TC
     end
-    subgraph "频域"
-        FA["FFT(x)"] -->|"逐点乘 (快: O(N))"| FC["FFT(x) * FFT(h)"]
-        FB["FFT(h)"] -->|"逐点乘"| FC
+    subgraph "Frequency Domain"
+        FA["FFT(x)"] -->|"multiply (fast: O(N))"| FC["FFT(x) * FFT(h)"]
+        FB["FFT(h)"] -->|"multiply"| FC
         FC -->|"IFFT"| FD["y[n]"]
     end
     TA -.->|"FFT"| FA
@@ -184,11 +184,11 @@ DFT 假设信号是周期的，把这 \(N\) 个样本当作一个周期重复。
 | Blackman | 三余弦 | 较宽 | 很低（-58 dB） | 需强旁瓣抑制时 |
 
 ```
-Hann:    w[n] = 0.5 * (1 - cos(2*pi*n / (N-1)))
-Hamming: w[n] = 0.54 - 0.46 * cos(2*pi*n / (N-1))
+Hann window:    w[n] = 0.5 * (1 - cos(2*pi*n / (N-1)))
+Hamming window: w[n] = 0.54 - 0.46 * cos(2*pi*n / (N-1))
 ```
 
-使用时先与信号逐点相乘再做 DFT：`X = DFT(x * w)`。
+使用时先与信号逐点相乘再做 DFT：`e^(-2*pi*i*k*n/N)`。
 
 ### DFT 性质
 
@@ -239,14 +239,14 @@ PE(pos, 2i+1) = cos(pos / 10000^(2i/d_model))
 短时傅里叶变换（STFT）在重叠窗口上做 FFT，得到 spectrogram：时间-频率二维矩阵。
 
 ```
-STFT 步骤:
-1. 设窗口长度（如 1024）
-2. 设 hop 长度（如 256，75% 重叠）
-3. 对每个窗口:
-   a. 取出片段
-   b. 加 Hann/Hamming 窗
-   c. 计算 FFT
-   d. 将幅值谱存为 spectrogram 一列
+STFT procedure:
+1. Choose a window size (e.g., 1024 samples)
+2. Choose a hop size (e.g., 256 samples -- 75% overlap)
+3. For each window position:
+   a. Extract the windowed segment
+   b. Apply a Hann/Hamming window
+   c. Compute FFT
+   d. Store the magnitude spectrum as one column of the spectrogram
 ```
 
 音频模型标准输入通常是 spectrogram。语音模型（Whisper、DeepSpeech）常用 mel-spectrogram（符合人耳感知的频率刻度）。
@@ -256,13 +256,14 @@ STFT 步骤:
 若信号含有高于 \(f_s/2\) 的频率，用采样率 \(f_s\) 采样会发生混叠。比如 90Hz 在 100Hz 采样下看起来和 10Hz 一样：
 
 ```
-例子:
-  真正信号: 90 Hz 正弦
-  采样率: 100 Hz
-  观测频率: 100 - 90 = 10 Hz
+Example:
+  True signal: 90 Hz sine wave
+  Sampling rate: 100 Hz
+  Apparent frequency: 100 - 90 = 10 Hz
 
-100 Hz 采样时 90Hz 信号的样本
-与 10Hz 信号的样本完全一致。
+  The samples from the 90 Hz signal at 100 Hz sampling rate
+  are identical to the samples from a 10 Hz signal.
+  No amount of math can recover the original 90 Hz.
 ```
 
 因此 ADC 必须加抗混叠滤波，先去掉奈奎斯特以上频率。ML 里也类似：下采样特征图若无低通滤波，会产生伪高频别名，别的架构会用抗混叠池化缓解。
@@ -363,7 +364,9 @@ def convolve_fft(x, h):
 
     X = fft(x_padded)
     H = fft(h_padded)
+
     Y = [xk * hk for xk, hk in zip(X, H)]
+
     y = idft(Y)
     return [y[n].real for n in range(N)]
 ```
@@ -416,7 +419,7 @@ spectrogram 矩阵形状为 \((n_frequencies, n_time_frames)\)，每列是某时
 
 ## 实战输出
 
-运行 `code/fourier.py` 生成 `outputs/prompt-spectral-analyzer.md`。
+运行 `X = DFT(x * w)` 生成 `code/fourier.py`。
 
 ## 练习
 
