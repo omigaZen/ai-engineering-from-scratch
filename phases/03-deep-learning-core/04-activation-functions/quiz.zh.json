@@ -1,0 +1,62 @@
+[
+  {
+    "question": "为什么单纯堆叠线性层（不使用激活函数）不能构建有效的深度网络？",
+    "options": [
+      "因为线性层的计算速度太慢",
+      "因为堆叠线性层会等价为单一线性变换，深度没有增益",
+      "因为线性层没有偏置项",
+      "因为线性层无法处理批量数据"
+    ],
+    "correct": 1,
+    "explanation": "y = W2(W1*x + b1) + b2 可以展开为 y = Ax + c。无论堆多少线性层，最终结果都等价于单一线性层。激活函数正是打破这种可合成性的关键。",
+    "stage": "pre"
+  },
+  {
+    "question": "ReLU 的输出范围是？",
+    "options": [
+      "(-1, 1)",
+      "(0, 1)",
+      "[0, infinity)",
+      "(-infinity, infinity)"
+    ],
+    "correct": 2,
+    "explanation": "ReLU(x) = max(0, x)。输入为负时输出 0，输入为正时不变，因此输出范围为 [0, infinity)。",
+    "stage": "pre"
+  },
+  {
+    "question": "ReLU 网络中的“死亡神经元”是指什么？",
+    "options": [
+      "计算速度过慢的神经元",
+      "输入始终为负，始终输出 0 且梯度也一直为 0 的神经元",
+      "总是输出 NaN 的神经元",
+      "偏置值永远是 0 的神经元"
+    ],
+    "correct": 1,
+    "explanation": "若某个 ReLU 神经元的加权输入长期为负（例如初始化或偏置导致），输出恒为 0，反向传播的梯度也为 0。它无法更新参数，因此很难恢复。",
+    "stage": "post"
+  },
+  {
+    "question": "现代 GPT/BERT 一类 Transformer 的隐藏层默认通常使用哪种激活函数？",
+    "options": [
+      "Sigmoid",
+      "ReLU",
+      "GELU",
+      "Tanh"
+    ],
+    "correct": 2,
+    "explanation": "Transformer 体系中常见默认是 GELU（Gaussian Error Linear Unit）。它提供更平滑的梯度流、避免死亡神经元，在语言模型中通常优于 ReLU。",
+    "stage": "post"
+  },
+  {
+    "question": "为什么 softmax 只用于输出层而不会放在隐藏层？",
+    "options": [
+      "它在隐藏层太慢",
+      "它把向量转成概率分布（各值在 0 到 1 且总和为 1），这是分类输出所需，但中间层不该直接被压缩成概率",
+      "它会引起梯度爆炸",
+      "它只能处理二分类任务"
+    ],
+    "correct": 1,
+    "explanation": "Softmax 会将向量归一化为 (0,1) 且和为 1 的概率分布。分类任务输出层需要这个形式；隐藏层需要保留和提炼特征，不应过早压缩为概率。",
+    "stage": "post"
+  }
+]
