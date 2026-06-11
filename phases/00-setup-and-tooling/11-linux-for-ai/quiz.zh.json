@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Linux 路径里的 `~` 代表什么？",
+      "options": [
+        "文件系统根目录",
+        "当前用户的主目录",
+        "临时文件目录",
+        "系统程序安装目录"
+      ],
+      "correct": 1,
+      "explanation": "`~` 是当前用户 home 的快捷写法，通常是 `/home/用户名`。`cd ~` 可从任意位置回到主目录。"
+    },
+    {
+      "stage": "pre",
+      "question": "`sudo` 的作用是什么？",
+      "options": [
+        "加快命令执行",
+        "以 root（管理员）权限临时执行该命令",
+        "在沙箱里运行命令",
+        "将输出写入系统日志"
+      ],
+      "correct": 1,
+      "explanation": "`sudo` 临时提升权限用于系统级操作，如 `apt` 安装、服务控制等。"
+    },
+    {
+      "stage": "post",
+      "question": "执行 shell 脚本时报 `Permission denied`，最常见修复是什么？",
+      "options": [
+        "先 `sudo rm script.sh`",
+        "先 `chmod +x script.sh`",
+        "先 `chown root script.sh`",
+        "先 `mv script.sh /usr/bin/`"
+      ],
+      "correct": 1,
+      "explanation": "加上可执行位后脚本才能运行。许多人拥有文件也不能直接执行，直到用 `chmod +x` 设置执行权限。"
+    },
+    {
+      "stage": "post",
+      "question": "远端机器磁盘满了，如何找到占用最大的顶层目录？",
+      "options": [
+        "ls -la /",
+        "du -h --max-depth=1 / | sort -hr | head -20",
+        "cat /proc/meminfo",
+        "free -h"
+      ],
+      "correct": 1,
+      "explanation": "`du` 可查看目录占用，`--max-depth=1` 只看顶层，`sort -hr` 按大小降序，`head -20` 取最大 20 项。"
+    },
+    {
+      "stage": "post",
+      "question": "macOS 与 Linux 的 `sed -i` 区别是什么？",
+      "options": [
+        "Linux 更快",
+        "macOS 需要 `sed -i \"\"` 的空参数，Linux 不需要",
+        "Linux 不支持正则",
+        "macOS 不能原地修改文件"
+      ],
+      "correct": 1,
+      "explanation": "macOS 用 BSD sed，需要 `sed -i \"\"`；Linux 的 GNU sed 可直接 `sed -i`。这个差异是脚本移植中的常见坑。"
+    }
+  ]
+}
