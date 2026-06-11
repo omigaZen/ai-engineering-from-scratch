@@ -1,58 +1,56 @@
-# Build Your Own Mini Framework
+# 构建您自己的迷你框架
 
-> You have built neurons, layers, networks, backprop, activations, loss functions, optimizers, regularization, initialization, and LR schedules. All as separate pieces. Now wire them together into a framework. Not PyTorch. Not TensorFlow. Yours.
+> 您已经构建了神经元、层、网络、反向传播、激活、损失函数、优化器、正则化、初始化和 LR 调度。全部作为单独的部分。现在将它们连接到一个框架中。不是 PyTorch。不是 TensorFlow。你的。
 
-**Type:** Build
-**Languages:** Python
-**Prerequisites:** All of Phase 03 (Lessons 01-09)
-**Time:** ~120 minutes
+**类型：** 构建
+**语言：** Python
+**先决条件：** 第 03 阶段的所有内容（第 01-09 课）
+**时间：** ~120 分钟
 
-## Learning Objectives
+## 学习目标
 
-- Build a complete deep learning framework (~500 lines) with Module, Linear, ReLU, Sigmoid, Dropout, BatchNorm, Sequential, loss functions, optimizers, and DataLoader
-- Explain the Module abstraction (forward, backward, parameters) and why train/eval mode toggling is necessary
-- Wire all components into a working training loop that trains a 4-layer network on circle classification
-- Map each component of your framework to its PyTorch equivalent (nn.Module, nn.Sequential, optim.Adam, DataLoader)
+- 使用 Module、Linear、ReLU、Sigmoid、Dropout、BatchNorm、Sequential、损失函数、优化器和 DataLoader 构建完整的深度学习框架（约 500 行）
+- 解释模块抽象（前向、后向、参数）以及为什么需要进行训练/评估模式切换
+- 将所有组件连接到一个工作训练循环中，该循环训练 4 层网络的圆形分类
+- 将框架的每个组件映射到其 PyTorch 等效组件（nn.Module、nn.Sequential、optim.Adam、DataLoader）
 
-## The Problem
+## 问题
 
-You have ten lessons of building blocks scattered across separate files. A `Value` class here, a training loop there, weight initialization in another file, learning rate schedules in yet another. To train a network, you copy-paste from five different lessons and wire them together by hand.
+您有十个课程，内容涉及分散在不同文件中的构建块。这里有一个 `Value` 类，那里有一个训练循环，另一个文件中的权重初始化，另一个文件中的学习率计划。为了训练网络，您需要复制粘贴五个不同的课程，然后手动将它们连接在一起。
 
-That is what frameworks solve. PyTorch gives you `nn.Module`, `nn.Sequential`, `optim.Adam`, `DataLoader`, and a training loop pattern that ties them together. TensorFlow gives you `keras.Layer`, `keras.Sequential`, `keras.optimizers.Adam`. These are not magic. They are organizational patterns that make it possible to define, train, and evaluate networks without reinventing the plumbing every time.
+这就是框架解决的问题。 PyTorch 为您提供 `nn.Module`、`nn.Sequential`、`optim.Adam`、`DataLoader` 以及将它们联系在一起的训练循环模式。 TensorFlow 为您提供 `keras.Layer`、`keras.Sequential`、`keras.optimizers.Adam`。这些不是魔法。它们是组织模式，使定义、培训和评估网络成为可能，而无需每次都重新发明管道。
 
-You are going to build the same thing in ~500 lines of Python. No numpy. No external dependencies. A framework that can define any feedforward network, train it with SGD or Adam, batch the data, apply dropout and batch normalization, use any activation, and schedule the learning rate.
+您将用大约 500 行 Python 代码构建同样的东西。没有麻木。没有外部依赖。一个可以定义任何前馈网络、使用 SGD 或 Adam 对其进行训练、批量处理数据、应用 dropout 和批量归一化、使用任何激活以及安排学习速率的框架。完成后，您将准确理解在 PyTorch 中编写 `model = nn.Sequential(...)` 时会发生什么。您将理解为什么 `model.train()` 和 `model.eval()` 存在。您将理解为什么 `optimizer.zero_grad()` 是一个单独的调用。你会理解这一切，因为这一切都是你建造的。
 
-When you finish, you will understand exactly what happens when you write `model = nn.Sequential(...)` in PyTorch. You will understand why `model.train()` and `model.eval()` exist. You will understand why `optimizer.zero_grad()` is a separate call. You will understand all of it, because you built all of it.
+## 概念
 
-## The Concept
+### 模块抽象
 
-### The Module Abstraction
+PyTorch 中的每一层都继承自 `nn.Module`。模块具有三个职责：
 
-Every layer in PyTorch inherits from `nn.Module`. A Module has three responsibilities:
+1. **forward()** -- 计算给定输入的输出
+2. **parameters()** -- 返回所有可训练的权重
+3. **backward()** -- 计算梯度（由 PyTorch 中的 autograd 处理，在我们的中是显式的）
 
-1. **forward()** -- compute the output given inputs
-2. **parameters()** -- return all trainable weights
-3. **backward()** -- compute gradients (handled by autograd in PyTorch, explicit in ours)
+线性层是一个模块。 ReLU 激活是一个模块。 Dropout 层是一个模块。批量归一化层是一个模块。它们都有相同的界面。
 
-A Linear layer is a Module. A ReLU activation is a Module. A dropout layer is a Module. A batch normalization layer is a Module. They all have the same interface.
+### 顺序容器
 
-### Sequential Container
+`nn.Sequential` 链模块。前向传递：通过模块 1、模块 2、模块 3 馈送数据。 后向传递：反转链。容器本身是一个模块——它有forward()、parameters() 和backward()。这就是复合模式：一系列模块本身就是一个模块。
 
-`nn.Sequential` chains Modules. Forward pass: feed data through Module 1, then Module 2, then Module 3. Backward pass: reverse the chain. The container itself is a Module -- it has forward(), parameters(), and backward(). This is the composite pattern: a sequence of Modules is itself a Module.
+### 训练与评估模式
 
-### Training vs Evaluation Mode
+Dropout 在训练期间随机将神经元归零，但在评估期间通过所有内容。批量归一化在训练期间使用批量统计数据，但在评估期间使用运行平均值。 `train()` 和 `eval()` 方法切换此行为。每个模块都有一个 `training` 标志。
 
-Dropout randomly zeroes neurons during training but passes everything through during evaluation. Batch normalization uses batch statistics during training but running averages during evaluation. The `train()` and `eval()` methods toggle this behavior. Every Module has a `training` flag.
+### 优化器
 
-### Optimizer
+优化器使用参数的梯度来更新参数。 SGD：`param -= lr * grad`。 Adam：维持动量和方差估计，然后更新。优化器不了解网络架构——它只看到参数及其梯度的平面列表。
 
-The optimizer updates parameters using their gradients. SGD: `param -= lr * grad`. Adam: maintains momentum and variance estimates, then updates. The optimizer does not know about the network architecture -- it only sees a flat list of parameters and their gradients.
+### 数据加载器
 
-### DataLoader
+批处理很重要有两个原因。首先，对于大型问题，您无法将整个数据集放入内存中。其次，小批量梯度下降提供了有助于逃避局部极小值的噪声。 DataLoader 将数据分成批次，并可选择在纪元之间进行洗牌。
 
-Batching matters for two reasons. First, you cannot fit the entire dataset in memory for large problems. Second, mini-batch gradient descent provides noise that helps escape local minima. The DataLoader splits data into batches and optionally shuffles between epochs.
-
-### Framework Architecture
+### 框架架构
 
 ```mermaid
 graph TD
@@ -89,7 +87,7 @@ graph TD
     DataLoader --> |"feeds"| Sequential
 ```
 
-### Training Loop
+### 训练循环
 
 ```mermaid
 sequenceDiagram
@@ -110,8 +108,7 @@ sequenceDiagram
     end
 ```
 
-### Module Hierarchy
-
+### 模块层次结构
 ```mermaid
 classDiagram
     class Module {
@@ -151,11 +148,11 @@ classDiagram
 gradient-clipping
 ```
 
-## Build It
+## 构建它
 
-### Step 1: Module Base Class
+### 第 1 步：模块基类
 
-The abstract interface that every layer implements.
+每层实现的抽象接口。
 
 ```python
 class Module:
@@ -178,9 +175,9 @@ class Module:
         self.training = False
 ```
 
-### Step 2: Linear Layer
+### 步骤 2：线性层
 
-The fundamental building block. Stores weights and biases, computes Wx + b forward, and weight/input gradients backward.
+基本构建块。存储权重和偏差，向前计算 Wx + b，向后计算权重/输入梯度。
 
 ```python
 import math
@@ -227,9 +224,9 @@ class Linear(Module):
         return params
 ```
 
-### Step 3: Activation Modules
+### 步骤 3：激活模块
 
-ReLU, Sigmoid, and Tanh as Modules. Each caches what it needs for the backward pass.
+ReLU、Sigmoid 和 Tanh 作为模块。每个缓存向后传递所需的内容。
 
 ```python
 class ReLU(Module):
@@ -274,9 +271,9 @@ class Tanh(Module):
         return [g * (1 - o * o) for g, o in zip(grad, self.output)]
 ```
 
-### Step 4: Dropout Module
+### 步骤 4：Dropout 模块
 
-Randomly zeroes elements during training. Scales remaining elements by 1/(1-p) so expected values stay the same. Does nothing during eval.
+在训练期间随机将元素归零。将剩余元素缩放 1/(1-p)，以便预期值保持不变。在评估期间不执行任何操作。
 
 ```python
 class Dropout(Module):
@@ -297,9 +294,9 @@ class Dropout(Module):
         return [g * m for g, m in zip(grad, self.mask)]
 ```
 
-### Step 5: BatchNorm Module
+### 步骤 5：BatchNorm 模块
 
-Normalizes activations to zero mean and unit variance per feature across the batch. Maintains running statistics for eval mode.
+将批次中每个特征的激活标准化为零均值和单位方差。维护 eval 模式的运行统计信息。
 
 ```python
 class BatchNorm(Module):
@@ -377,9 +374,9 @@ class BatchNorm(Module):
         return params
 ```
 
-### Step 6: Sequential Container
+### 步骤 6：顺序容器
 
-Chains modules. Forward goes left-to-right, backward goes right-to-left.
+链模块。向前从左到右，向后从右到左。
 
 ```python
 class Sequential(Module):
@@ -414,9 +411,9 @@ class Sequential(Module):
             module.eval()
 ```
 
-### Step 7: Loss Functions
+### 步骤 7：损失函数
 
-MSE and Binary Cross-Entropy. Each returns the loss value and provides a backward() that returns the gradient.
+MSE 和二元交叉熵。每个都返回损失值并提供返回梯度的backward()。
 
 ```python
 class MSELoss:
@@ -455,9 +452,9 @@ class BCELoss:
         return grads
 ```
 
-### Step 8: SGD and Adam Optimizers
+### 步骤 8：SGD 和 Adam 优化器
 
-Both take a parameter list and update weights using gradients.
+两者都采用参数列表并使用梯度更新权重。
 
 ```python
 class SGD:
@@ -520,9 +517,9 @@ class Adam:
                 grad_container[i] = 0.0
 ```
 
-### Step 9: DataLoader
+### 步骤 9：数据加载器
 
-Splits data into batches, optionally shuffles each epoch.
+将数据分成批次，可以选择对每个时期进行洗牌。
 
 ```python
 class DataLoader:
@@ -546,9 +543,9 @@ class DataLoader:
         return (len(self.data) + self.batch_size - 1) // self.batch_size
 ```
 
-### Step 10: Train a 4-Layer Network on Circle Classification
+### 步骤 10：训练圆形分类的 4 层网络
 
-Wire everything together. Define a model, pick a loss, pick an optimizer, run the training loop.
+将所有东西连接在一起。定义模型，选择损失，选择优化器，运行训练循环。
 
 ```python
 def make_circle_data(n=500, seed=42):
@@ -631,9 +628,9 @@ def train():
     return model, test_accuracy
 ```
 
-## Use It
+## 使用它
 
-Here is the PyTorch equivalent of what you just built:
+这是与您刚刚构建的 PyTorch 等效的内容：
 
 ```python
 import torch
@@ -668,44 +665,41 @@ for epoch in range(100):
         test_predictions = model(test_inputs)
 ```
 
-The structure is identical. `Sequential`, `Linear`, `ReLU`, `Sigmoid`, `BCELoss`, `Adam`, `zero_grad`, `backward`, `step`, `train`, `eval`. Every concept maps one-to-one. The difference is that PyTorch handles autograd automatically (no need to implement backward() in each module), runs on GPU, and has been optimized for years. But the bones are the same.
+结构是相同的。 `Sequential`、`Linear`、`ReLU`、`Sigmoid`、`BCELoss`、`Adam`、`zero_grad`、`backward`、`step`、 `train`、`eval`。每个概念都是一一对应的。不同之处在于 PyTorch 自动处理 autograd（无需在每个模块中实现backward()），在 GPU 上运行，并且已经优化多年。但骨头是一样的。现在，当您看到 PyTorch 代码时，您可以确切地知道每一行发生了什么。这种理解就是重点。
 
-Now when you see PyTorch code, you know exactly what is happening at every line. That understanding is the whole point.
+## 发货
 
-## Ship It
+本课产生：
+- `outputs/prompt-framework-architect.md` -- 使用框架抽象设计神经网络架构的提示
 
-This lesson produces:
-- `outputs/prompt-framework-architect.md` -- a prompt for designing neural network architectures using framework abstractions
+## 练习
 
-## Exercises
+1. 添加 `SoftmaxCrossEntropyLoss` 类以进行多类分类。 Softmax 预测、计算交叉熵损失并处理组合后向传递。在 3 类螺旋数据集上进行测试。
 
-1. Add a `SoftmaxCrossEntropyLoss` class for multi-class classification. Softmax the predictions, compute cross-entropy loss, and handle the combined backward pass. Test it on a 3-class spiral dataset.
+2. 在优化器中实现学习率调度：添加 `set_lr()` 方法并连接到第 09 课中的余弦调度。使用预热 + 余弦训练圆形分类器，并与常量 LR 进行比较。
 
-2. Implement learning rate scheduling in the optimizer: add a `set_lr()` method and wire in the cosine schedule from Lesson 09. Train the circle classifier with warmup + cosine and compare to constant LR.
+3. 将 `save()` 和 `load()` 方法添加到 Sequential，将所有权重序列化到 JSON 文件并将其加载回来。验证加载的模型是否产生与原始模型相同的预测。
 
-3. Add a `save()` and `load()` method to Sequential that serializes all weights to a JSON file and loads them back. Verify that a loaded model produces the same predictions as the original.
+4. 在 Adam 优化器中实现权重衰减（L2 正则化）。添加一个 `weight_decay` 参数，将每一步的权重缩小到零。比较衰减 = 0 和衰减 = 0.01 的训练。
 
-4. Implement weight decay (L2 regularization) in the Adam optimizer. Add a `weight_decay` parameter that shrinks weights toward zero each step. Compare training with decay=0 vs decay=0.01.
+5. 用适当的小批量梯度累积替换每个样本的训练循环：累积一批中所有样本的梯度，然后除以批次大小并执行一个优化器步骤。测量这是否会改变收敛速度。
 
-5. Replace the per-sample training loop with proper mini-batch gradient accumulation: accumulate gradients across all samples in a batch, then divide by batch size and take one optimizer step. Measure whether this changes convergence speed.
+## 关键术语
 
-## Key Terms
-
-| Term | What people say | What it actually means |
+|术语 |人们怎么说|它实际上意味着什么 |
 |------|----------------|----------------------|
-| Module | "A layer" | The base abstraction in a framework -- anything with forward(), backward(), and parameters() |
-| Sequential | "Stack layers in order" | A container that chains modules, applying them in sequence for forward and reverse for backward |
-| Forward pass | "Run the network" | Computing the output by passing input through each module in order |
-| Backward pass | "Compute gradients" | Propagating the loss gradient through each module in reverse to compute parameter gradients |
-| Parameters | "The trainable weights" | All values in the network that the optimizer can update -- weights and biases |
-| Optimizer | "The thing that updates weights" | An algorithm that uses gradients to update parameters, implementing SGD, Adam, or other rules |
-| DataLoader | "The thing that feeds data" | An iterator that splits a dataset into batches, optionally shuffling between epochs |
-| Training mode | "model.train()" | A flag that enables stochastic behavior like dropout and batch normalization with batch stats |
-| Evaluation mode | "model.eval()" | A flag that disables dropout and uses running statistics for batch normalization |
-| Zero grad | "Clear the gradients" | Resetting all parameter gradients to zero before computing the next batch's gradients |
+|模块| “一层”|框架中的基本抽象——任何带有forward()、backward() 和parameters() 的东西|
+|顺序 | “按顺序堆叠图层” |一个链接模块的容器，按顺序应用它们用于向前和向后应用它们 |
+|前向传球| “运行网络” |通过按顺序将输入传递给每个模块来计算输出 |
+|向后传递| “计算梯度” |通过每个模块反向传播损失梯度来计算参数梯度 |
+|参数| “可训练的重量”|优化器可以更新的网络中的所有值——权重和偏差 ||优化器| “更新权重的东西”|使用梯度更新参数的算法，实现SGD、Adam或其他规则 |
+|数据加载器| “提供数据的东西”|将数据集分割成批次的迭代器，可以选择在纪元之间进行洗牌 |
+|培训模式| “模型.train()” |一个标志，可实现随机行为，例如使用批量统计信息进行丢弃和批量归一化 |
+|评价模式| “模型.eval()” |禁用 dropout 并使用运行统计数据进行批量标准化的标志 |
+|零毕业 | “清除渐变”|在计算下一批的梯度之前将所有参数梯度重置为零 |
 
-## Further Reading
+## 进一步阅读
 
-- Paszke et al., "PyTorch: An Imperative Style, High-Performance Deep Learning Library" (2019) -- the paper describing PyTorch's design decisions
-- Chollet, "Deep Learning with Python, Second Edition" (2021) -- Chapter 3 covers Keras internals with the same module/layer abstraction
-- Johnson, "Tiny-DNN" (https://github.com/tiny-dnn/tiny-dnn) -- a header-only C++ deep learning framework for understanding framework internals
+- Paszke 等人，“PyTorch：一种命令式的高性能深度学习库”（2019 年）——描述 PyTorch 设计决策的论文
+- Chollet，“Python 深度学习，第二版”（2021 年）——第 3 章介绍了具有相同模块/层抽象的 Keras 内部结构
+- Johnson，“Tiny-DNN”(https://github.com/tiny-dnn/tiny-dnn)——一个仅包含头文件的 C++ 深度学习框架，用于理解框架内部结构

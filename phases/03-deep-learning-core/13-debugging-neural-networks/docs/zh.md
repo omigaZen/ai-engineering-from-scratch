@@ -1,38 +1,36 @@
-# Debugging Neural Networks
+# 调试神经网络
 
-> Your network compiled. It ran. It produced a number. The number is wrong and nothing crashed. Welcome to the hardest kind of debugging -- the kind where there is no error message.
+> 您的网络已编译。它跑了。它产生了一个数字。号码错误，没有崩溃。欢迎来到最困难的调试——没有错误消息的调试。
 
-**Type:** Build
-**Languages:** Python, PyTorch
-**Prerequisites:** Phase 03 Lessons 01-10 (especially backpropagation, loss functions, optimizers)
-**Time:** ~90 minutes
+**类型：** 构建
+**语言：** Python、PyTorch
+**先决条件：** 第 03 阶段第 01-10 课（尤其是反向传播、损失函数、优化器）
+**时间：** ~90 分钟
 
-## Learning Objectives
+## 学习目标
 
-- Diagnose common neural network failures (NaN loss, flat loss curve, overfitting, oscillation) using systematic debugging strategies
-- Apply the "overfit one batch" technique to verify that your model architecture and training loop are correct
-- Inspect gradient magnitudes, activation distributions, and weight norms to identify vanishing/exploding gradient problems
-- Build a debugging checklist that covers data pipeline, model architecture, loss function, optimizer, and learning rate issues
+- 使用系统调试策略诊断常见的神经网络故障（NaN 损失、平坦损失曲线、过度拟合、振荡）
+- 应用“一批过拟合”技术来验证您的模型架构和训练循环是否正确
+- 检查梯度大小、激活分布和权重范数，以识别梯度消失/爆炸问题
+- 构建涵盖数据管道、模型架构、损失函数、优化器和学习率问题的调试清单
 
-## The Problem
+## 问题
 
-Traditional software crashes when it is broken. A null pointer throws an exception. A type mismatch fails at compile time. An off-by-one error produces a clearly wrong output.
+传统软件一旦损坏就会崩溃。空指针会引发异常。类型不匹配在编译时失败。相差一错误会产生明显错误的输出。
 
-Neural networks do not give you that luxury.
+神经网络不会给你那么奢侈的东西。
 
-A broken neural network runs to completion, prints a loss value, and outputs predictions. The loss might decrease. The predictions might look plausible. But the model is silently wrong -- learning shortcuts, memorizing noise, or converging to a useless local minimum. Google researchers estimated that 60-70% of ML debugging time is spent on "silent" bugs that produce no errors but degrade model quality.
+损坏的神经网络运行至完成，打印损失值并输出预测。损失可能会减少。这些预测看起来可能是合理的。但这个模型其实是错误的——学习捷径、记住噪音，或者收敛到无用的局部最小值。谷歌研究人员估计，60-70% 的 ML 调试时间都花在“无声”错误上，这些错误不会产生错误，但会降低模型质量。
 
-The difference between a working model and a broken one is often a single misplaced line: a missing `zero_grad()`, a transposed dimension, a learning rate off by 10x. the canonical "Recipe for Training Neural Networks" (2019) opens with this: "The most common neural net mistakes are bugs that don't crash."
+工作模型和损坏模型之间的区别通常是一条错位的线：缺少 `zero_grad()`、转置维度、学习率降低 10 倍。规范的“训练神经网络的秘诀”（2019）是这样开头的：“最常见的神经网络错误是不会崩溃的错误。”
 
-This lesson teaches you to find those bugs.
+本课教您找到这些错误。
 
-## The Concept
+## 概念
 
-### The Debugging Mindset
+### 调试心态
 
-Forget print-and-pray debugging. Neural network debugging requires a systematic approach because the feedback loop is slow (minutes to hours per training run) and the symptoms are ambiguous (bad loss could mean 20 different things).
-
-The golden rule: **start simple, add complexity one piece at a time, and verify each piece independently.**
+忘记打印并祈祷调试。神经网络调试需要系统化的方法，因为反馈循环很慢（每次训练运行几分钟到几小时）并且症状不明确（严重的损失可能意味着 20 种不同的情况）。黄金法则：**从简单开始，一次一点地增加复杂性，并独立验证每一部分。**
 
 ```mermaid
 flowchart TD
@@ -50,57 +48,55 @@ flowchart TD
     K -->|"Too deep"| M["Optimization difficulty"]
 ```
 
-### Symptom 1: Loss Not Decreasing
+###症状1：损失不减少
 
-This is the most common complaint. The training loop runs, epochs tick by, and the loss stays flat or oscillates wildly.
+这是最常见的抱怨。训练循环运行，纪元流逝，损失保持平坦或剧烈振荡。
 
-**Wrong learning rate.** Too high: loss oscillates or jumps to NaN. Too low: loss decreases so slowly it looks flat. For Adam, start at 1e-3. For SGD, start at 1e-1 or 1e-2. Always try 3 learning rates spanning 10x each (e.g., 1e-2, 1e-3, 1e-4) before concluding something else is wrong.
+**学习率错误。**太高：损失振荡或跳至 NaN。太低：损失减少得非常缓慢，看起来很平稳。对于 Adam，从 1e-3 开始。对于 SGD，从 1e-1 或 1e-2 开始。在得出其他错误的结论之前，请始终尝试 3 个学习率，每个学习率跨越 10 倍（例如 1e-2、1e-3、1e-4）。
 
-**Dead ReLUs.** If a ReLU neuron receives a large negative input, it outputs 0 and its gradient is 0. It never activates again. If enough neurons die, the network cannot learn. Check: print the fraction of activations that are exactly 0 after each ReLU layer. If >50% are dead, switch to LeakyReLU or reduce the learning rate.
+**死亡 ReLU。** 如果 ReLU 神经元接收到较大的负输入，它会输出 0 并且其梯度为 0。它永远不会再次激活。如果有足够多的神经元死亡，网络就无法学习。检查：打印每个 ReLU 层之后恰好为 0 的激活分数。如果超过 50% 死亡，则改用 LeakyReLU 或降低学习率。
 
-**Vanishing gradients.** In deep networks with sigmoid or tanh activations, gradients shrink exponentially as they propagate backward. By the time they reach the first layer, they are ~0. The first layers stop learning. Fix: use ReLU/GELU, add residual connections, or use batch normalization.
+**梯度消失。**在具有 sigmoid 或 tanh 激活的深层网络中，梯度在向后传播时呈指数收缩。当它们到达第一层时，它们的值约为 0。第一层停止学习。修复：使用ReLU/GELU，添加残差连接，或使用批量归一化。
 
-**Exploding gradients.** The opposite problem -- gradients grow exponentially. Common in RNNs and very deep networks. Loss jumps to NaN. Fix: gradient clipping (`torch.nn.utils.clip_grad_norm_`), lower learning rate, or add normalization.
+**梯度爆炸。**相反的问题——梯度呈指数增长。常见于 RNN 和非常深的网络中。损失跳至 NaN。修复：梯度裁剪 (`torch.nn.utils.clip_grad_norm_`)、降低学习率或添加归一化。
 
-### Symptom 2: Loss Decreasing But Model is Bad
+###症状2：损失减少但模型很糟糕
 
-The loss goes down. Training accuracy hits 99%. But test accuracy is 55%. Or the model produces nonsensical outputs on real data.
+损失下降了。训练准确率达到99%。但测试准确率为55%。或者模型对真实数据产生无意义的输出。
 
-**Overfitting.** The model memorizes training data instead of learning patterns. Gap between training and validation loss grows over time. Fix: more data, dropout, weight decay, early stopping, data augmentation.
+**过度拟合。** 该模型会记住训练数据而不是学习模式。训练和验证损失之间的差距随着时间的推移而扩大。修复：更多数据、丢失、权重衰减、提前停止、数据增强。
 
-**Data leakage.** Test data leaked into training. Accuracy is suspiciously high. Common causes: shuffling before splitting, preprocessing with statistics from the full dataset, duplicate samples across splits. Fix: split first, preprocess second, check for duplicates.
+**数据泄露。** 测试数据泄露到训练中。准确率高得令人怀疑。常见原因：分割前进行洗牌、使用完整数据集的统计数据进行预处理、跨分割重复样本。修复：首先拆分，其次预处理，检查重复项。**标签错误。** 大多数真实数据集中 5-10% 的标签是错误的（Northcutt 等人，2021 - “测试集中普遍存在的标签错误”）。模型学习噪声。修复：使用置信学习来查找并修复错误标记的示例，或使用损失截断来忽略高损失样本。
 
-**Label errors.** 5-10% of labels in most real datasets are wrong (Northcutt et al., 2021 -- "Pervasive Label Errors in Test Sets"). The model learns the noise. Fix: use confident learning to find and fix mislabeled examples, or use loss truncation to ignore high-loss samples.
+### 症状 3：损失中 NaN 或 Inf
 
-### Symptom 3: NaN or Inf in Loss
+损失值变为 `nan` 或 `inf`。训练已经死了。
 
-The loss value becomes `nan` or `inf`. Training is dead.
+**学习率太高。** 梯度更新过冲，导致权重爆炸。修复：减少 10 倍。
 
-**Learning rate too high.** Gradient updates overshoot so far that weights explode. Fix: reduce by 10x.
+**log(0) 或 log(负)。** 交叉熵损失计算 `log(p)`。如果您的模型输出恰好为 0 或负概率，则日志会爆炸。修复：将预测限制为 `[eps, 1-eps]`，其中 `eps=1e-7`。
 
-**log(0) or log(negative).** Cross-entropy loss computes `log(p)`. If your model outputs exactly 0 or a negative probability, the log explodes. Fix: clamp predictions to `[eps, 1-eps]` where `eps=1e-7`.
+**除以零。** 批量归一化除以标准差。具有常量值的批次的 std=0。修复：将 epsilon 添加到分母（PyTorch 默认情况下会执行此操作，但自定义实现可能不会）。
 
-**Division by zero.** Batch normalization divides by standard deviation. A batch with constant values has std=0. Fix: add epsilon to the denominator (PyTorch does this by default, but custom implementations might not).
+**数字溢出。** 大量激活输入 `exp()` 产生 Inf。 Softmax 尤其容易发生。修复：在求幂之前减去最大值（log-sum-exp 技巧）。
 
-**Numerical overflow.** Large activations fed into `exp()` produce Inf. Softmax is especially prone. Fix: subtract the max before exponentiating (the log-sum-exp trick).
+### 技术 1：梯度检查
 
-### Technique 1: Gradient Checking
+将分析梯度（来自反向传播）与数值梯度（来自有限差分）进行比较。如果他们不同意，那么你的向后传递就有错误。
 
-Compare your analytical gradients (from backprop) to numerical gradients (from finite differences). If they disagree, your backward pass has a bug.
-
-Numerical gradient for parameter `w`:
+参数 `w` 的数值梯度：
 
 ```
 grad_numerical = (loss(w + eps) - loss(w - eps)) / (2 * eps)
 ```
 
-Agreement metric (relative difference):
+一致性指标（相对差异）：
 
 ```
 rel_diff = |grad_analytical - grad_numerical| / max(|grad_analytical|, |grad_numerical|, 1e-8)
 ```
 
-If `rel_diff < 1e-5`: correct. If `rel_diff > 1e-3`: almost certainly a bug.
+如果 `rel_diff < 1e-5`：正确。如果 `rel_diff > 1e-3`：几乎可以肯定是一个错误。
 
 ```mermaid
 flowchart LR
@@ -115,20 +111,18 @@ flowchart LR
     H --> I["Compare to backprop gradient"]
 ```
 
-### Technique 2: Activation Statistics
+### 技术 2：激活统计
 
-Monitor the mean and standard deviation of activations after each layer during training. Healthy networks maintain activations with mean near 0 and std near 1 (after normalization) or at least bounded.
+在训练期间监控每层之后激活的平均值和标准偏差。健康的网络保持激活的平均值接近 0，标准差接近 1（标准化后）或至少有界。
 
-| Health indicator | Mean | Std | Diagnosis |
-|-----------------|------|-----|-----------|
-| Healthy | ~0 | ~1 | Network is learning normally |
-| Saturated | >>0 or <<0 | ~0 | Activations stuck at extreme values |
-| Dead | 0 | 0 | Neurons are dead (all zeros) |
-| Exploding | >>10 | >>10 | Activations growing without bound |
+|健康指标|平均 |标准|诊断 |
+|----------------|------|-----|------------|
+|健康 | 〜0 | 〜1 |网络学习正常 |
+|饱和| >>0 或 <<0 | 〜0 |激活值停留在极值 |
+|死了| 0 | 0 |神经元已死亡（全为零）|
+|爆炸| >>10 | >>10 |活跃度无限增长|
 
-### Technique 3: Gradient Flow Visualization
-
-Plot the average gradient magnitude for each layer. In a healthy network, gradient magnitudes should be roughly similar across layers. If early layers have gradients 1000x smaller than later layers, you have vanishing gradients.
+### 技术 3：梯度流可视化绘制每层的平均梯度幅值。在健康的网络中，各层的梯度大小应该大致相似。如果早期层的梯度比后面层小 1000 倍，则梯度消失。
 
 ```mermaid
 graph LR
@@ -144,24 +138,24 @@ graph LR
     end
 ```
 
-### Technique 4: The Overfit-One-Batch Test
+### 技术 4：过拟合批量测试
 
-The single most important debugging technique in deep learning.
+深度学习中最重要的调试技术。
 
-Take one small batch (8-32 samples). Train on it for 100+ iterations. The loss should go to nearly zero and training accuracy should hit 100%. If it does not, your model or training loop has a fundamental bug -- do not proceed to full training.
+取一小批（8-32 个样品）。对其进行 100 多次迭代训练。损失应该接近于零，并且训练准确率应该达到 100%。如果没有，您的模型或训练循环有一个根本性的错误——不要进行完整的训练。
 
-This test catches:
-- Broken loss functions
-- Broken backward passes
-- Architecture too small to represent the data
-- Optimizer not connected to model parameters
-- Data and labels misaligned
+该测试捕获：
+- 损失函数被破坏
+- 向后传球被破坏
+- 架构太小，无法表示数据
+- 优化器未连接到模型参数
+- 数据和标签未对齐
 
-This takes 30 seconds to run and saves hours of debugging full training runs.
+这需要 30 秒的时间来运行，并节省了调试完整训练运行的时间。
 
-### Technique 5: Learning Rate Finder
+### 技巧 5：学习率查找器
 
-Leslie Smith (2017) proposed sweeping the learning rate from very small (1e-7) to very large (10) over one epoch while recording the loss. Plot loss vs learning rate. The optimal learning rate is roughly 10x smaller than the rate where loss starts decreasing fastest.
+Leslie Smith（2017）提出在一个时期内将学习率从非常小（1e-7）扫到非常大（10），同时记录损失。绘制损失与学习率的关系图。最佳学习速率大约比损失开始下降最快的速率小 10 倍。
 
 ```mermaid
 graph TD
@@ -175,49 +169,48 @@ graph TD
     end
 ```
 
-Best LR in this example: ~1e-3 (one order of magnitude before the steepest point).
+本例中的最佳 LR：~1e-3（比最陡点高一个数量级）。
 
-### Common PyTorch Bugs
+### 常见的 PyTorch 错误
 
-These are the bugs that waste the most collective hours in the PyTorch community:
+这些是 PyTorch 社区中浪费最多时间的错误：
 
-| Bug | Symptom | Fix |
+|错误 |症状|修复 |
 |-----|---------|-----|
-| Forgetting `optimizer.zero_grad()` | Gradients accumulate across batches, loss oscillates | Add `optimizer.zero_grad()` before `loss.backward()` |
-| Forgetting `model.eval()` at test time | Dropout and batch norm behave differently, test accuracy varies between runs | Add `model.eval()` and `torch.no_grad()` |
-| Wrong tensor shapes | Silent broadcasting produces wrong results, no error | Print shapes after every operation during debugging |
-| CPU/GPU mismatch | `RuntimeError: expected CUDA tensor` | Use `.to(device)` on model AND data |
-| Not detaching tensors | Computation graph grows forever, OOM | Use `.detach()` or `with torch.no_grad()` |
-| In-place operations breaking autograd | `RuntimeError: modified by in-place operation` | Replace `x += 1` with `x = x + 1` |
-| Data not normalized | Loss stuck at random-chance level | Normalize inputs to mean=0, std=1 |
-| Labels as wrong dtype | Cross-entropy expects `Long`, got `Float` | Cast labels: `labels.long()` |
+|忘记 `optimizer.zero_grad()` |梯度跨批次累积，损失振荡 |在 `optimizer.zero_grad()` 之前添加 `loss.backward()` |
+|在测试时忘记 `model.eval()` | Dropout 和批量归一化的行为不同，测试精度在运行之间有所不同 |添加 `model.eval()` 和 `torch.no_grad()` |
+|错误的张量形状 |无声广播产生错误结果，没有错误 |调试期间每次操作后打印形状 |
+| CPU/GPU 不匹配 | `RuntimeError: expected CUDA tensor` | `.to(device)` |在模型和数据上使用 `.detach()` |
+|不分离张量 |计算图永远增长，OOM |使用 `with torch.no_grad()` 或 `RuntimeError: modified by in-place operation` ||就地操作打破 autograd | `x += 1` | `x = x + 1`将 `Long` 替换为 `Float` |
+|数据未标准化 |损失停留在随机机会水平|将输入标准化为mean=0，std=1 |
+|标签为错误的数据类型 |交叉熵期望 `labels.long()`，得到 `.requires_grad` |演员标签：`torch.no_grad()` |
 
-### The Master Debugging Table
+### 主调试表
 
-| Symptom | Likely cause | First thing to try |
-|---------|-------------|-------------------|
-| Loss stuck at -log(1/num_classes) | Model predicting uniform distribution | Check data pipeline, verify labels match inputs |
-| Loss NaN after a few steps | Learning rate too high | Reduce LR by 10x |
-| Loss NaN immediately | log(0) or division by zero | Add epsilon to log/division operations |
-| Loss oscillating wildly | LR too high or batch size too small | Reduce LR, increase batch size |
-| Loss decreasing then plateaus | LR too high for fine-tuning phase | Add LR schedule (cosine or step decay) |
-| Training acc high, test acc low | Overfitting | Add dropout, weight decay, more data |
-| Training acc = test acc = chance | Model not learning anything | Run overfit-one-batch test |
-| Training acc = test acc but both low | Underfitting | Bigger model, more layers, more features |
-| Gradients all zero | Dead ReLUs or detached computation graph | Switch to LeakyReLU, check `.requires_grad` |
-| Out of memory during training | Batch too large or graph not freed | Reduce batch size, use `torch.no_grad()` for eval |
+|症状|可能的原因 |首先要尝试的事情 |
+|--------|-------------|--------------------|
+|损失停留在 -log(1/num_classes) |模型预测均匀分布 |检查数据管道，验证标签与输入匹配 |
+|几步之后损失 NaN |学习率太高 |将 LR 降低 10 倍 |
+|立即损失 NaN | log(0) 或除以零 |将 epsilon 添加到日志/除法操作 |
+|亏损大幅波动| LR 太高或批量太小 |减少 LR，增加批量大小 |
+|损失减少然后趋于稳定| LR 太高，无法进行微调阶段 |添加 LR 时间表（余弦或步进衰减）|
+|训练 acc 高，测试 acc 低 |过度拟合 |添加 dropout、权重衰减、更多数据 |
+|训练 acc = 测试 acc = 机会 |模型没有学到任何东西|运行过拟合一批测试 |
+|训练 acc = 测试 acc 但均较低 |欠拟合|更大的模型、更多的层数、更多的功能 |
+|梯度全为零 | Dead ReLU 或分离计算图 |切换到 LeakyReLU，检查 `outputs/prompt-nn-debugger.md` |
+|训练期间内存不足 |批次太大或图表未释放 |减少批量大小，使用 `outputs/skill-debug-checklist.md` 进行评估 |
 
 ```figure
 learning-curves
 ```
 
-## Build It
+## 构建它
 
-A diagnostic toolkit that monitors activations, gradients, and loss curves. You will deliberately break a network and use the toolkit to diagnose each problem.
+监控激活、梯度和损失曲线的诊断工具包。您将故意破坏网络并使用工具包来诊断每个问题。
 
-### Step 1: The NetworkDebugger Class
+### 第 1 步：NetworkDebugger 类
 
-Hooks into a PyTorch model to record activation and gradient statistics per layer.
+连接到 PyTorch 模型以记录每层的激活和梯度统计数据。
 
 ```python
 import torch
@@ -340,7 +333,7 @@ class NetworkDebugger:
         self.hooks.clear()
 ```
 
-### Step 2: The Overfit-One-Batch Test
+### 步骤 2：过拟合批量测试
 
 ```python
 def overfit_one_batch(model, x_batch, y_batch, criterion, lr=0.01, steps=200):
@@ -371,7 +364,7 @@ def overfit_one_batch(model, x_batch, y_batch, criterion, lr=0.01, steps=200):
     return True
 ```
 
-### Step 3: Learning Rate Finder
+### 第 3 步：学习率查找器
 
 ```python
 def find_learning_rate(model, x_data, y_data, criterion, start_lr=1e-7, end_lr=10, steps=100):
@@ -421,7 +414,7 @@ def find_learning_rate(model, x_data, y_data, criterion, start_lr=1e-7, end_lr=1
     return results
 ```
 
-### Step 4: Gradient Checker
+### 步骤 4：梯度检查器
 
 ```python
 def _flat_to_multi_index(flat_idx, shape):
@@ -495,9 +488,9 @@ def gradient_check(model, x, y, criterion, eps=1e-4):
     return overall_max_diff
 ```
 
-### Step 5: Deliberately Broken Networks
+### 步骤 5：故意破坏网络
 
-Now apply the toolkit to broken networks and diagnose each one.
+现在将该工具包应用于损坏的网络并诊断每个网络。
 
 ```python
 def demo_broken_networks():
@@ -593,9 +586,7 @@ def demo_broken_networks():
     gradient_check(model_grad, x[:4], y[:4], criterion)
 ```
 
-## Use It
-
-### PyTorch Built-in Tools
+## 使用它### PyTorch 内置工具
 
 ```python
 import torch
@@ -617,7 +608,7 @@ for name, param in model.named_parameters():
         print(f"{name}: grad_mean={param.grad.abs().mean():.2e}")
 ```
 
-### Weights & Biases Integration
+### 权重和偏差整合
 
 ```python
 import wandb
@@ -637,7 +628,7 @@ for epoch in range(100):
             wandb.log({f"grad/{name}": wandb.Histogram(param.grad.cpu().numpy())})
 ```
 
-### TensorBoard
+### 张量板
 
 ```python
 from torch.utils.tensorboard import SummaryWriter
@@ -654,58 +645,55 @@ for epoch in range(100):
             writer.add_histogram(f"gradients/{name}", param.grad, epoch)
 ```
 
-### The Debug Checklist (Before Full Training)
+### 调试清单（全面训练之前）
 
-1. Run overfit-one-batch test. If it fails, stop.
-2. Print model summary -- verify parameter count is reasonable.
-3. Run a single forward pass with random data -- check output shape.
-4. Train for 5 epochs -- verify loss decreases.
-5. Check activation statistics -- no dead layers, no explosions.
-6. Check gradient flow -- no vanishing, no exploding.
-7. Verify data pipeline -- print 5 random samples with labels.
+1. 进行一批过拟合测试。如果失败，就停止。
+2. 打印模型摘要——验证参数计数是否合理。
+3. 使用随机数据运行一次前向传递——检查输出形状。
+4. 训练 5 个 epoch——验证损失减少。
+5. 检查激活统计数据——没有死层，没有爆炸。
+6. 检查梯度流——不消失、不爆炸。
+7. 验证数据管道——打印 5 个带有标签的随机样本。
 
-## Ship It
+## 发货
 
-This lesson produces:
-- `outputs/prompt-nn-debugger.md` -- a prompt for diagnosing neural network training failures
-- `outputs/skill-debug-checklist.md` -- a decision-tree checklist for debugging training issues
+本课产生：
+- `NetworkDebugger` -- 诊断神经网络训练失败的提示
+- `find_learning_rate` -- 用于调试训练问题的决策树清单
 
-Key deployment patterns for debugging:
-- Add monitoring hooks to production training scripts
-- Log activation and gradient statistics to W&B or TensorBoard every N steps
-- Implement automatic alerts for NaN loss, dead neurons (>80% zero), or gradient explosion
-- Always run the overfit-one-batch test when changing architectures or data pipelines
+调试的关键部署模式：
+- 将监控挂钩添加到生产训练脚本中
+- 每 N 步将激活和梯度统计数据记录到 W&B 或 TensorBoard
+- 对 NaN 丢失、死亡神经元（>80% 零）或梯度爆炸实施自动警报
+- 在更改架构或数据管道时始终运行过拟合一批测试
 
-## Exercises
+## 练习
 
-1. **Add an exploding gradient detector.** Modify the `NetworkDebugger` to detect when gradients exceed a threshold and automatically suggest a gradient clipping value. Test it on a 20-layer network with no normalization.
+1. **添加爆炸梯度检测器。** 修改 `torch.autograd.detect_anomaly` 以检测梯度何时超过阈值并自动建议梯度裁剪值。在没有标准化的 20 层网络上进行测试。
 
-2. **Build a dead neuron resurrector.** Write a function that identifies dead ReLU neurons (always outputting 0) and reinitializes their incoming weights with Kaiming initialization. Show that this recovers a network where >70% of neurons are dead.
+2. **构建一个死亡神经元复活器。** 编写一个函数来识别死亡 ReLU 神经元（始终输出 0）并通过 Kaiming 初始化重新初始化它们的传入权重。表明这可以恢复超过 70% 的神经元死亡的网络。
 
-3. **Implement the learning rate finder with plotting.** Extend `find_learning_rate` to save results as a CSV and write a separate script that reads the CSV and displays the LR vs loss curve using matplotlib. Identify the optimal LR for ResNet-18 on CIFAR-10.
+3. **通过绘图实现学习率查找器。** 扩展 `torch.autograd.set_detect_anomaly` 将结果保存为 CSV，并编写一个单独的脚本来读取 CSV 并使用 matplotlib 显示 LR 与损失曲线。确定 CIFAR-10 上 ResNet-18 的最佳 LR。
 
-4. **Create a data pipeline validator.** Write a function that checks for: duplicate samples across train/test splits, label distribution imbalance (>10:1 ratio), input normalization (mean near 0, std near 1), and NaN/Inf values in the data. Run it on a deliberately corrupted dataset.
+4. **创建数据管道验证器。** 编写一个函数来检查：训练/测试拆分中的重复样本、标签分布不平衡（>10:1 比率）、输入归一化（均值接近 0、std 接近 1）以及数据中的 NaN/Inf 值。在故意损坏的数据集上运行它。5. **调试真正的失败。** 采用第 10 课中的迷你框架，引入一个微妙的错误（例如，向后转置权重矩阵），并使用梯度检查来准确定位哪个参数具有不正确的梯度。记录调试过程。
 
-5. **Debug a real failure.** Take the mini-framework from Lesson 10, introduce a subtle bug (e.g., transpose the weight matrix in backward), and use gradient checking to locate exactly which parameter has incorrect gradients. Document the debugging process.
+## 关键术语
 
-## Key Terms
-
-| Term | What people say | What it actually means |
+|术语 |人们怎么说|它实际上意味着什么 |
 |------|----------------|----------------------|
-| Silent bug | "It runs but gives bad results" | A bug that produces no error but degrades model quality -- the dominant failure mode in ML |
-| Dead ReLU | "The neurons died" | A ReLU neuron whose input is always negative, so it outputs 0 and receives 0 gradient permanently |
-| Vanishing gradients | "Early layers stop learning" | Gradients shrink exponentially through layers, making weights in early layers effectively frozen |
-| Exploding gradients | "Loss went to NaN" | Gradients grow exponentially through layers, causing weight updates so large they overflow |
-| Gradient checking | "Verify backprop is correct" | Comparing analytical gradients from backprop to numerical gradients from finite differences |
-| Overfit-one-batch | "The most important debug test" | Training on a single small batch to verify the model CAN learn -- if it cannot, something is fundamentally broken |
-| LR finder | "Sweep to find the right learning rate" | Exponentially increasing the learning rate over one epoch and picking the rate just before loss diverges |
-| Data leakage | "Test data leaked into training" | When information from the test set contaminates training, producing artificially high accuracy |
-| Activation statistics | "Monitor layer health" | Tracking mean, std, and zero-fraction of each layer's output to detect dead, saturated, or exploding neurons |
-| Gradient clipping | "Cap the gradient magnitude" | Scaling gradients down when their norm exceeds a threshold, preventing exploding gradient updates |
+|沉默的虫子 | “它可以运行，但结果很糟糕” |一个不会产生错误但会降低模型质量的错误——机器学习中的主要故障模式 |
+|死亡 ReLU | “神经元死亡”|一个 ReLU 神经元，其输入始终为负，因此它输出 0 并永久接收 0 梯度 |
+|梯度消失| “早期层停止学习”|梯度在层中呈指数级收缩，使得早期层中的权重有效地冻结 |
+|梯度爆炸| “损失为 NaN” |梯度通过层呈指数级增长，导致权重更新过大以至于溢出 |
+|梯度检查 | “验证反向传播是否正确” |比较反向传播的解析梯度和有限差分的数值梯度 |
+|过拟合一批 | “最重要的调试测试”|对单个小批量进行训练以验证模型可以学习 - 如果不能，则某些东西从根本上被破坏了 |
+| LR 取景器 | “扫一扫找到合适的学习率” |在一个时期内以指数方式增加学习率，并在损失发散之前选择学习率 |
+|数据泄露| “测试数据泄露到训练中”|当测试集中的信息污染训练时，人为地产生高精度 |
+|激活统计| “监控图层健康状况” |跟踪每层输出的平均值、标准差和零分数，以检测死亡、饱和或爆炸的神经元 |
+|渐变裁剪| “限制梯度大小” |当梯度范数超过阈值时缩小梯度，防止梯度更新爆炸 |
 
-## Further Reading
+## 进一步阅读
 
-- Smith, "Cyclical Learning Rates for Training Neural Networks" (2017) -- the paper introducing the learning rate range test (LR finder)
-- Northcutt et al., "Pervasive Label Errors in Test Sets Destabilize Machine Learning Benchmarks" (2021) -- demonstrates that 3-6% of labels in ImageNet, CIFAR-10, and other major benchmarks are wrong
-- Zhang et al., "Understanding Deep Learning Requires Rethinking Generalization" (2017) -- the paper showing neural networks can memorize random labels, which is why the overfit-one-batch test works
-- PyTorch documentation on `torch.autograd.detect_anomaly` and `torch.autograd.set_detect_anomaly` for built-in NaN/Inf detection
+- Smith，“Cyclical Learning Rates for Training Neural Networks”（2017）——介绍学习率范围测试（LR finder）的论文- Northcutt 等人，“测试集中普遍存在的标签错误破坏机器学习基准的稳定性”（2021 年）——证明 ImageNet、CIFAR-10 和其他主要基准中有 3-6% 的标签是错误的
+- 张等人，“理解深度学习需要重新思考泛化”（2017 年）——该论文表明神经网络可以记忆随机标签，这就是过拟合批量测试有效的原因
+- 有关内置 NaN/Inf 检测的 torch.autograd.detect_anomaly 和 torch.autograd.set_detect_anomaly 的 PyTorch 文档

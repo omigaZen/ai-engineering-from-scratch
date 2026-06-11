@@ -1,62 +1,62 @@
 [
   {
-    "question": "PyTorch 的 autograd 是什么？",
+    "question": "PyTorch 中的 autograd 是什么？",
     "options": [
       "一个数据加载库",
-      "自动微分引擎，在前向构建计算图并在 backward 时自动算梯度，无需手写反向",
+      "自动微分引擎，记录操作并计算梯度，无需手动向后实施",
       "模型压缩工具",
-      "超参数搜索框架"
+      "超参数调优框架"
     ],
     "correct": 1,
-    "explanation": "PyTorch 在前向时记录计算图，调用 .backward() 时沿着图自动计算梯度，因此不必手写每个 Module 的 backward。",
+    "explanation": "PyTorch 的 autograd 在前向计算期间构建计算图，并在调用 .backward() 时自动计算梯度。这消除了在每个模块中手动实现backward()的需要。",
     "stage": "pre"
   },
   {
-    "question": "torch.no_grad() 的作用和适用场景？",
+    "question": "torch.no_grad() 有什么作用以及什么时候应该使用它？",
     "options": [
-      "防止过拟合",
-      "推理时关闭梯度跟踪，减少内存和计算开销",
-      "冻结全部参数",
-      "打开 GPU 加速"
+      "它可以防止过度拟合",
+      "当您不需要训练时，它会禁用用于推理的梯度跟踪，从而节省内存和计算",
+      "它冻结所有模型权重",
+      "它启用 GPU 加速"
     ],
     "correct": 1,
-    "explanation": "推理不需要梯度，no_grad 会停止计算图记录，省掉反向所需的中间变量显存。",
+    "explanation": "在推理过程中，您不需要梯度。 torch.no_grad() 禁用梯度跟踪，这可以节省用于存储计算图的内存并加快计算速度。",
     "stage": "pre"
   },
   {
-    "question": "nn.Linear(784, 256) 在 PyTorch 中创建了什么？",
+    "question": "nn.Linear(784, 256) 在 PyTorch 中创建什么？",
     "options": [
-      "一个 ReLU 激活层",
-      "一个全连接层，权重形状为 (256, 784)，偏置形状为 (256,)",
+      "ReLU 激活层",
+      "具有 (256, 784) 权重矩阵和 (256,) 偏置向量的全连接层",
       "p=784/256 的 dropout 层",
-      "一个 BatchNorm 层"
+      "批量归一化层"
     ],
     "correct": 1,
-    "explanation": "nn.Linear(in_features, out_features) 等价于 y = x @ W^T + b，W 的形状是 (256,784)，b 是 (256,)。这和你手搓的 Linear 层一致。",
+    "explanation": "nn.Linear(in_features, out_features) 创建一个计算 y = x @ W^T + b 的层，其中 W 的形状为 (256, 784)，b 的形状为 (256,)。这是您从头开始构建的 Layer 类的 PyTorch 等效项。",
     "stage": "post"
   },
   {
-    "question": "下面哪个方法会计算计算图中所有参数的梯度？",
+    "question": "哪种 PyTorch 方法计算计算图中所有参数的梯度？",
     "options": [
-      "optimizer.step()",
-      "model.forward()",
+      "优化器.step()",
+      "模型.forward()",
       "loss.backward()",
-      "optimizer.zero_grad()"
+      "优化器.zero_grad()"
     ],
     "correct": 2,
-    "explanation": "loss.backward() 会反向遍历计算图，给每个需要梯度的参数 p 计算 dL/dp。optimizer.step() 只负责使用这些梯度更新权重。",
+    "explanation": "loss.backward() 反向遍历计算图，为每个需要梯度的参数 p 计算 dL/dp。 Optimizer.step() 然后使用这些梯度来更新参数。",
     "stage": "post"
   },
   {
-    "question": "为什么 PyTorch 的训练速度通常快于纯 Python 自实现框架？",
+    "question": "为什么 PyTorch 的训练循环明显快于纯 Python 迷你框架？",
     "options": [
-      "因为算法不同",
-      "因为底层用 C++/CUDA 内核并行处理，而纯 Python 是逐操作解释执行",
-      "因为 PyTorch 使用更小的数据类型",
-      "因为 PyTorch 跳过反向传播"
+      "PyTorch 使用不同的算法",
+      "PyTorch 在 GPU 上作为优化的 C++/CUDA 内核运行操作，而纯 Python 循环一次解释一个操作",
+      "PyTorch 使用较小的数据类型",
+      "PyTorch 跳过向后传递"
     ],
     "correct": 1,
-    "explanation": "PyTorch 将矩阵运算交给高度优化的 C++、CUDA 内核在 GPU 并行执行，纯 Python 会在解释器内逐步执行每个操作，开销更高。",
+    "explanation": "PyTorch 将矩阵运算委托给高度优化的 C++ 和 CUDA 内核，这些内核在 GPU 上以大规模并行性运行。纯 Python 按顺序执行循环，每个操作都有解释器开销。",
     "stage": "post"
   }
 ]

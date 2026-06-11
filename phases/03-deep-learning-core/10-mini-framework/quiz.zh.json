@@ -1,62 +1,62 @@
 [
   {
-    "question": "你构建的小型深度学习框架里，Module 抽象承担的三类职责是什么？",
+    "question": "模块抽象在深度学习框架中具有哪三个职责？",
     "options": [
-      "加载数据、预处理数据、数据增强",
-      "forward() 负责前向计算，backward() 负责梯度反传，parameters() 暴露可训练参数",
+      "加载数据、预处理数据、扩充数据",
+      "forward() 用于计算，backward() 用于梯度，parameters() 用于可训练权重",
       "编译、优化、部署",
-      "分词、Embedding、解码"
+      "标记化、嵌入、解码"
     ],
     "correct": 1,
-    "explanation": "每个 Module 都统一提供 forward、backward 和 parameters，这样不同模块可以像积木一样任意组合。",
+    "explanation": "每个模块都实现forward()来计算输出，backward()来传播梯度，以及parameters()来公开可训练的权重。这种统一的接口允许任何模块与任何其他模块组合。",
     "stage": "pre"
   },
   {
-    "question": "Sequential 在反向传播时为什么要反向遍历模块？",
+    "question": "为什么 Sequential 在向后传递过程中以相反的顺序处理模块？",
     "options": [
-      "方向是任意的，不影响结果",
-      "梯度从损失从后往前流动，最后一层先接到 loss 的梯度并继续向前传递",
-      "反向顺序可省显存",
-      "能避免梯度爆炸"
+      "它是任意的——任一方向都有效",
+      "梯度从损失向后流经网络，因此最后一层首先计算梯度",
+      "逆序使用更少的内存",
+      "它可以防止梯度爆炸"
     ],
     "correct": 1,
-    "explanation": "反向传播从损失起点开始，最后一层先拿到梯度，计算局部梯度后再传给前一层。顺序错误会导致梯度方向错乱。",
+    "explanation": "向后传递从损失开始并向输入传播梯度。最后一层首先接收损失梯度，计算其局部梯度，并将其传递到前一层。",
     "stage": "pre"
   },
   {
-    "question": "为什么 optimizer.zero_grad() 要单独调用，而不是自动在 step 内完成？",
+    "question": "为什么optimizer.zero_grad()是一个单独的调用而不是自动完成？",
     "options": [
-      "这是 PyTorch 的设计瑕疵",
-      "可以在多个 batch 上累积梯度后再统一更新，模拟更大 batch",
-      "节约显存",
-      "为了更好调试"
+      "这是 PyTorch 的设计错误",
+      "它允许在执行单个优化器步骤之前跨多个批次进行梯度累积",
+      "它节省内存",
+      "它使调试更容易"
     ],
     "correct": 1,
-    "explanation": "把清零和更新分开后，你可以先对多个小 batch 调用 backward 累加梯度，再调用一次 step，相当于更大有效 batch。",
+    "explanation": "将zero_grad与step分开可以实现梯度累积：您可以多次运行backward()（跨小批量）并在调用step()之前对梯度求和。这模拟了更大的批量大小。",
     "stage": "post"
   },
   {
-    "question": "标准训练循环的正确顺序是？",
+    "question": "训练循环中正确的操作顺序是什么？",
     "options": [
-      "backward, forward, zero_grad, step",
-      "forward, loss, zero_grad, backward, step",
-      "zero_grad, forward, loss, backward, step",
-      "forward, zero_grad, backward, loss, step"
+      "向后、向前、零梯度、步长",
+      "前向、损失、零梯度、后向、步长",
+      "零梯度、前向、损失、后向、步长",
+      "前向、零梯度、后向、损失、步长"
     ],
     "correct": 2,
-    "explanation": "标准流程是：先清零梯度，再前向，算 loss，反向，最后参数更新。顺序错了会出现难以定位的训练异常。",
+    "explanation": "标准模式：zero_grad（清除旧梯度）、forward（计算预测）、loss（计算标量损失）、backward（计算梯度）、step（更新参数）。如果这个顺序错误会导致微妙的错误。",
     "stage": "post"
   },
   {
-    "question": "这个 mini framework 里的 DataLoader 主要做什么？",
+    "question": "DataLoader在框架中的作用是什么？",
     "options": [
-      "训练模型本身",
-      "按批次切分数据，并可在每个 epoch 打乱顺序以减少记忆序列偏差",
-      "计算损失",
-      "初始化权重"
+      "它训练模型",
+      "它将数据分成批次，并可选择在纪元之间进行洗牌，以实现小批量梯度下降",
+      "它计算损失函数",
+      "它初始化权重"
     ],
     "correct": 1,
-    "explanation": "DataLoader 负责两件工程问题：批处理是因为数据通常放不下内存；shuffle 防止模型记住样本顺序。",
+    "explanation": "DataLoader 处理两个实际问题：批处理（无法将所有数据放入内存）和洗牌（随机顺序阻止模型记住数据序列）。",
     "stage": "post"
   }
 ]
