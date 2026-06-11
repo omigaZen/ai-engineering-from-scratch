@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "张量中的“shape”表示什么？",
+      "options": [
+        "每个轴长度的元组",
+        "张量中的元素总数",
+        "张量中元素的类型",
+        "张量在内存中的地址"
+      ],
+      "correct": 0,
+      "explanation": "shape 是一个元组，记录每个轴上的长度。例如形状 `(2, 3, 4)` 表示 axis0 长度 2，axis1 长度 3，axis2 长度 4。"
+    },
+    {
+      "stage": "pre",
+      "question": "PyTorch 中默认的图像 batch 张量布局是哪个？",
+      "options": [
+        "NHWC（batch, height, width, channels）",
+        "NCHW（batch, channels, height, width）",
+        "CHWN（channels, height, width, batch）",
+        "WHCN（width, height, channels, batch）"
+      ],
+      "correct": 1,
+      "explanation": "PyTorch 默认采用 NCHW（channels-first）。TensorFlow 常见 NHWC。布局不一致会导致静默错误或性能问题。"
+    },
+    {
+      "stage": "post",
+      "question": "对形状 `(8, 1, 6, 1)` 与 `(7, 1, 5)` 广播后结果形状是什么？",
+      "options": [
+        "(8, 7, 6, 1)",
+        "(8, 1, 6, 5)",
+        "(8, 7, 6, 5)",
+        "广播失败：形状不兼容"
+      ],
+      "correct": 2,
+      "explanation": "先从右对齐得到 `(8,1,6,1)` 与 `(1,7,1,5)`。每轴兼容需相等或一方为 1，结果取每轴最大值，故为 `(8, 7, 6, 5)`。"
+    },
+    {
+      "stage": "post",
+      "question": "在 `einsum` 表达式 `bhtd,bhsd->bhts` 中，索引 `d` 的作用是什么？",
+      "options": [
+        "保留到输出中，作为新轴",
+        "在两个输入中出现但输出中未出现，因此会被求和收缩",
+        "在两个输入上广播",
+        "在两个输入中交换顺序"
+      ],
+      "correct": 1,
+      "explanation": "`einsum` 中，输入中出现而输出中缺失的索引会被收缩。`d` 在 `bhtd` 与 `bhsd` 都出现，但在 `bhts` 不出现，因此对 `d` 求和。"
+    },
+    {
+      "stage": "post",
+      "question": "为什么 PyTorch 的 `.view()` 在转置后常常失败？",
+      "options": [
+        "转置会改变数据类型",
+        "转置后张量通常非连续，`view` 需要连续内存",
+        "view 只能用于 2D 张量",
+        "转置会改变元素总数"
+      ],
+      "correct": 1,
+      "explanation": "转置只是交换步幅，不移动数据，容易得到非连续内存布局。`view` 要求连续存储，因此需改用 `reshape` 或先调用 `.contiguous()`。"
+    }
+  ]
+}
