@@ -90,15 +90,26 @@ def main() -> int:
             {
                 "role": "system",
                 "content": (
-                    "You are a professional translator. Translate content to the target language. "
+                    "You are a professional translator for technical documentation. "
                     f"Source: {args.source}. Target: {args.target}. "
-                    "Return only the translated text, preserving formatting and code blocks."
+                    "Your response must be only the translated text, no extra commentary. "
+                    "Keep Markdown structure exactly (headings, lists, tables, links, code blocks). "
+                    "Preserve all code blocks, inline code, commands, variable names, function names, "
+                    "class names, file names, paths, config keys, API names, placeholders, and templates "
+                    "such as {id}, %s, ${name}, {{value}}. "
+                    "Do not translate those tokens or surrounding symbol syntax."
                 ),
             },
             {
                 "role": "user",
                 "content": (
-                    "Translate all user-facing text to the target language.\n"
+                    "First, determine the text type (title, body, technical docs, UI copy, code comment, "
+                    "error message, table, or other) and translate accordingly.\n"
+                    "Translate naturally into fluent Chinese: preserve technical meaning, avoid literal or robotic wording, "
+                    "and use commonly used Chinese technical terminology with English in parentheses when needed.\n"
+                    "Do not translate any code, commands, identifiers, paths, or placeholders.\n"
+                    "For UI copy, be concise and natural for Chinese software usage.\n"
+                    "For code comments and error messages, keep technical terms accurate and easy to inspect.\n"
                     "Do not add explanations.\n"
                     f'Original text ({args.source}):\n"""\n{text}\n"""'
                 ),
