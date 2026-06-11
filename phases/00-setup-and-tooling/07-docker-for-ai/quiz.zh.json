@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Docker 容器与虚拟机最核心的区别是什么？",
+      "options": [
+        "容器更慢但更安全",
+        "容器共享宿主机内核，虚拟机运行完整 Guest OS",
+        "容器只能跑 Linux，虚拟机可以运行任意操作系统",
+        "二者实际没有区别"
+      ],
+      "correct": 1,
+      "explanation": "容器复用宿主内核并做进程级隔离，启动快；虚拟机运行独立的完整操作系统与内核，资源开销更大、启动更慢。"
+    },
+    {
+      "stage": "pre",
+      "question": "Dockerfile 的作用是？",
+      "options": [
+        "Docker 守护进程配置文件",
+        "分层构建镜像的指令集合",
+        "记录容器运行日志的文件",
+        "列出正在运行的容器的文件"
+      ],
+      "correct": 1,
+      "explanation": "Dockerfile 用 `FROM`、`RUN`、`COPY` 等指令按顺序构建镜像，每条指令通常对应一个可缓存层。"
+    },
+    {
+      "stage": "post",
+      "question": "为什么 AI 项目里 volume 挂载尤其重要？",
+      "options": [
+        "卷让容器运行更快，因为用了主机磁盘速度",
+        "卷将模型、数据集、代码持久化，避免每次重建都重新下载大文件",
+        "卷是 Python 包正确安装的前提",
+        "卷让多个容器共享同一块 GPU"
+      ],
+      "correct": 1,
+      "explanation": "容器停止后其内部文件可能消失。通过 volume 将主机目录映射到容器，即使重建也不会丢失 14GB 级模型和数据。"
+    },
+    {
+      "stage": "post",
+      "question": "NVIDIA Container Toolkit 主要做什么？",
+      "options": [
+        "在容器内安装 CUDA 驱动",
+        "通过 `--gpus` 让容器访问宿主机 GPU",
+        "让 NVIDIA GPU 容器在 AMD 硬件上运行",
+        "在构建阶段编译 CUDA 代码"
+      ],
+      "correct": 1,
+      "explanation": "NVIDIA Container Toolkit 作为运行时组件把宿主 GPU 暴露给容器。CUDA toolkit 可在容器内，但 GPU 驱动来自宿主。"
+    },
+    {
+      "stage": "post",
+      "question": "在 Compose 中 `ai-dev` 如何访问 `qdrant`？",
+      "options": [
+        "用宿主机 IP 和端口访问",
+        "使用服务名 `qdrant`，Compose 会创建共享网络",
+        "通过共享卷传递请求路径",
+        "必须单独配置容器间 VPN"
+      ],
+      "correct": 1,
+      "explanation": "Compose 在同一网络内创建服务名可解析。`ai-dev` 可直接通过 `http://qdrant:6333` 用服务名通信。"
+    }
+  ]
+}
