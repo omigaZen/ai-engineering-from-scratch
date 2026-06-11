@@ -1,4 +1,5 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """Translate stdin text via OpenAI-compatible chat completion API.
 
 The script intentionally uses only the Python standard library so it can run in the
@@ -15,12 +16,49 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import ssl
 import sys
 import time
+import uuid
 import urllib.error
 import urllib.request
 from typing import Any
+
+
+PLACEHOLDER_PATTERNS = [
+    re.compile(r"\{[A-Za-z_][A-Za-z0-9_]*\}"),
+    re.compile(r"\{\{[^{}]+\}\}"),
+    re.compile(r"\$\{[^{}]+\}"),
+    re.compile(r"%[sd]"),
+    re.compile(r"%\([^)]*?\)[sdf]"),
+]
+
+
+def _protect_placeholders(text: str) -> tuple[str, dict[str, str]]:
+    mapping: dict[str, str] = {}
+
+    def repl(match: re.Match[str]) -> str:
+        token = f"__I18N_PH_{uuid.uuid4().hex}__"
+        mapping[token] = match.group(0)
+        return token
+
+    protected = text
+    for pattern in PLACEHOLDER_PATTERNS:
+        protected = pattern.sub(repl, protected)
+    return protected, mapping
+
+
+def _restore_placeholders(text: str, mapping: dict[str, str]) -> str:
+    restored = text
+    for token, original in mapping.items():
+        restored = restored.replace(token, original)
+    return restored
+
+
+def _check_forbidden_phrases(text: str) -> bool:
+    forbidden = {"直觉", "固执己见", "实现细节"}
+    return any(word in text for word in forbidden)
 
 
 def parse_args() -> argparse.Namespace:
@@ -83,6 +121,8 @@ def main() -> int:
     if not text.strip():
         return 0
 
+    protected_text, mapping = _protect_placeholders(text)
+
     payload = {
         "model": args.model,
         "temperature": args.temperature,
@@ -113,7 +153,7 @@ def main() -> int:
                     "If the source contains colloquialisms or idioms, translate the meaning instead of literal wording.\n"
                     "After translating, perform an internal quality check and correct obvious awkward machine translation.\n"
                     "Do not add explanations.\n"
-                    f'Original text ({args.source}):\n"""\n{text}\n"""'
+                    f'Original text ({args.source}):\n"""\n{protected_text}\n"""'
                 ),
             },
         ],
@@ -124,6 +164,14 @@ def main() -> int:
     except Exception as exc:
         sys.stderr.write(f"{exc}\n")
         return 1
+
+    translated = _restore_placeholders(translated, mapping)
+
+    if _check_forbidden_phrases(translated):
+        sys.stderr.write(
+            "Warning: potential literal wording remains (直觉/固执己见/实现细节). "
+            "Please review translation.\n"
+        )
 
     sys.stdout.write(translated)
     return 0
