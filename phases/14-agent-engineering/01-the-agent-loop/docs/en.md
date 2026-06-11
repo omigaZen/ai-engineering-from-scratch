@@ -26,7 +26,7 @@ Agents fix this with one pattern: a loop that lets the model decide to pause, ca
 
 Yao et al. (ICLR 2023, arXiv:2210.03629) introduced `Reason + Act`. Each turn emits:
 
-```
+```text
 Thought: I need to look up the capital of France.
 Action: search("capital of France")
 Observation: Paris is the capital of France.
@@ -83,7 +83,7 @@ agent-loop
 
 Run it:
 
-```
+```bash
 python3 code/main.py
 ```
 
