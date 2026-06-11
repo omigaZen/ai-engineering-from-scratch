@@ -1,0 +1,46 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "信息论里的熵表示什么？",
+      "options": ["物理系统的能量", "概率分布中的平均惊奇/不确定性", "二进制消息中的比特数", "通信信道的误码率"],
+      "correct": 1,
+      "explanation": "熵 H(P)= -sum(p(x)*log(p(x))) 表示分布上所有事件平均的信息量。熵越大，越不确定；熵越小，越可预测。"
+    },
+    {
+      "stage": "pre",
+      "question": "交叉熵通常在神经网络中用于什么任务？",
+      "options": ["连续值回归", "分类任务，衡量预测分布与真实标签分布的差异", "生成新样本", "正则化参数权重"],
+      "correct": 1,
+      "explanation": "分类交叉熵 H(P,Q)= -sum(p(x)*log(q(x))) 衡量真实标签分布 P 与模型预测分布 Q 的差异，是分类的标准损失之一。"
+    },
+    {
+      "stage": "check",
+      "question": "在分类里，one-hot 标签下交叉熵为什么可写成单项 -log(q(true_class))？",
+      "options": ["因为真实分布恒等于 1", "因为除真实类别外所有 p(x)=0", "因为模型分布总和为 0", "因为 log(q) 总是线性可加"],
+      "correct": 1,
+      "explanation": "one-hot 标签中真实类别概率为 1，其他类别为 0，交叉熵中的求和只有真实类项保留下来，因此只剩 -log(q(true_class))。"
+    },
+    {
+      "stage": "check",
+      "question": "已知真实分布 P 固定，为什么最小化 H(P,Q) 等价于最小化 KL(P||Q)？",
+      "options": ["因为两者恒等", "因为 H(P,Q) = H(P) + KL(P||Q)，其中 H(P) 在训练中是常数", "因为 KL(P||Q) 始终为 0", "因为 Q 的熵也固定"],
+      "correct": 1,
+      "explanation": "有恒等式 H(P,Q)=H(P)+D_KL(P||Q)。P 来自标签固定不变，故 H(P) 常量，最小化交叉熵与最小化 KL 完全一致。"
+    },
+    {
+      "stage": "post",
+      "question": "语言模型 perplexity = 50 的直观含义是什么？",
+      "options": ["模型每句平均错 50 次", "模型每一步平均像从 50 个等概率 token 中随机选下一个 token 一样不确定", "模型有 50 层", "模型训练了 50 个 epoch"],
+      "correct": 1,
+      "explanation": "困惑度定义为 e^(cross-entropy)。50 意味着每步预测的不确定性相当于在 50 个等可能选项里选一个。数值越小代表预测越有把握。"
+    },
+    {
+      "stage": "post",
+      "question": "在特征筛选里，互信息与 Pearson 相关相比优势是什么？",
+      "options": ["互信息一定更快", "互信息能捕捉任何统计依赖（线性/非线性），而 Pearson 主要捕捉线性相关", "Pearson 适用于所有类型变量，互信息只适用于连续变量", "它们总给出同样排名"],
+      "correct": 1,
+      "explanation": "互信息衡量任意统计依赖，不限线性。Pearson 相关性只看线性关系，无法覆盖很多非线性或非单调关系。"
+    }
+  ]
+}
