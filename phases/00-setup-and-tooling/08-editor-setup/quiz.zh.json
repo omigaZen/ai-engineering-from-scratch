@@ -1,0 +1,59 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "LSP（Language Server Protocol）是什么？",
+      "options": [
+        "编辑器之间传文件的协议",
+        "让编辑器从语言服务器获取类型信息、补全和诊断的标准协议",
+        "源码压缩格式",
+        "远程结对编程的网络协议"
+      ],
+      "correct": 1,
+      "explanation": "LSP 定义了编辑器与语言服务器的通信规范，因此不同编辑器都能获得自动补全、类型检查、错误提示等能力。"
+    },
+    {
+      "stage": "pre",
+      "question": "为什么团队项目里会启用“保存时自动格式化”？",
+      "options": [
+        "减小文件体积，删掉空白字符",
+        "在不依赖开发者手工操作的情况下保持统一代码风格",
+        "在执行前抓取运行时错误",
+        "压缩代码让 git 操作更快"
+      ],
+      "correct": 1,
+      "explanation": "保存即格式化会自动调用 Black/Ruff 等工具，团队里每个人都遵循一致风格，减少风格讨论和 merge 风险。"
+    },
+    {
+      "stage": "post",
+      "question": "哪款 VS Code 扩展可让你像本地一样编辑远程 GPU 机器上的代码？",
+      "options": ["GitLens", "Pylance", "Remote SSH", "Debugpy"],
+      "correct": 2,
+      "explanation": "Remote SSH 在远端安装轻量服务并将界面流回本地，支持编辑文件、打开终端和调试。"
+    },
+    {
+      "stage": "post",
+      "question": "为什么要打开 `notebook.output.scrolling`？",
+      "options": [
+        "支持表格宽屏横向滚动",
+        "防止训练 loop 大量输出把 notebook 面板撑爆",
+        "允许鼠标滚动跨 cell",
+        "开启编辑器平滑滚动动画"
+      ],
+      "correct": 1,
+      "explanation": "训练过程中常有上千行日志输出，不设置滚动时输出区域会无限膨胀，影响阅读和操作。"
+    },
+    {
+      "stage": "post",
+      "question": "把 `python.analysis.typeCheckingMode` 设为 `basic` 在 VS Code 中的作用是？",
+      "options": [
+        "开启 Python 语法高亮",
+        "在运行前发现类型错误、错误参数类型等问题",
+        "按 PEP 8 自动格式化代码",
+        "启用 Python 3.12 语法特性"
+      ],
+      "correct": 1,
+      "explanation": "Basic 类型检查可在编辑时提示参数类型错误、张量形状不匹配等问题，避免昂贵训练脚本运行失败。"
+    }
+  ]
+}
