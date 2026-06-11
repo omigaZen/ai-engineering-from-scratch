@@ -1,0 +1,62 @@
+[
+  {
+    "question": "动量在梯度下降中主要解决了什么问题？",
+    "options": [
+      "减少内存占用",
+      "通过累积历史梯度抑制震荡，在一致方向上加速前进",
+      "无需再设置学习率",
+      "避免过拟合"
+    ],
+    "correct": 1,
+    "explanation": "在狭长谷底中，梯度会在两侧来回振荡。动量会累积历史梯度：一致方向会被放大，振荡方向会互相抵消，从而更快更平滑地收敛。",
+    "stage": "pre"
+  },
+  {
+    "question": "Adam 和 AdamW 的核心区别是什么？",
+    "options": [
+      "AdamW 一定使用更大学习率",
+      "AdamW 把权重衰减从梯度更新中解耦，直接施加到参数上，得到更标准的正则化",
+      "AdamW 不使用动量",
+      "AdamW 只用于 Transformer"
+    ],
+    "correct": 1,
+    "explanation": "在 Adam + L2 里，自适应学习率会按参数统计量改变量化正则化项，效果不稳定。AdamW 把 weight decay 与梯度分开处理，使每个参数都按同一标准衰减。",
+    "stage": "pre"
+  },
+  {
+    "question": "Adam 为什么要做 bias correction？",
+    "options": [
+      "防止过拟合",
+      "一阶/二阶动量起始值为 0，前几步存在偏置；校正可消除冷启动带来的低估",
+      "用于梯度裁剪",
+      "加速收敛"
+    ],
+    "correct": 1,
+    "explanation": "例如 beta1=0.9 时，第一步 m1 = 0.1 * grad，数值会偏小约十倍。用 (1-0.9^t) 归一化后可恢复到真实尺度，约 50 步后影响会很小。",
+    "stage": "post"
+  },
+  {
+    "question": "Adam 的常用默认超参数是？",
+    "options": [
+      "lr=0.1, beta1=0.5, beta2=0.5",
+      "lr=0.001, beta1=0.9, beta2=0.999, epsilon=1e-8",
+      "lr=0.01, beta1=0.99, beta2=0.99",
+      "lr=0.0001, beta1=0.8, beta2=0.9"
+    ],
+    "correct": 1,
+    "explanation": "Adam 原始论文（Kingma & Ba, 2014）推荐的默认值是 lr=0.001、beta1=0.9、beta2=0.999、epsilon=1e-8，适用于大多数场景。",
+    "stage": "post"
+  },
+  {
+    "question": "当下训练 Transformer/LLM 的主流优化器是？",
+    "options": [
+      "基础 SGD",
+      "带动量 SGD",
+      "RMSProp",
+      "AdamW"
+    ],
+    "correct": 3,
+    "explanation": "AdamW（带解耦衰减的 Adam）是 BERT、GPT、LLaMA 等模型的常见默认选择，兼顾自适应学习率和更合理的权重衰减。",
+    "stage": "post"
+  }
+]
