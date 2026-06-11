@@ -1,0 +1,62 @@
+[
+  {
+    "question": "PyTorch 与 JAX 的根本设计差异是什么？",
+    "options": [
+      "PyTorch 更快",
+      "PyTorch 采用可变状态的 eager 执行，而 JAX 倾向于无副作用的纯函数式编程并编译执行",
+      "JAX 不支持 GPU",
+      "PyTorch 没有自动微分"
+    ],
+    "correct": 1,
+    "explanation": "PyTorch 是即刻执行，tensor.grad 会被就地更新；JAX 则强调函数纯净，状态显式传递，并通过 jit 一次编译整段计算图。",
+    "stage": "pre"
+  },
+  {
+    "question": "jax.jit 的作用是什么？",
+    "options": [
+      "加入 dropout",
+      "把 Python 函数编译为更快的 XLA 代码",
+      "初始化参数",
+      "计算梯度"
+    ],
+    "correct": 1,
+    "explanation": "jax.jit 会 trace 函数并编译到 XLA。首次调用有编译开销，后续会直接执行编译后更快的版本。",
+    "stage": "pre"
+  },
+  {
+    "question": "jax.vmap 的用途是？",
+    "options": [
+      "把单样本函数向量化处理一个 batch，避免手写批处理循环",
+      "校验模型结构",
+      "管理 GPU 显存",
+      "计算二阶梯度"
+    ],
+    "correct": 0,
+    "explanation": "jax.vmap 让你用单样本函数处理整批数据，自动向量化，相比手写 Python 循环通常更简洁且更高效。",
+    "stage": "post"
+  },
+  {
+    "question": "JAX 在参数状态管理上和 PyTorch 有何不同？",
+    "options": [
+      "JAX 权重只存 CPU",
+      "JAX 需要显式传参，参数作为函数输入输出，不会在对象属性里原地变更",
+      "JAX 没有可训练参数",
+      "两者完全一样"
+    ],
+    "correct": 1,
+    "explanation": "PyTorch 的参数挂在 nn.Module 对象并就地更新；JAX 中参数通常作为显式参数传递，返回新参数，避免隐藏状态。",
+    "stage": "post"
+  },
+  {
+    "question": "何时优先选 JAX 而不是 PyTorch？",
+    "options": [
+      "快速验证小模型",
+      "当需要大规模训练（如 TPU pod）并受益于 jit 编译与函数变换带来的吞吐加速",
+      "当需要最大生态模型仓库",
+      "要在手机端部署"
+    ],
+    "correct": 1,
+    "explanation": "JAX 的优势在于规模化：jit 降低 Python 开销，pmap 处理多设备天然化，XLA 可跨完整计算图做全局优化，在 TPU 集群上收益明显。",
+    "stage": "post"
+  }
+]
