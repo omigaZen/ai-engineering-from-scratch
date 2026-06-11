@@ -1,0 +1,62 @@
+[
+  {
+    "question": "PyTorch 的 autograd 是什么？",
+    "options": [
+      "一个数据加载库",
+      "自动微分引擎，在前向构建计算图并在 backward 时自动算梯度，无需手写反向",
+      "模型压缩工具",
+      "超参数搜索框架"
+    ],
+    "correct": 1,
+    "explanation": "PyTorch 在前向时记录计算图，调用 .backward() 时沿着图自动计算梯度，因此不必手写每个 Module 的 backward。",
+    "stage": "pre"
+  },
+  {
+    "question": "torch.no_grad() 的作用和适用场景？",
+    "options": [
+      "防止过拟合",
+      "推理时关闭梯度跟踪，减少内存和计算开销",
+      "冻结全部参数",
+      "打开 GPU 加速"
+    ],
+    "correct": 1,
+    "explanation": "推理不需要梯度，no_grad 会停止计算图记录，省掉反向所需的中间变量显存。",
+    "stage": "pre"
+  },
+  {
+    "question": "nn.Linear(784, 256) 在 PyTorch 中创建了什么？",
+    "options": [
+      "一个 ReLU 激活层",
+      "一个全连接层，权重形状为 (256, 784)，偏置形状为 (256,)",
+      "p=784/256 的 dropout 层",
+      "一个 BatchNorm 层"
+    ],
+    "correct": 1,
+    "explanation": "nn.Linear(in_features, out_features) 等价于 y = x @ W^T + b，W 的形状是 (256,784)，b 是 (256,)。这和你手搓的 Linear 层一致。",
+    "stage": "post"
+  },
+  {
+    "question": "下面哪个方法会计算计算图中所有参数的梯度？",
+    "options": [
+      "optimizer.step()",
+      "model.forward()",
+      "loss.backward()",
+      "optimizer.zero_grad()"
+    ],
+    "correct": 2,
+    "explanation": "loss.backward() 会反向遍历计算图，给每个需要梯度的参数 p 计算 dL/dp。optimizer.step() 只负责使用这些梯度更新权重。",
+    "stage": "post"
+  },
+  {
+    "question": "为什么 PyTorch 的训练速度通常快于纯 Python 自实现框架？",
+    "options": [
+      "因为算法不同",
+      "因为底层用 C++/CUDA 内核并行处理，而纯 Python 是逐操作解释执行",
+      "因为 PyTorch 使用更小的数据类型",
+      "因为 PyTorch 跳过反向传播"
+    ],
+    "correct": 1,
+    "explanation": "PyTorch 将矩阵运算交给高度优化的 C++、CUDA 内核在 GPU 并行执行，纯 Python 会在解释器内逐步执行每个操作，开销更高。",
+    "stage": "post"
+  }
+]
