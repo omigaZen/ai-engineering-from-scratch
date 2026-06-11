@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "什么是 Jupyter notebook？",
+      "options": [
+        "用于编写 Python 脚本的文本编辑器",
+        "一个把可执行代码 cell 与 markdown 文本和内联输出混合的交互式文档",
+        "面向数据科学项目的版本控制系统",
+        "Python 库的包管理器"
+      ],
+      "correct": 1,
+      "explanation": "Jupyter notebook（.ipynb）是交互式环境，可在 cell 中编写并执行代码，直接看到内联输出，还能混排说明性文本。"
+    },
+    {
+      "stage": "pre",
+      "question": "Jupyter 的 kernel 作用是什么？",
+      "options": [
+        "把 markdown 渲染成 HTML",
+        "执行 cell 代码并在执行间保留内存中的变量",
+        "管理 notebook 的文件持久化",
+        "连接 GitHub 并做版本控制"
+      ],
+      "correct": 1,
+      "explanation": "kernel 是独立的 Python 进程，负责执行 cell 代码并在内存中保留状态（变量、导入）。同一 notebook 的所有 cell 共用同一个 kernel。"
+    },
+    {
+      "stage": "post",
+      "question": "`%timeit` 与 `%%time` 的区别是什么？",
+      "options": [
+        "`%timeit` 计量的是 CPU 时间，`%%time` 计量的是墙钟时间",
+        "`%timeit` 会多次运行取平均，`%%time` 只运行一次",
+        "`%timeit` 只能测单行，`%%time` 只能测整本 notebook",
+        "它们是完全相同的别名"
+      ],
+      "correct": 1,
+      "explanation": "`%timeit` 会将语句运行多次并给出统计平均，适合微基准；`%%time` 运行一次整格并给出墙钟耗时，适合训练类任务。"
+    },
+    {
+      "stage": "post",
+      "question": "最常见的“本地能跑、别人顺序执行会报错”的原因是什么？",
+      "options": [
+        "Python 版本不一致",
+        "乱序执行导致隐式的执行顺序依赖",
+        "缺少 `%matplotlib inline`",
+        "markdown cell 太多"
+      ],
+      "correct": 1,
+      "explanation": "乱序执行会造成隐式状态依赖：例如先运行第 5 格再运行第 2 格时某变量还存在。`Kernel > Restart & Run All` 可以检验顺序执行是否可复现。"
+    },
+    {
+      "stage": "post",
+      "question": "何时应该把 notebook 里的代码迁移到 .py 脚本？",
+      "options": [
+        "代码超过 10 行就该迁移",
+        "当代码是可复用工具、训练流水线或生产代码时",
+        "永远不该迁移，Notebook 永远优于脚本",
+        "只有在需要用到 GPU 时才迁移"
+      ],
+      "correct": 1,
+      "explanation": "经验法则是“先在 notebook 探索，再在脚本交付”。可复用工具、训练流程、生产代码都应在 `.py` 文件里组织。Notebook 主要用于探索与原型验证。"
+    }
+  ]
+}
