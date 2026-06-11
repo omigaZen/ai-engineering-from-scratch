@@ -332,7 +332,8 @@ p.dropcap::first-letter {
   opacity: 0.4;
 }
 
-.theme-toggle {
+.theme-toggle,
+.lang-toggle {
   background: transparent;
   border: 1px solid var(--rule-soft);
   width: 36px;
@@ -347,9 +348,20 @@ p.dropcap::first-letter {
   transition: border-color 0.15s, color 0.15s;
 }
 
-.theme-toggle:hover {
+.theme-toggle:hover,
+.lang-toggle:hover {
   border-color: var(--blueprint);
   color: var(--blueprint);
+}
+
+.lang-toggle {
+  width: auto;
+  min-width: 42px;
+  padding: 0 10px;
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  flex-shrink: 0;
 }
 
 .btn {
@@ -924,10 +936,18 @@ body.js-anim .toc-row.in-view {
     gap: 4px;
   }
 
-  .theme-toggle {
+  .theme-toggle,
+  .lang-toggle {
     width: 32px;
     height: 32px;
     flex-shrink: 0;
+  }
+
+  .lang-toggle {
+    width: auto;
+    min-width: 38px;
+    padding: 0 8px;
+    font-size: 0.68rem;
   }
 
   .container {
@@ -1011,10 +1031,18 @@ body.js-anim .toc-row.in-view {
     font-size: 0.7rem;
   }
 
-  .theme-toggle {
+  .theme-toggle,
+  .lang-toggle {
     width: 30px;
     height: 30px;
     font-size: 0.85rem;
+  }
+
+  .lang-toggle {
+    width: auto;
+    min-width: 34px;
+    padding: 0 7px;
+    font-size: 0.62rem;
   }
 }
 

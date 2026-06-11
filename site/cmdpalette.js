@@ -34,11 +34,21 @@
     if (_index !== null) return _index;
     _index = [];
 
+    function phaseText(phase) {
+      return window.AIFSI18N ? window.AIFSI18N.phaseText(phase) : phase;
+    }
+
+    function lessonText(lesson) {
+      return window.AIFSI18N ? window.AIFSI18N.lessonText(lesson) : lesson;
+    }
+
     if (typeof PHASES !== 'undefined' && Array.isArray(PHASES)) {
       for (var i = 0; i < PHASES.length; i++) {
         var phase = PHASES[i];
+        var pt = phaseText(phase);
         for (var j = 0; j < phase.lessons.length; j++) {
           var lesson = phase.lessons[j];
+          var lt = lessonText(lesson);
 
           // Extract the phases/…/… path used for lesson.html?path=
           var lessonPath = '';
@@ -51,10 +61,14 @@
             kind:       'lesson',
             id:         'l:' + i + ':' + j,
             phaseId:    phase.id,
-            phaseName:  phase.name,
-            name:       lesson.name     || '',
-            summary:    lesson.summary  || '',
-            keywords:   lesson.keywords || '',
+            phaseName:  pt.name || phase.name || '',
+            rawPhaseName: phase.name || '',
+            name:       lt.name     || lesson.name || '',
+            rawName:    lesson.name || '',
+            summary:    lt.summary  || lesson.summary  || '',
+            rawSummary: lesson.summary || '',
+            keywords:   lt.keywords || lesson.keywords || '',
+            rawKeywords: lesson.keywords || '',
             type:       lesson.type     || '',
             lang:       lesson.lang     || '',
             status:     lesson.status   || '',
@@ -65,9 +79,10 @@
       }
     }
 
-    if (typeof GLOSSARY !== 'undefined' && Array.isArray(GLOSSARY)) {
-      for (var k = 0; k < GLOSSARY.length; k++) {
-        var g = GLOSSARY[k];
+    var glossary = window.AIFSI18N ? window.AIFSI18N.glossaryTerms() : (typeof GLOSSARY !== 'undefined' ? GLOSSARY : []);
+    if (Array.isArray(glossary)) {
+      for (var k = 0; k < glossary.length; k++) {
+        var g = glossary[k];
         _index.push({
           kind:    'glossary',
           id:      'g:' + k,
@@ -106,6 +121,10 @@
     var summary  = (item.summary  || '').toLowerCase();
     var keywords = (item.keywords || '').toLowerCase();
     var phase    = (item.phaseName || '').toLowerCase();
+    var rawName  = (item.rawName || '').toLowerCase();
+    var rawSummary = (item.rawSummary || '').toLowerCase();
+    var rawKeywords = (item.rawKeywords || '').toLowerCase();
+    var rawPhase = (item.rawPhaseName || '').toLowerCase();
     var lang     = (item.lang  || '').toLowerCase();
     var type     = (item.type  || '').toLowerCase();
     var says     = (item.says  || '').toLowerCase();
@@ -127,7 +146,8 @@
         s += (s === 0 ? 65 : 20);
       } else {
         // Weaker: every word spread across name + summary + keywords + phase
-        var blob = name + ' ' + summary + ' ' + keywords + ' ' + phase;
+        var blob = name + ' ' + summary + ' ' + keywords + ' ' + phase + ' ' +
+          rawName + ' ' + rawSummary + ' ' + rawKeywords + ' ' + rawPhase;
         var allInBlob = words.every(function (w) { return blob.indexOf(w) !== -1; });
         if (allInBlob) s += 15;
       }
@@ -138,6 +158,10 @@
     if (keywords.indexOf(q) !== -1) s += 22; // H3 headings: dense vocabulary
     if (says.indexOf(q)     !== -1) s += 22; // glossary "what people say"
     if (phase.indexOf(q)    !== -1) s += 18;
+    if (rawName.indexOf(q)  !== -1) s += 18;
+    if (rawSummary.indexOf(q) !== -1) s += 10;
+    if (rawKeywords.indexOf(q) !== -1) s += 10;
+    if (rawPhase.indexOf(q) !== -1) s += 8;
     if (lang.indexOf(q)     !== -1) s += 14;
     if (type.indexOf(q)     !== -1) s += 10;
 
@@ -176,6 +200,14 @@
     var d = document.createElement('div');
     d.textContent = (str == null) ? '' : String(str);
     return d.innerHTML;
+  }
+
+  function tr(key, vars) {
+    return window.AIFSI18N ? window.AIFSI18N.t(key, vars) : key;
+  }
+
+  function localHref(href) {
+    return window.AIFSI18N ? window.AIFSI18N.withLangHref(href) : href;
   }
 
   /**
@@ -230,7 +262,7 @@
     el.id = PALETTE_ID;
     el.setAttribute('role', 'dialog');
     el.setAttribute('aria-modal', 'true');
-    el.setAttribute('aria-label', 'Search lessons and glossary');
+    el.setAttribute('aria-label', tr('palette.label'));
 
     el.innerHTML =
       '<div class="cp-backdrop" id="cpBackdrop"></div>' +
@@ -243,7 +275,7 @@
             '<line x1="21" y1="21" x2="16.65" y2="16.65"/>' +
           '</svg>' +
           '<input class="cp-input" id="cpInput" type="search"' +
-          ' placeholder="Search lessons and glossary…"' +
+          ' placeholder="' + escHtml(tr('palette.input')) + '"' +
           ' autocomplete="off" autocorrect="off"' +
           ' autocapitalize="off" spellcheck="false"' +
           ' aria-label="Search" aria-autocomplete="list"' +
@@ -255,15 +287,15 @@
         '<div class="cp-footer">' +
           '<span class="cp-footer-group">' +
             '<kbd>↑</kbd><kbd>↓</kbd>' +
-            '<span class="cp-footer-label">navigate</span>' +
+            '<span class="cp-footer-label">' + escHtml(tr('palette.navigate')) + '</span>' +
           '</span>' +
           '<span class="cp-footer-group">' +
             '<kbd>↵</kbd>' +
-            '<span class="cp-footer-label">open</span>' +
+            '<span class="cp-footer-label">' + escHtml(tr('palette.open')) + '</span>' +
           '</span>' +
           '<span class="cp-footer-group">' +
             '<kbd>Esc</kbd>' +
-            '<span class="cp-footer-label">close</span>' +
+            '<span class="cp-footer-label">' + escHtml(tr('palette.close')) + '</span>' +
           '</span>' +
           '<span class="cp-footer-shortcut">' + shortcutLabel + '</span>' +
         '</div>' +
@@ -344,7 +376,7 @@
     if (!query) {
       list.innerHTML =
         '<li class="cp-empty" role="option" aria-disabled="true">' +
-        'Type to search 503 lessons, 499 outputs, and glossary terms' +
+        escHtml(tr('palette.empty')) +
         '</li>';
       _activeIdx = -1;
       return;
@@ -353,7 +385,7 @@
     if (results.length === 0) {
       list.innerHTML =
         '<li class="cp-empty" role="option" aria-disabled="true">' +
-        'No results for <em>' + escHtml(query) + '</em>' +
+        tr('palette.noResults', { query: escHtml(query) }) +
         '</li>';
       _activeIdx = -1;
       return;
@@ -369,22 +401,22 @@
       if (r.kind === 'lesson') {
         // Prefer the in-site reader; fall back to GitHub URL
         dest = r.lessonPath
-          ? 'lesson.html?path=' + encodeURIComponent(r.lessonPath)
+          ? localHref('lesson.html?path=' + encodeURIComponent(r.lessonPath))
           : r.url;
-        chip = 'Phase ' + String(r.phaseId).padStart(2, '0');
+        chip = tr('phase') + ' ' + String(r.phaseId).padStart(2, '0');
       } else if (r.kind === 'artifact') {
         // Jump to the lesson that produced this artifact
         dest = r.lessonPath
-          ? 'lesson.html?path=' + encodeURIComponent(r.lessonPath)
+          ? localHref('lesson.html?path=' + encodeURIComponent(r.lessonPath))
           : ('https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/' + r.file);
         var ak = (r.artKind || 'artifact');
-        chip = ak.charAt(0).toUpperCase() + ak.slice(1);
+        chip = ak === 'artifact' ? tr('palette.artifact') : ak.charAt(0).toUpperCase() + ak.slice(1);
         chipClass += ' cp-item-chip--alt';
       } else {
         // Deep-link: pre-populate glossary search with the exact term name
         // so the user lands directly on the definition, not the full list.
-        dest      = 'glossary.html?q=' + encodeURIComponent(r.name);
-        chip      = 'Glossary';
+        dest      = localHref('glossary.html?q=' + encodeURIComponent(r.name));
+        chip      = tr('palette.glossary');
         chipClass += ' cp-item-chip--alt';
       }
 
@@ -395,7 +427,7 @@
         if (r.lang && r.lang !== '—') metaParts.push(r.lang);
       } else if (r.kind === 'artifact') {
         if (r.phaseId !== undefined && r.phaseId !== null) {
-          metaParts.push('Phase ' + String(r.phaseId).padStart(2, '0'));
+          metaParts.push(tr('phase') + ' ' + String(r.phaseId).padStart(2, '0'));
         }
       }
       var meta = metaParts.join(' · '); // ·

@@ -13,8 +13,10 @@ const path = require('path');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
 const README_PATH = path.join(REPO_ROOT, 'README.md');
+const README_ZH_PATH = path.join(REPO_ROOT, 'README.zh-CN.md');
 const ROADMAP_PATH = path.join(REPO_ROOT, 'ROADMAP.md');
 const GLOSSARY_PATH = path.join(REPO_ROOT, 'glossary', 'terms.md');
+const GLOSSARY_ZH_PATH = path.join(REPO_ROOT, 'glossary', 'terms.zh-CN.md');
 const OUTPUT_PATH = path.join(__dirname, 'data.js');
 
 const GITHUB_BASE = 'https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/';
@@ -25,6 +27,25 @@ function lessonPath(url) {
   if (!url) return null;
   const m = url.match(/(phases\/[^/]+\/[^/]+)\/?$/);
   return m ? m[1] : null;
+}
+
+function readIfExists(filePath) {
+  try {
+    return fs.existsSync(filePath) ? fs.readFileSync(filePath, 'utf8') : '';
+  } catch (_) {
+    return '';
+  }
+}
+
+function ensureLangI18n(entity, lang) {
+  if (!entity.i18n) entity.i18n = {};
+  if (!entity.i18n[lang]) entity.i18n[lang] = {};
+  return entity.i18n[lang];
+}
+
+function setI18nValue(entity, lang, key, value) {
+  if (!value) return;
+  ensureLangI18n(entity, lang)[key] = value;
 }
 
 // ─── Parse ROADMAP.md for lesson statuses ────────────────────────────
@@ -82,8 +103,8 @@ function parseReadme(content, roadmapStatuses) {
     // New: ### ![](https://img.shields.io/badge/Phase_0-Setup_&_Tooling-95A5A6?style=for-the-badge) `12 lessons`
     // New: <summary><b>🟣 Phase 1 — Math Foundations</b> &nbsp;<code>22 lessons</code>&nbsp; <em>Description</em></summary>
     const phaseHeaderMatch =
-      line.match(/###\s+Phase\s+(\d+):\s+(.+?)\s*`(\d+)\s+lessons?`/) ||
-      line.match(/###\s+!\[\]\([^)]*?Phase[_\s]+(\d+)[-_]([^?)]+?)-[A-F0-9]{6}[^)]*\)\s*`(\d+)\s+lessons?`/i);
+      line.match(/###\s+Phase\s+(\d+):\s+(.+?)\s*`(\d+)\s+(?:lessons?|projects?)`/) ||
+      line.match(/###\s+!\[\]\([^)]*?Phase[_\s]+(\d+)[-_]([^?)]+?)-[A-F0-9]{6}[^)]*\)\s*`(\d+)\s+(?:lessons?|projects?)`/i);
     const detailsHeaderMatch =
       line.match(/<summary><strong>Phase\s+(\d+):\s+(.+?)<\/strong>\s*<code>(\d+)\s+(?:lessons?|projects?)<\/code>.*?<em>(.*?)<\/em>/) ||
       line.match(/<summary>\s*<b>\s*(?:[^\w\s]+\s+)?Phase\s+(\d+)\s*[—\-:]\s*(.+?)<\/b>.*?<code>(\d+)\s+(?:lessons?|projects?)<\/code>.*?<em>(.*?)<\/em>/);
@@ -244,14 +265,17 @@ function parseReadme(content, roadmapStatuses) {
  * Both fields are empty strings when the file is absent or has no
  * matching content — expected for planned lessons with no docs yet.
  */
-function extractLessonMeta(relPath) {
-  const docPath = path.join(REPO_ROOT, relPath, 'docs', 'en.md');
-  const result = { summary: '', keywords: '' };
+function extractLessonMeta(relPath, lang = 'en') {
+  const docPath = path.join(REPO_ROOT, relPath, 'docs', `${lang}.md`);
+  const result = { title: '', summary: '', keywords: '' };
   try {
     const lines = fs.readFileSync(docPath, 'utf8').split(/\r?\n/);
     const h3s = [];
     for (const raw of lines) {
       const line = raw.trim();
+      if (!result.title && line.startsWith('# ') && line.length > 2) {
+        result.title = line.slice(2).trim();
+      }
       if (!result.summary && line.startsWith('> ') && line.length > 3) {
         const s = line.slice(2).trim();
         result.summary = s.length > 180 ? s.slice(0, 177) + '…' : s;
@@ -286,15 +310,15 @@ function parseGlossary(content) {
 
     if (!currentTerm) continue;
 
-    // Match "What people say" line
-    const saysMatch = line.match(/\*\*What people say:\*\*\s*"?(.+?)"?\s*$/);
+    // Match "What people say" line, plus localized labels in terms.zh-CN.md.
+    const saysMatch = line.match(/\*\*(?:What people say|大家常说|人们常说):\*\*\s*"?(.+?)"?\s*$/);
     if (saysMatch) {
       currentTerm.says = saysMatch[1].replace(/^"/, '').replace(/"$/, '').trim();
       continue;
     }
 
-    // Match "What it actually means" line
-    const meansMatch = line.match(/\*\*What it actually means:\*\*\s*(.+)/);
+    // Match "What it actually means" line, plus localized labels.
+    const meansMatch = line.match(/\*\*(?:What it actually means|实际含义|真正含义):\*\*\s*(.+)/);
     if (meansMatch) {
       currentTerm.means = meansMatch[1].trim();
       continue;
@@ -307,6 +331,51 @@ function parseGlossary(content) {
   }
 
   return terms;
+}
+
+function mergeReadmeI18n(phases, localizedPhases, lang) {
+  if (!localizedPhases || !localizedPhases.length) return;
+  const byPhaseId = new Map(phases.map(p => [p.id, p]));
+
+  for (const localizedPhase of localizedPhases) {
+    const phase = byPhaseId.get(localizedPhase.id);
+    if (!phase) continue;
+    setI18nValue(phase, lang, 'name', localizedPhase.name);
+    setI18nValue(phase, lang, 'desc', localizedPhase.desc);
+
+    const lessonsByPath = new Map();
+    const lessonsByIndex = new Map();
+    for (let i = 0; i < phase.lessons.length; i++) {
+      const rel = lessonPath(phase.lessons[i].url);
+      if (rel) lessonsByPath.set(rel.replace(/\/+$/, ''), phase.lessons[i]);
+      lessonsByIndex.set(i, phase.lessons[i]);
+    }
+
+    for (let i = 0; i < localizedPhase.lessons.length; i++) {
+      const localizedLesson = localizedPhase.lessons[i];
+      const rel = lessonPath(localizedLesson.url);
+      const lesson = (rel && lessonsByPath.get(rel.replace(/\/+$/, ''))) || lessonsByIndex.get(i);
+      if (!lesson) continue;
+      setI18nValue(lesson, lang, 'name', localizedLesson.name);
+    }
+  }
+}
+
+function mergeLessonDocI18n(phases, lang) {
+  let translated = 0;
+  for (const phase of phases) {
+    for (const lesson of phase.lessons) {
+      const relPath = lessonPath(lesson.url);
+      if (!relPath) continue;
+      const meta = extractLessonMeta(relPath, lang);
+      if (!meta.title && !meta.summary && !meta.keywords) continue;
+      if (meta.title) setI18nValue(lesson, lang, 'name', meta.title);
+      if (meta.summary) setI18nValue(lesson, lang, 'summary', meta.summary);
+      if (meta.keywords) setI18nValue(lesson, lang, 'keywords', meta.keywords);
+      translated++;
+    }
+  }
+  return translated;
 }
 
 // ─── Discover outputs/ artifacts (skills / prompts / agents) ──────────
@@ -402,17 +471,26 @@ function build() {
   console.log('📖 Reading source files...');
 
   const readme = fs.readFileSync(README_PATH, 'utf8');
+  const readmeZh = readIfExists(README_ZH_PATH);
   const roadmap = fs.readFileSync(ROADMAP_PATH, 'utf8');
   const glossary = fs.readFileSync(GLOSSARY_PATH, 'utf8');
+  const glossaryZh = readIfExists(GLOSSARY_ZH_PATH);
 
   console.log('🔍 Parsing ROADMAP.md...');
   const roadmapStatuses = parseRoadmap(roadmap);
 
   console.log('🔍 Parsing README.md...');
   const phases = parseReadme(readme, roadmapStatuses);
+  const phasesZh = readmeZh ? parseReadme(readmeZh, roadmapStatuses) : [];
+  mergeReadmeI18n(phases, phasesZh, 'zh');
 
   console.log('🔍 Parsing glossary/terms.md...');
   const glossaryTerms = parseGlossary(glossary);
+  const glossaryI18n = {};
+  if (glossaryZh) {
+    const zhTerms = parseGlossary(glossaryZh);
+    if (zhTerms.length) glossaryI18n.zh = zhTerms;
+  }
 
   console.log('🔍 Discovering outputs + Phase 14 missions...');
   const artifacts = discoverArtifacts();
@@ -429,6 +507,7 @@ function build() {
       }
     }
   }
+  const zhLessonDocs = mergeLessonDocI18n(phases, 'zh');
 
   // Stats
   let totalLessons = 0;
@@ -443,7 +522,9 @@ function build() {
   console.log(`   Lessons: ${totalLessons}`);
   console.log(`   Complete: ${completeLessons}`);
   console.log(`   Summaries: ${summarized}, Keywords: ${withKeywords}`);
+  console.log(`   Chinese lesson docs: ${zhLessonDocs}`);
   console.log(`   Glossary terms: ${glossaryTerms.length}`);
+  if (glossaryI18n.zh) console.log(`   Chinese glossary terms: ${glossaryI18n.zh.length}`);
   console.log(`   Artifacts: ${artifacts.length}`);
 
   // Generate data.js
@@ -453,6 +534,8 @@ function build() {
 const PHASES = ${JSON.stringify(phases, null, 2)};
 
 const GLOSSARY = ${JSON.stringify(glossaryTerms, null, 2)};
+
+const GLOSSARY_I18N = ${JSON.stringify(glossaryI18n, null, 2)};
 
 const ARTIFACTS = ${JSON.stringify(artifacts, null, 2)};
 `;

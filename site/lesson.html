@@ -1564,7 +1564,7 @@
 </head>
 <body>
 
-  <a href="#main" class="skip-link">Skip to content</a>
+  <a href="#main" class="skip-link" data-i18n="a11y.skip">Skip to content</a>
 
   <div class="scroll-progress" id="scrollProgress"></div>
 
@@ -1574,10 +1574,10 @@
         <span class="logo-icon" aria-hidden="true"></span> AI / FROM SCRATCH
       </a>
       <nav class="header-nav">
-        <a href="index.html#contents">Contents</a>
-        <a href="catalog.html">Catalog</a>
-        <a href="prereqs.html">Roadmap</a>
-        <a href="glossary.html">Glossary</a>
+        <a href="index.html#contents" data-i18n="nav.contents">Contents</a>
+        <a href="catalog.html" data-i18n="nav.catalog">Catalog</a>
+        <a href="prereqs.html" data-i18n="nav.roadmap">Roadmap</a>
+        <a href="glossary.html" data-i18n="nav.glossary">Glossary</a>
         <a href="https://github.com/rohitg00/ai-engineering-from-scratch" target="_blank" rel="noopener" class="header-github">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.4 3-.405 1.02.005 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
           <svg class="star-icon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279L12 19.896l-7.416 3.517 1.48-8.279L0 9.306l8.332-1.151z"/></svg>
@@ -1585,7 +1585,7 @@
         </a>
       </nav>
       <button class="search-toggle" type="button" data-cmd-palette
-        aria-label="Search (⌘K)" title="Search (⌘K)">
+        aria-label="Search (⌘K)" title="Search (⌘K)" data-i18n-aria="search.label" data-i18n-title="search.label">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" stroke-width="2.5"
           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -1593,7 +1593,7 @@
           <line x1="21" y1="21" x2="16.65" y2="16.65"/>
         </svg>
       </button>
-      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme" type="button">
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme" type="button" data-i18n-aria="theme.toggle">
         <span class="theme-icon" id="themeIcon">N</span>
       </button>
     </div>
@@ -1604,9 +1604,9 @@
   <div class="mermaid-modal-overlay" id="mermaidModalOverlay" aria-hidden="true">
     <div class="mermaid-modal" role="dialog" aria-modal="true" aria-label="Expanded diagram">
       <div class="mermaid-modal-header">
-        <div class="mermaid-modal-title" id="mermaidModalTitle">Diagram</div>
+        <div class="mermaid-modal-title" id="mermaidModalTitle" data-i18n="lesson.diagram">Diagram</div>
         <div class="mermaid-modal-actions">
-          <button class="mermaid-btn" type="button" id="mermaidModalClose">Close</button>
+          <button class="mermaid-btn" type="button" id="mermaidModalClose" data-i18n="palette.close">Close</button>
         </div>
       </div>
       <div class="mermaid-modal-body" id="mermaidModalBody"><div class="mermaid-modal-center" id="mermaidModalCenter"></div></div>
@@ -1619,7 +1619,7 @@
       <div class="lesson-content" id="lessonContent">
         <div class="lesson-loading" id="lessonLoading">
           <div class="spinner"></div>
-          <div class="lesson-loading-text">Loading lesson...</div>
+          <div class="lesson-loading-text" data-i18n="lesson.loading">Loading lesson...</div>
         </div>
       </div>
     </main>
@@ -1628,6 +1628,7 @@
 
   <script src="data.js?v=20260525a"></script>
   <script src="progress.js?v=20260525a"></script>
+  <script src="i18n.js?v=20260611a"></script>
   <script src="header.js?v=20260525a" defer></script>
   <script src="cmdpalette.js?v=20260525a" defer></script>
   <script src="figures.js?v=20260610e"></script>
@@ -1684,6 +1685,26 @@
         icon.textContent = theme === 'light' ? 'N' : 'D';
       }
 
+      function tr(key, vars) {
+        return window.AIFSI18N ? window.AIFSI18N.t(key, vars) : key;
+      }
+
+      function phaseText(phase) {
+        return window.AIFSI18N ? window.AIFSI18N.phaseText(phase) : phase;
+      }
+
+      function lessonText(lesson) {
+        return window.AIFSI18N ? window.AIFSI18N.lessonText(lesson) : lesson;
+      }
+
+      function localHref(href) {
+        return window.AIFSI18N ? window.AIFSI18N.withLangHref(href) : href;
+      }
+
+      function currentLang() {
+        return window.AIFSI18N ? window.AIFSI18N.getLang() : 'en';
+      }
+
       var btn = document.getElementById('themeToggle');
       if (btn) {
         btn.addEventListener('click', function () {
@@ -1700,7 +1721,7 @@
       var lessonPath = params.get('path');
 
       if (!lessonPath) {
-        showError('No lesson path specified', 'Add ?path=phases/01-math-foundations/01-linear-algebra-intuition to the URL.');
+        showError(tr('lesson.noPathTitle'), tr('lesson.noPathBody'));
         return;
       }
 
@@ -1720,17 +1741,19 @@
       if (typeof PHASES !== 'undefined') {
         for (var i = 0; i < PHASES.length; i++) {
           var p = PHASES[i];
+          var pt = phaseText(p);
           var pSlug = extractPhaseSlug(p, i);
           for (var j = 0; j < p.lessons.length; j++) {
             var l = p.lessons[j];
+            var lt = lessonText(l);
             var lSlug = extractLessonSlug(l, j);
             flatLessons.push({
               phaseIndex: i,
               lessonIndex: j,
-              phaseName: p.name,
+              phaseName: pt.name,
               phaseId: p.id,
               phaseSlug: pSlug,
-              lessonName: l.name,
+              lessonName: lt.name,
               lessonSlug: lSlug,
               status: l.status,
               type: l.type,
@@ -1785,35 +1808,39 @@
           html += '<div class="sidebar-phase-nav">';
           if (prevPhaseIdx >= 0) {
             var pp = PHASES[prevPhaseIdx];
+            var ppt = phaseText(pp);
             var ppSlug = extractPhaseSlug(pp, prevPhaseIdx);
             var ppFirstLesson = pp.lessons[0] ? extractLessonSlug(pp.lessons[0], 0) : '';
-            html += '<a href="lesson.html?path=phases/' + ppSlug + '/' + ppFirstLesson + '">&larr; Phase ' + String(pp.id).padStart(2, '0') + ': ' + escapeHtml(pp.name) + '</a>';
+            html += '<a href="' + localHref('lesson.html?path=phases/' + ppSlug + '/' + ppFirstLesson) + '">&larr; ' + escapeHtml(tr('phase')) + ' ' + String(pp.id).padStart(2, '0') + ': ' + escapeHtml(ppt.name) + '</a>';
           }
           if (nextPhaseIdx >= 0) {
             var np = PHASES[nextPhaseIdx];
+            var npt = phaseText(np);
             var npSlug = extractPhaseSlug(np, nextPhaseIdx);
             var npFirstLesson = np.lessons[0] ? extractLessonSlug(np.lessons[0], 0) : '';
-            html += '<a href="lesson.html?path=phases/' + npSlug + '/' + npFirstLesson + '">Phase ' + String(np.id).padStart(2, '0') + ': ' + escapeHtml(np.name) + ' &rarr;</a>';
+            html += '<a href="' + localHref('lesson.html?path=phases/' + npSlug + '/' + npFirstLesson) + '">' + escapeHtml(tr('phase')) + ' ' + String(np.id).padStart(2, '0') + ': ' + escapeHtml(npt.name) + ' &rarr;</a>';
           }
           html += '</div>';
         }
 
         if (currentPhaseIndex >= 0) {
           var phase = PHASES[currentPhaseIndex];
-          html += '<div class="sidebar-phase-header">Phase ' + String(phase.id).padStart(2, '0') + ' · ' + escapeHtml(phase.name) + '</div>';
+          var pt = phaseText(phase);
+          html += '<div class="sidebar-phase-header">' + escapeHtml(tr('phase')) + ' ' + String(phase.id).padStart(2, '0') + ' · ' + escapeHtml(pt.name) + '</div>';
           for (var k = 0; k < phase.lessons.length; k++) {
             var les = phase.lessons[k];
+            var lest = lessonText(les);
             var lesSlug = extractLessonSlug(les, k);
             var pSlugCurrent = extractPhaseSlug(phase, currentPhaseIndex);
             var isActive = lesSlug === currentLessonSlug;
             var lesReadable = les.status === 'complete' || !!les.url;
             if (lesReadable) {
-              html += '<a class="sidebar-lesson-link' + (isActive ? ' active' : '') + '" href="lesson.html?path=phases/' + pSlugCurrent + '/' + lesSlug + '">';
+              html += '<a class="sidebar-lesson-link' + (isActive ? ' active' : '') + '" href="' + localHref('lesson.html?path=phases/' + pSlugCurrent + '/' + lesSlug) + '">';
             } else {
               html += '<span class="sidebar-lesson-link disabled">';
             }
             html += '<span class="sidebar-lesson-dot ' + les.status + '"></span>';
-            html += escapeHtml(les.name);
+            html += escapeHtml(lest.name);
             html += lesReadable ? '</a>' : '</span>';
           }
         }
@@ -1850,40 +1877,91 @@
         }, { passive: true });
       }
 
-      function fetchLesson(path) {
-        var rawUrl = 'https://raw.githubusercontent.com/rohitg00/ai-engineering-from-scratch/main/' + path + '/docs/en.md';
-        var quizUrl = 'https://raw.githubusercontent.com/rohitg00/ai-engineering-from-scratch/main/' + path + '/quiz.json';
+      function isLocalPreview() {
+        return /^(localhost|127\.0\.0\.1|\[?::1\]?)$/.test(window.location.hostname) ||
+          window.location.protocol === 'file:';
+      }
 
-        fetch(rawUrl)
-          .then(function (res) {
-            if (!res.ok) throw new Error('fetch-failed');
-            return res.text();
-          })
-          .then(function (md) {
+      function rawGithubUrl(path, file) {
+        return 'https://raw.githubusercontent.com/rohitg00/ai-engineering-from-scratch/main/' + path + '/' + file;
+      }
+
+      function candidateFileUrls(path, file) {
+        var urls = [];
+        urls.push('/' + path + '/' + file);
+        if (isLocalPreview()) {
+          urls.push('../' + path + '/' + file);
+        }
+        urls.push(rawGithubUrl(path, file));
+        return urls.filter(function (url, idx) { return urls.indexOf(url) === idx; });
+      }
+
+      function fetchFirst(candidates, parser) {
+        var idx = 0;
+        function next() {
+          if (idx >= candidates.length) return Promise.reject(new Error('fetch-failed'));
+          var url = candidates[idx++];
+          return fetch(url)
+            .then(function (res) {
+              if (!res.ok) throw new Error('fetch-failed');
+              return parser(res).then(function (value) {
+                return { value: value, url: url };
+              });
+            })
+            .catch(next);
+        }
+        return next();
+      }
+
+      function localizedDocCandidates(path) {
+        var lang = currentLang();
+        var files = lang === 'zh' ? ['docs/zh.md'] : ['docs/en.md'];
+        var urls = [];
+        for (var i = 0; i < files.length; i++) urls = urls.concat(candidateFileUrls(path, files[i]));
+        return urls;
+      }
+
+      function localizedQuizCandidates(path) {
+        var lang = currentLang();
+        var files = lang === 'zh' ? ['quiz.zh.json', 'quiz.json'] : ['quiz.json'];
+        var urls = [];
+        for (var i = 0; i < files.length; i++) urls = urls.concat(candidateFileUrls(path, files[i]));
+        return urls;
+      }
+
+      function fetchLesson(path) {
+        fetchFirst(localizedDocCandidates(path), function (res) { return res.text(); })
+          .then(function (result) {
             try {
-              renderLesson(md);
+              renderLesson(result.value);
             } catch (err) {
               console.error('renderLesson failed', err);
-              showError('Render error', 'Loaded the lesson markdown but failed to render it. Details in the browser console.');
+              showError(tr('lesson.renderErrorTitle'), tr('lesson.renderErrorBody'));
               return;
             }
-            fetch(quizUrl)
-              .then(function (res) { return res.ok ? res.json() : null; })
-              .catch(function () { return null; })
-              .then(function (data) {
-                if (!data) return;
-                try { renderQuiz(data); }
+            fetchFirst(localizedQuizCandidates(path), function (res) { return res.json(); })
+              .then(function (quizResult) {
+                if (!quizResult.value) return;
+                try { renderQuiz(quizResult.value); }
                 catch (err) { console.error('renderQuiz failed', err); }
-              });
+              })
+              .catch(function () { return null; });
           })
           .catch(function () {
-            showError('Lesson not found', 'Could not fetch the lesson at <code>' + escapeHtml(path) + '</code>. It may not have been written yet.');
+            if (currentLang() === 'zh') {
+              showError(
+                tr('lesson.translationNotFoundTitle'),
+                tr('lesson.translationNotFoundBody', { path: escapeHtml(path + '/docs/zh.md') })
+              );
+              return;
+            }
+            showError(tr('lesson.notFoundTitle'), tr('lesson.notFoundBody', { path: escapeHtml(path) }));
           });
       }
 
       function showError(title, msg) {
         var el = document.getElementById('lessonContent');
-        el.innerHTML = '<div class="lesson-error"><h2>' + title + '</h2><p>' + msg + '</p><a href="index.html" class="btn btn-primary">Back to Home</a></div>';
+        el.innerHTML = '<div class="lesson-error"><h2>' + title + '</h2><p>' + msg + '</p><a href="' + localHref('index.html') + '" class="btn btn-primary">' + escapeHtml(tr('lesson.backHome')) + '</a></div>';
       }
 
       function lessonDescription(md) {
@@ -1906,7 +1984,8 @@
       function updateLessonSeo(title, md) {
         var ORIGIN = 'https://aiengineeringfromscratch.com';
         var path = new URLSearchParams(location.search).get('path') || '';
-        var url = ORIGIN + '/lesson.html?path=' + path;
+        var lang = currentLang();
+        var url = ORIGIN + '/lesson.html?path=' + path + '&lang=' + lang;
         var desc = lessonDescription(md);
         var fullTitle = title + ' · AI Engineering from Scratch';
         var set = function (sel, val) { var m = document.querySelector(sel); if (m) m.setAttribute('content', val); };
@@ -1928,7 +2007,7 @@
           '@context': 'https://schema.org',
           '@graph': [
             { '@type': 'LearningResource', name: title, description: desc, url: url,
-              inLanguage: 'en', isAccessibleForFree: true,
+              inLanguage: lang === 'zh' ? 'zh-CN' : 'en', isAccessibleForFree: true,
               isPartOf: { '@type': 'Course', name: 'AI Engineering from Scratch', url: ORIGIN } },
             { '@type': 'BreadcrumbList', itemListElement: [
               { '@type': 'ListItem', position: 1, name: 'Home', item: ORIGIN },
@@ -2018,8 +2097,8 @@
           return candidate;
         }
 
-        var html = '<div class="toc-header">On this page</div>';
-        html += '<nav aria-label="On this page"><ul class="toc-nav">';
+        var html = '<div class="toc-header">' + escapeHtml(tr('lesson.toc')) + '</div>';
+        html += '<nav aria-label="' + escapeAttr(tr('lesson.toc')) + '"><ul class="toc-nav">';
         for (var i = 0; i < headings.length; i++) {
           var heading = headings[i];
           var level = heading.tagName.toLowerCase();
@@ -2169,6 +2248,47 @@
         return m ? m[1] : 'Lesson';
       }
 
+      function cleanHeadingText(text) {
+        return String(text || '').replace(/^[^\p{L}\p{N}]+/u, '').trim();
+      }
+
+      function headingKey(text) {
+        return cleanHeadingText(text).toLowerCase().replace(/\s+/g, ' ');
+      }
+
+      function canonicalHeadingId(text, level) {
+        var key = headingKey(text);
+        if (level === 2) {
+          if (key === 'learning objectives' || key === '学习目标') return 'learning-objectives';
+          if (key === 'the problem' || key === 'problem' || key === '问题') return 'the-problem';
+          if (key === 'the concept' || key === 'concept' || key === '概念') return 'the-concept';
+          if (key === 'build it' || key === 'build' || key === '从零构建' || key === '构建它') return 'build-it';
+          if (key === 'use it' || key === 'use' || key === '使用它') return 'use-it';
+          if (key === 'ship it' || key === 'ship' || key === '交付成果' || key === '交付它') return 'ship-it';
+          if (key === 'key terms' || key === '关键术语') return 'key-terms';
+          if (key === 'lab challenge' || key === '实验挑战') return 'lab-challenge';
+        }
+        return slugify(text);
+      }
+
+      function headingSectionClass(text) {
+        var key = headingKey(text);
+        if (key.indexOf('build it') >= 0 || key.indexOf('build ') === 0 || key === '从零构建' || key === '构建它') return ' section-build';
+        if (key.indexOf('use it') >= 0 || key.indexOf('use ') === 0 || key === '使用它') return ' section-use';
+        if (key.indexOf('ship it') >= 0 || key.indexOf('ship ') === 0 || key === '交付成果' || key === '交付它') return ' section-ship';
+        return '';
+      }
+
+      function isLearningObjectivesHeading(text) {
+        var key = headingKey(text);
+        return key === 'learning objectives' || key === '学习目标';
+      }
+
+      function isLabChallengeHeading(text) {
+        var key = headingKey(text);
+        return key === 'lab challenge' || key === '实验挑战';
+      }
+
       function parseMd(md) {
         var lines = md.split(/\r?\n/);
         var out = '';
@@ -2266,7 +2386,7 @@
                 out += '<div class="mermaid-container">';
                 out += '<div class="mermaid-block" data-mermaid-index="' + mermaidBlocks + '">';
                 out += '<div class="mermaid-toolbar">';
-                out += '<button type="button" class="mermaid-btn mermaid-expand" data-mermaid-index="' + mermaidBlocks + '">Expand</button>';
+                out += '<button type="button" class="mermaid-btn mermaid-expand" data-mermaid-index="' + mermaidBlocks + '">' + escapeHtml(tr('lesson.expand')) + '</button>';
                 out += '</div>';
                 out += '<pre class="mermaid mermaid-source" id="mermaid-' + mermaidBlocks + '">' + escapeHtml(raw) + '</pre>';
                 out += '<div class="mermaid-render" id="mermaid-render-' + mermaidBlocks + '"></div>';
@@ -2318,7 +2438,7 @@
           if (h1) {
             out += flushList();
             out += flushLabChallenge();
-            var slug = slugify(h1[1]);
+            var slug = canonicalHeadingId(h1[1], 1);
             out += '<h1 id="' + slug + '">' + inlineFormat(h1[1]) + '</h1>';
             continue;
           }
@@ -2326,13 +2446,9 @@
           var h2 = line.match(/^## (.+)/);
           if (h2) {
             out += flushList();
-            var slug2 = slugify(h2[1]);
-            var sectionClass = '';
-            var txt = h2[1].toLowerCase();
-            if (txt.indexOf('build it') >= 0 || txt.indexOf('build ') === 0) sectionClass = ' section-build';
-            else if (txt.indexOf('use it') >= 0 || txt.indexOf('use ') === 0) sectionClass = ' section-use';
-            else if (txt.indexOf('ship it') >= 0 || txt.indexOf('ship ') === 0) sectionClass = ' section-ship';
-            if (txt.indexOf('learning objectives') >= 0) {
+            var slug2 = canonicalHeadingId(h2[1], 2);
+            var sectionClass = headingSectionClass(h2[1]);
+            if (isLearningObjectivesHeading(h2[1])) {
               var objItems = [];
               for (var lo = i + 1; lo < lines.length; lo++) {
                 var loLine = lines[lo];
@@ -2344,7 +2460,7 @@
                   break;
                 }
               }
-              out += '<div class="learning-objectives"><div class="learning-objectives-title">&#127919; Learning Objectives</div><ul>';
+              out += '<div class="learning-objectives"><div class="learning-objectives-title">&#127919; ' + escapeHtml(tr('lesson.learningObjectives')) + '</div><ul>';
               for (var oi = 0; oi < objItems.length; oi++) {
                 out += '<li>' + inlineFormat(objItems[oi]) + '</li>';
               }
@@ -2352,11 +2468,11 @@
               i = lo - 1;
               continue;
             }
-            if (txt.indexOf('lab challenge') >= 0) {
+            if (isLabChallengeHeading(h2[1])) {
               out += flushLabChallenge();
               inLabChallenge = true;
               out += '<div class="lab-challenge">';
-              out += '<h2 id="' + slug2 + '">&#128171; Lab Challenge</h2>';
+              out += '<h2 id="' + slug2 + '">&#128171; ' + escapeHtml(tr('lesson.labChallenge')) + '</h2>';
               continue;
             }
             out += flushLabChallenge();
@@ -2367,7 +2483,7 @@
           var h3 = line.match(/^### (.+)/);
           if (h3) {
             out += flushList();
-            var slug3 = slugify(h3[1]);
+            var slug3 = canonicalHeadingId(h3[1], 3);
             out += '<h3 id="' + slug3 + '">' + inlineFormat(h3[1]) + '</h3>';
             continue;
           }
@@ -2485,13 +2601,19 @@
       }
 
       function slugify(text) {
-        return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        var value = String(text || '')
+          .toLowerCase()
+          .normalize('NFKD')
+          .replace(/[^\p{L}\p{N}]+/gu, '-')
+          .replace(/-+/g, '-')
+          .replace(/(^-|-$)/g, '');
+        return value || 'section';
       }
 
       function renderCodeBlock(code, lang) {
         var highlighted = highlightSyntax(escapeHtml(code), lang);
         var langLabel = lang ? '<span class="code-lang">' + escapeHtml(lang) + '</span>' : '';
-        return '<pre>' + langLabel + '<button class="code-copy" data-code="' + escapeAttr(code) + '">Copy</button><code>' + highlighted + '</code></pre>';
+        return '<pre>' + langLabel + '<button class="code-copy" data-code="' + escapeAttr(code) + '">' + escapeHtml(tr('lesson.copy')) + '</button><code>' + highlighted + '</code></pre>';
       }
 
       function highlightSyntax(code, lang) {
@@ -2539,8 +2661,8 @@
           btn.addEventListener('click', function () {
             var code = btn.getAttribute('data-code');
             navigator.clipboard.writeText(code).then(function () {
-              btn.textContent = 'Copied!';
-              setTimeout(function () { btn.textContent = 'Copy'; }, 1500);
+              btn.textContent = tr('lesson.copied');
+              setTimeout(function () { btn.textContent = tr('lesson.copy'); }, 1500);
             });
           });
         });
@@ -2661,7 +2783,7 @@
             target.innerHTML = result.svg;
           }).catch(function () {
             if (target._mermaidRenderToken !== token) return;
-            target.innerHTML = '<p style="color:var(--text-muted);font-style:italic;">Diagram could not be rendered.</p>';
+            target.innerHTML = '<p style="color:var(--text-muted);font-style:italic;">' + escapeHtml(tr('lesson.diagramError')) + '</p>';
           });
         });
       }
@@ -2741,7 +2863,7 @@
         lastMermaidTrigger = triggerEl || document.activeElement;
         openMermaidIndex = idx;
 
-        if (title) title.textContent = 'Diagram';
+        if (title) title.textContent = tr('lesson.diagram');
 
         overlay.classList.add('open');
         overlay.setAttribute('aria-hidden', 'false');
@@ -2773,7 +2895,7 @@
           center.innerHTML = result.svg;
         }).catch(function () {
           if (center._mermaidRenderToken !== token) return;
-          center.innerHTML = '<p style="color:var(--text-muted);font-style:italic;">Diagram could not be rendered.</p>';
+          center.innerHTML = '<p style="color:var(--text-muted);font-style:italic;">' + escapeHtml(tr('lesson.diagramError')) + '</p>';
         });
       }
 
@@ -2803,12 +2925,12 @@
         var buildH2 = article.querySelector('#build-it, #build');
         var keyTermsH2 = article.querySelector('#key-terms');
 
-        var preQuizHtml = buildQuizHtml(questions.filter(function (q) { return q.stage === 'pre'; }), 'pre', 'Pre-Lesson Check');
-        var checkQuizHtml = buildQuizHtml(questions.filter(function (q) { return q.stage === 'check'; }), 'check', 'Mid-Lesson Check');
-        var postQuizHtml = buildQuizHtml(questions.filter(function (q) { return q.stage === 'post'; }), 'post', 'Post-Lesson Quiz');
+        var preQuizHtml = buildQuizHtml(questions.filter(function (q) { return q.stage === 'pre'; }), 'pre', tr('quiz.pre'));
+        var checkQuizHtml = buildQuizHtml(questions.filter(function (q) { return q.stage === 'check'; }), 'check', tr('quiz.check'));
+        var postQuizHtml = buildQuizHtml(questions.filter(function (q) { return q.stage === 'post'; }), 'post', tr('quiz.post'));
 
         if (!preQuizHtml && !checkQuizHtml && !postQuizHtml) {
-          var allHtml = buildQuizHtml(questions, 'all', 'Quiz');
+          var allHtml = buildQuizHtml(questions, 'all', tr('quiz.all'));
           if (allHtml && keyTermsH2) {
             keyTermsH2.insertAdjacentHTML('beforebegin', allHtml);
           } else if (allHtml) {
@@ -2926,7 +3048,7 @@
         }
         var scoreEl = section.querySelector('.quiz-score');
         if (scoreEl) {
-          scoreEl.textContent = correctCount + '/' + allQs.length + ' correct';
+          scoreEl.textContent = tr('quiz.correct', { correct: correctCount, total: allQs.length });
           scoreEl.style.display = 'block';
         }
       }
@@ -2970,16 +3092,16 @@
 
         var nav = '<div class="lesson-nav-bottom">';
         if (prev) {
-          nav += '<a class="lesson-nav-btn prev" href="lesson.html?path=' + prev.path + '">';
-          nav += '<span class="nav-label">&larr; Previous</span>';
+          nav += '<a class="lesson-nav-btn prev" href="' + localHref('lesson.html?path=' + prev.path) + '">';
+          nav += '<span class="nav-label">' + escapeHtml(tr('lesson.prev')) + '</span>';
           nav += '<span class="nav-title">' + escapeHtml(prev.lessonName) + '</span>';
           nav += '</a>';
         } else {
           nav += '<div></div>';
         }
         if (next) {
-          nav += '<a class="lesson-nav-btn next" href="lesson.html?path=' + next.path + '">';
-          nav += '<span class="nav-label">Next &rarr;</span>';
+          nav += '<a class="lesson-nav-btn next" href="' + localHref('lesson.html?path=' + next.path) + '">';
+          nav += '<span class="nav-label">' + escapeHtml(tr('lesson.next')) + '</span>';
           nav += '<span class="nav-title">' + escapeHtml(next.lessonName) + '</span>';
           nav += '</a>';
         }
@@ -3057,13 +3179,13 @@
       function renderOutputsPanel(container) {
         var panel = document.createElement('div');
         panel.className = 'ai-panel';
-        panel.innerHTML = '<div class="ai-panel-header"><div class="ai-panel-icon">O</div><div class="ai-panel-title">What This Lesson Ships</div></div><div class="ai-panel-subtitle">Prompts, skills, and artifacts you can use right now</div><div id="outputsContent" class="panel-loading">Loading outputs...</div>';
+        panel.innerHTML = '<div class="ai-panel-header"><div class="ai-panel-icon">O</div><div class="ai-panel-title">' + escapeHtml(tr('panel.outputs.title')) + '</div></div><div class="ai-panel-subtitle">' + escapeHtml(tr('panel.outputs.subtitle')) + '</div><div id="outputsContent" class="panel-loading">' + escapeHtml(tr('panel.outputs.loading')) + '</div>';
         container.appendChild(panel);
 
         ghApiFetch(lessonPath + '/outputs', function (err, data) {
           var el = document.getElementById('outputsContent');
           if (err || !data || !Array.isArray(data) || data.length === 0) {
-            el.innerHTML = '<div class="panel-fallback"><a href="https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/' + lessonPath + '" target="_blank" rel="noopener">View lesson on GitHub</a></div>';
+            el.innerHTML = '<div class="panel-fallback"><a href="https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/' + lessonPath + '" target="_blank" rel="noopener">' + escapeHtml(tr('action.viewLessonGithub')) + '</a></div>';
             return;
           }
 
@@ -3071,11 +3193,11 @@
           data.forEach(function (file, idx) {
             var type = classifyOutput(file.name);
             var badgeClass = type;
-            var badgeText = type === 'prompt' ? 'Prompt' : type === 'skill' ? 'Skill' : 'Output';
+            var badgeText = type === 'prompt' ? tr('panel.outputs.prompt') : type === 'skill' ? tr('panel.outputs.skill') : tr('panel.outputs.output');
             var installId = 'install-hint-' + idx;
             var installHint = '';
             if (type === 'prompt') {
-              installHint = 'Paste into Claude, Cursor, Codex, OpenClaw, Hermes, or any agent that reads prompts';
+              installHint = tr('panel.outputs.promptHint');
             } else if (type === 'skill') {
               var skillName = file.name.replace(/\.md$/, '').replace(/^skill-/, '');
               installHint = 'npx skills add rohitg00/ai-engineering-from-scratch --skill ' + skillName;
@@ -3084,11 +3206,11 @@
             html += '<div class="output-card">';
             html += '<div class="output-badge ' + badgeClass + '">' + badgeText + '</div>';
             html += '<div class="output-card-name">' + escapeHtml(file.name) + '</div>';
-            html += '<div class="output-desc" id="desc-' + idx + '">Loading description...</div>';
+            html += '<div class="output-desc" id="desc-' + idx + '">' + escapeHtml(tr('panel.outputs.loadingDesc')) + '</div>';
             html += '<div class="output-actions">';
-            html += '<a class="output-btn" href="' + file.html_url + '" target="_blank" rel="noopener">View on GitHub</a>';
+            html += '<a class="output-btn" href="' + file.html_url + '" target="_blank" rel="noopener">' + escapeHtml(tr('action.viewGithub')) + '</a>';
             if (installHint) {
-              html += '<button class="output-btn" onclick="var h=document.getElementById(\'' + installId + '\');h.classList.toggle(\'visible\')">Install</button>';
+              html += '<button class="output-btn" onclick="var h=document.getElementById(\'' + installId + '\');h.classList.toggle(\'visible\')">' + escapeHtml(tr('action.install')) + '</button>';
             }
             html += '</div>';
             if (installHint) {
@@ -3115,13 +3237,13 @@
       function renderCodePanel(container) {
         var panel = document.createElement('div');
         panel.className = 'ai-panel';
-        panel.innerHTML = '<div class="ai-panel-header"><div class="ai-panel-icon">C</div><div class="ai-panel-title">Run the Code</div></div><div class="ai-panel-subtitle">Executable files from this lesson</div><div id="codeContent" class="panel-loading">Loading code files...</div>';
+        panel.innerHTML = '<div class="ai-panel-header"><div class="ai-panel-icon">C</div><div class="ai-panel-title">' + escapeHtml(tr('panel.code.title')) + '</div></div><div class="ai-panel-subtitle">' + escapeHtml(tr('panel.code.subtitle')) + '</div><div id="codeContent" class="panel-loading">' + escapeHtml(tr('panel.code.loading')) + '</div>';
         container.appendChild(panel);
 
         ghApiFetch(lessonPath + '/code', function (err, data) {
           var el = document.getElementById('codeContent');
           if (err || !data || !Array.isArray(data) || data.length === 0) {
-            el.innerHTML = '<div class="panel-fallback"><a href="https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/' + lessonPath + '" target="_blank" rel="noopener">View lesson on GitHub</a></div>';
+            el.innerHTML = '<div class="panel-fallback"><a href="https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/' + lessonPath + '" target="_blank" rel="noopener">' + escapeHtml(tr('action.viewLessonGithub')) + '</a></div>';
             return;
           }
 
@@ -3135,8 +3257,8 @@
             html += '<div class="code-card-size">' + formatSize(file.size) + '</div>';
             html += '<div class="code-card-run">' + escapeHtml(runCmd) + '</div>';
             html += '<div class="code-card-actions">';
-            html += '<a class="code-card-btn" href="' + file.html_url + '" target="_blank" rel="noopener">View on GitHub</a>';
-            html += '<button class="code-card-btn code-card-copy" data-command="' + escapeAttr(runCmd) + '">Copy command</button>';
+            html += '<a class="code-card-btn" href="' + file.html_url + '" target="_blank" rel="noopener">' + escapeHtml(tr('action.viewGithub')) + '</a>';
+            html += '<button class="code-card-btn code-card-copy" data-command="' + escapeAttr(runCmd) + '">' + escapeHtml(tr('action.copyCommand')) + '</button>';
             html += '</div>';
             html += '</div>';
           });
@@ -3146,8 +3268,8 @@
             btn.addEventListener('click', function () {
               var command = btn.getAttribute('data-command');
               navigator.clipboard.writeText(command).then(function () {
-                btn.textContent = 'Copied!';
-                setTimeout(function () { btn.textContent = 'Copy command'; }, 1500);
+                btn.textContent = tr('action.copied');
+                setTimeout(function () { btn.textContent = tr('action.copyCommand'); }, 1500);
               });
             });
           });
@@ -3233,14 +3355,14 @@
           phase = fl.phaseSlug || '';
         }
 
-        var html = '<div class="ai-panel-header"><div class="ai-panel-icon">Q</div><div class="ai-panel-title">Test Your Understanding</div></div>';
-        html += '<div class="ai-panel-subtitle">Did you get it?</div>';
+        var html = '<div class="ai-panel-header"><div class="ai-panel-icon">Q</div><div class="ai-panel-title">' + escapeHtml(tr('panel.quiz.title')) + '</div></div>';
+        html += '<div class="ai-panel-subtitle">' + escapeHtml(tr('panel.quiz.subtitle')) + '</div>';
         html += '<div class="quiz-container" id="quizContainer">';
 
         var letters = ['A', 'B', 'C', 'D'];
         questions.forEach(function (q, qi) {
           html += '<div class="quiz-question" id="quiz-q-' + qi + '">';
-          html += '<div class="quiz-question-num">Question ' + (qi + 1) + ' of ' + questions.length + '</div>';
+          html += '<div class="quiz-question-num">' + escapeHtml(tr('panel.quiz.question', { current: qi + 1, total: questions.length })) + '</div>';
           html += '<div class="quiz-question-text">' + escapeHtml(q.q) + '</div>';
           html += '<div class="quiz-options">';
           q.opts.forEach(function (opt, oi) {
@@ -3254,8 +3376,8 @@
           html += '</div>';
         });
 
-        html += '<div class="quiz-score" id="quizScore"><div class="quiz-score-number" id="quizScoreNum">0/' + questions.length + '</div><div class="quiz-score-label">Complete all questions to see your score</div></div>';
-        html += '<div class="quiz-deeper">Want a deeper quiz? Run <code>/check-understanding ' + escapeHtml(phase) + '</code> in Claude, Cursor, Codex, OpenClaw, Hermes, or any agent with the curriculum skills installed</div>';
+        html += '<div class="quiz-score" id="quizScore"><div class="quiz-score-number" id="quizScoreNum">0/' + questions.length + '</div><div class="quiz-score-label">' + escapeHtml(tr('panel.quiz.complete')) + '</div></div>';
+        html += '<div class="quiz-deeper">' + tr('panel.quiz.deeper', { phase: escapeHtml(phase) }) + '</div>';
         html += '</div>';
 
         panel.innerHTML = html;
@@ -3299,8 +3421,8 @@
           if (scoreEl && scoreNum) {
             scoreNum.textContent = window._quizCorrect + '/' + questions.length;
             scoreEl.querySelector('.quiz-score-label').textContent =
-              window._quizCorrect === questions.length ? 'Perfect score!' :
-              window._quizCorrect >= 2 ? 'Great work!' : 'Keep studying!';
+              window._quizCorrect === questions.length ? tr('panel.quiz.perfect') :
+              window._quizCorrect >= 2 ? tr('panel.quiz.good') : tr('panel.quiz.study');
             scoreEl.classList.add('visible');
           }
         }
@@ -3315,6 +3437,7 @@
         var current = flatLessons[currentLessonIndex];
         var phaseIdx = current.phaseIndex;
         var phase = PHASES[phaseIdx];
+        var pt = phaseText(phase);
         var lessonsInPhase = [];
         var currentIdxInPhase = -1;
 
@@ -3325,8 +3448,8 @@
           }
         }
 
-        var html = '<div class="ai-panel-header"><div class="ai-panel-icon">P</div><div class="ai-panel-title">Learning Path</div></div>';
-        html += '<div class="ai-panel-subtitle">Phase ' + String(phase.id).padStart(2, '0') + ': ' + escapeHtml(phase.name) + '</div>';
+        var html = '<div class="ai-panel-header"><div class="ai-panel-icon">P</div><div class="ai-panel-title">' + escapeHtml(tr('panel.path.title')) + '</div></div>';
+        html += '<div class="ai-panel-subtitle">' + escapeHtml(tr('phase')) + ' ' + String(phase.id).padStart(2, '0') + ': ' + escapeHtml(pt.name) + '</div>';
 
         // Window: 2 before current + current + 2 after, cap at 5 visible.
         var windowSize = 5;
@@ -3339,7 +3462,7 @@
 
         html += '<div class="learning-timeline">';
         if (hiddenBefore > 0) {
-          html += '<span class="timeline-ellipsis" title="' + hiddenBefore + ' earlier lessons">&laquo; ' + hiddenBefore + '</span>';
+          html += '<span class="timeline-ellipsis" title="' + escapeAttr(tr('panel.path.earlier', { count: hiddenBefore })) + '">&laquo; ' + hiddenBefore + '</span>';
           html += '<div class="timeline-line done"></div>';
         }
         visible.forEach(function (item, vIdx) {
@@ -3354,7 +3477,7 @@
           }
 
           if (item.flat.isReadable) {
-            html += '<a class="timeline-item ' + cls + '" href="lesson.html?path=' + item.flat.path + '" title="' + escapeAttr(item.flat.lessonName) + '">';
+            html += '<a class="timeline-item ' + cls + '" href="' + localHref('lesson.html?path=' + item.flat.path) + '" title="' + escapeAttr(item.flat.lessonName) + '">';
           } else {
             html += '<span class="timeline-item ' + cls + ' disabled" title="' + escapeAttr(item.flat.lessonName) + '">';
           }
@@ -3364,7 +3487,7 @@
         });
         if (hiddenAfter > 0) {
           html += '<div class="timeline-line"></div>';
-          html += '<span class="timeline-ellipsis" title="' + hiddenAfter + ' later lessons">' + hiddenAfter + ' &raquo;</span>';
+          html += '<span class="timeline-ellipsis" title="' + escapeAttr(tr('panel.path.later', { count: hiddenAfter })) + '">' + hiddenAfter + ' &raquo;</span>';
         }
         html += '</div>';
 
@@ -3373,11 +3496,12 @@
         var pct = Math.round((completedCount / totalCount) * 100);
 
         html += '<div class="phase-progress-bar"><div class="phase-progress-fill" style="width:' + pct + '%"></div></div>';
-        html += '<div class="phase-progress-text">You\'ve completed ' + completedCount + ' of ' + totalCount + ' lessons in this phase</div>';
+        html += '<div class="phase-progress-text">' + escapeHtml(tr('panel.path.progress', { done: completedCount, total: totalCount })) + '</div>';
 
         if (completedCount >= totalCount && phaseIdx < PHASES.length - 1) {
           var nextPhase = PHASES[phaseIdx + 1];
-          html += '<div class="phase-complete-callout visible">Ready for Phase ' + String(nextPhase.id).padStart(2, '0') + ': ' + escapeHtml(nextPhase.name) + '</div>';
+          var nextPhaseText = phaseText(nextPhase);
+          html += '<div class="phase-complete-callout visible">' + escapeHtml(tr('panel.path.ready', { phase: String(nextPhase.id).padStart(2, '0'), name: nextPhaseText.name })) + '</div>';
         }
 
         panel.innerHTML = html;
@@ -3398,22 +3522,22 @@
         var phaseIdx = current.phaseIndex;
         var phase = PHASES[phaseIdx];
 
-        var html = '<div class="ai-panel-header"><div class="ai-panel-icon">N</div><div class="ai-panel-title">Continue Learning</div></div>';
+        var html = '<div class="ai-panel-header"><div class="ai-panel-icon">N</div><div class="ai-panel-title">' + escapeHtml(tr('panel.continue.title')) + '</div></div>';
         html += '<div class="continue-panel">';
 
         if (!next || !next.path) {
-          html += '<div class="phase-finished">\u2705 You finished this phase!</div>';
+          html += '<div class="phase-finished">' + escapeHtml(tr('panel.continue.finished')) + '</div>';
         }
 
         html += '<div class="continue-links">';
 
         var phaseSlug = extractPhaseSlug(phase, phaseIdx);
         var firstLesson = phase.lessons[0] ? extractLessonSlug(phase.lessons[0], 0) : '';
-        html += '<a class="continue-link" href="lesson.html?path=phases/' + phaseSlug + '/' + firstLesson + '">Browse all Phase ' + String(phase.id).padStart(2, '0') + ' lessons</a>';
-        html += '<a class="continue-link" href="catalog.html">Full course catalog</a>';
+        html += '<a class="continue-link" href="' + localHref('lesson.html?path=phases/' + phaseSlug + '/' + firstLesson) + '">' + escapeHtml(tr('panel.continue.browse', { phase: String(phase.id).padStart(2, '0') })) + '</a>';
+        html += '<a class="continue-link" href="' + localHref('catalog.html') + '">' + escapeHtml(tr('panel.continue.catalog')) + '</a>';
         html += '</div>';
 
-        html += '<div class="continue-callout">Run <code>/find-your-level</code> in Claude, Cursor, Codex, OpenClaw, Hermes, or any agent with the curriculum skills installed for a personalized learning path</div>';
+        html += '<div class="continue-callout">' + tr('panel.continue.callout') + '</div>';
         html += '</div>';
 
         panel.innerHTML = html;
