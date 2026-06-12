@@ -1,4 +1,4 @@
-# Jupyter 笔记本
+﻿# Jupyter 笔记本
 
 > Notebook 是 AI 工程的实验台。你先在这里快速验证，再把可落地的内容迁移到生产代码。
 
@@ -25,18 +25,18 @@ Notebook 是一组单元格（cell）构成。每个 cell 要么是代码，要�
 
 ```mermaid
 graph TD
-    A["**Markdown Cell**\n# My Experiment\nTesting learning rate 0.01"] --> B["**Code Cell** ► Run\nmodel.fit(X, y, lr=0.01)\n---\nOutput: loss = 0.342"]
-    B --> C["**Code Cell** ► Run\nplt.plot(losses)\n---\nOutput: inline plot"]
+    A["**Markdown Cell**\n# 我的实验\n测试学习率 0.01"] --> B["**代码单元** ► 运行\nmodel.fit(X, y, lr=0.01)\n---\n输出：loss = 0.342"]
+    B --> C["**代码单元** ► 运行\nplt.plot(losses)\n---\n输出：内联图表"]
 ```
 
 Kernel 是后台运行的 Python 进程。你执行某个 cell 时，代码会发给 Kernel 执行并返回结果。所有 cell 共用同一个 kernel，因此变量在 cell 之间会保持。
 
 ```mermaid
 graph LR
-    A[Notebook UI] <--> B[Kernel\nPython process]
-    B --> C[Keeps variables in memory]
+    A[Notebook 界面] <--> B[Kernel\\nPython 进程]
+    B --> C[在内存中保留变量]
     B --> D[按你点击的任意顺序运行单元格]
-    B --> E[Dies when you restart it]
+    B --> E[重启后会清空]
 ```
 
 “按点击顺序执行”是它的强大之处，也是风险来源。
@@ -248,3 +248,4 @@ Colab 是云端免费的 Jupyter 环境，提供 GPU、预装库和 Google Drive
 - [JupyterLab 文档](https://jupyterlab.readthedocs.io/)：完整功能清单
 - [Google Colab FAQ](https://research.google.com/colaboratory/faq.html)：Colab 的配额与限制说明
 - [28 Jupyter Notebook Tips](https://www.dataquest.io/blog/jupyter-notebook-tips-tricks-shortcuts/)：高级快捷键技巧
+
