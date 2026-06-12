@@ -2,10 +2,10 @@
 
 > 容器让“只在我电脑上能运行”不再是常态。
 
-**Type:** Build
-**Languages:** Docker
-**Prerequisites:** Phase 0, Lesson 01 and 03
-**Time:** ~60 minutes
+**类型:** Build
+**语言:** Docker
+**先修:** 第 0 阶段第 01、03 课
+**时长:** ~60 分钟
 
 ## 学习目标
 
