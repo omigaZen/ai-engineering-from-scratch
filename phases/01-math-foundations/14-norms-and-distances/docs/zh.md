@@ -73,7 +73,7 @@ Point B = (4, 5)
 
 L2 distance = sqrt((4-1)^2 + (5-1)^2) = sqrt(9 + 16) = sqrt(25) = 5.0
 
-The straight line, cutting diagonally through the grid.
+就是那条斜着穿过网格的直线。
 ```
 
 何时用 L2：
