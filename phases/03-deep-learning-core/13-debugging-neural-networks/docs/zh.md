@@ -35,17 +35,17 @@
 ```mermaid
 flowchart TD
     A["损失不下降"] --> B{"检查学习率"}
-    B -->|"Too high"| C["Loss oscillates or explodes"]
-    B -->|"Too low"| D["Loss barely moves"]
-    B -->|"Reasonable"| E{"Check gradients"}
-    E -->|"All zeros"| F["Dead ReLUs or vanishing gradients"]
-    E -->|"NaN/Inf"| G["Exploding gradients"]
-    E -->|"Normal"| H{"Check data pipeline"}
-    H -->|"Labels shuffled"| I["Random-chance accuracy"]
-    H -->|"Preprocessing bug"| J["Model learns noise"]
-    H -->|"Data is fine"| K{"Check architecture"}
-    K -->|"Too small"| L["Underfitting"]
-    K -->|"Too deep"| M["Optimization difficulty"]
+    B -->|"太高"| C["损失振荡或爆炸"]
+    B -->|"太低"| D["损失几乎不动"]
+    B -->|"合理"| E{"检查梯度"}
+    E -->|"全为 0"| F["ReLU 死亡或梯度消失"]
+    E -->|"NaN/Inf"| G["梯度爆炸"]
+    E -->|"正常"| H{"检查数据管线"}
+    H -->|"标签被打乱"| I["随机猜测级准确率"]
+    H -->|"预处理有 bug"| J["模型学到的是噪声"]
+    H -->|"数据没问题"| K{"检查模型结构"}
+    K -->|"太小"| L["欠拟合"]
+    K -->|"太深"| M["优化困难"]
 ```
 
 ### 症状 1：损失不下降
