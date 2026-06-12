@@ -1,48 +1,48 @@
-# 构建你自己的迷你框架
+﻿# 构建你自己的迷你框架
 
-> 你已经分别实现了神经元、层、网络、反向传播、激活函数、损失函数、优化器、正则化、初始化和学习率调度。现在把它们串成一个框架。不�?PyTorch，不�?TensorFlow，而是你自己的�?
-**类型�?* 构建
-**语言�?* Python
-**先决条件�?* �?03 阶段的所有内容（�?01-09 课）
-**时间�?* ~120 分钟
+> 你已经分别实现了神经元、层、网络、反向传播、激活函数、损失函数、优化器、正则化、初始化和学习率调度。现在把它们串成一个框架。不�?PyTorch，不�?TensorFlow，而是你自己的�?
+**类型�?* 构建
+**语言�?* Python
+**先决条件�?* �?03 阶段的所有内容（�?01-09 课）
+**时间�?* ~120 分钟
 
 ## 学习目标
 
-- 使用 Module、Linear、ReLU、Sigmoid、Dropout、BatchNorm、Sequential、损失函数、优化器�?DataLoader 搭出一个完整的深度学习框架（约 500 行）
-- 解释模块抽象（前向、后向、参数）以及为什么需要切换训�?评估模式
-- 把所有组件接到一个能跑通的训练循环里，完成一�?4 层网络的圆形分类任务
-- 将框架中的每个组件对应到 PyTorch 里的等价物（nn.Module、nn.Sequential、optim.Adam、DataLoader�?
+- 使用 Module、Linear、ReLU、Sigmoid、Dropout、BatchNorm、Sequential、损失函数、优化器�?DataLoader 搭出一个完整的深度学习框架（约 500 行）
+- 解释模块抽象（前向、后向、参数）以及为什么需要切换训�?评估模式
+- 把所有组件接到一个能跑通的训练循环里，完成一�?4 层网络的圆形分类任务
+- 将框架中的每个组件对应到 PyTorch 里的等价物（nn.Module、nn.Sequential、optim.Adam、DataLoader�?
 ## 问题
 
-你已经有十几节课了，内容分散在不同文件里：这里是一�?`Value` 类，那里是一个训练循环，别的文件里还有权重初始化和学习率调度。要训练一个网络，你得把几节课的代码拼到一起，再手动把它们接起来�?
-这就是框架要解决的问题。PyTorch 给你 `nn.Module`、`nn.Sequential`、`optim.Adam`、`DataLoader`，以及把它们串起来的训练循环模式。TensorFlow 给你 `keras.Layer`、`keras.Sequential`、`keras.optimizers.Adam`。这些都不是魔法，只是组织方式，让你能定义、训练和评估网络，而不用每次都从头造一遍管道�?
-你会用大�?500 �?Python 代码做出同样的东西。没有外部依赖，也没有黑箱。它可以定义任意前馈网络，用 SGD �?Adam 训练它，批量处理数据，应�?dropout 和批量归一化，使用任意激活函数，并调度学习率。完成之后，你会准确知道�?PyTorch 里写�?`model = nn.Sequential(...)` 时发生了什么，也会知道为什么要�?`model.train()`、`model.eval()` 和单独的 `optimizer.zero_grad()`。你会真正理解这一切，因为这些东西都是你亲手搭出来的�?
+你已经有十几节课了，内容分散在不同文件里：这里是一�?`Value` 类，那里是一个训练循环，别的文件里还有权重初始化和学习率调度。要训练一个网络，你得把几节课的代码拼到一起，再手动把它们接起来�?
+这就是框架要解决的问题。PyTorch 给你 `nn.Module`、`nn.Sequential`、`optim.Adam`、`DataLoader`，以及把它们串起来的训练循环模式。TensorFlow 给你 `keras.Layer`、`keras.Sequential`、`keras.optimizers.Adam`。这些都不是魔法，只是组织方式，让你能定义、训练和评估网络，而不用每次都从头造一遍管道�?
+你会用大�?500 �?Python 代码做出同样的东西。没有外部依赖，也没有黑箱。它可以定义任意前馈网络，用 SGD �?Adam 训练它，批量处理数据，应�?dropout 和批量归一化，使用任意激活函数，并调度学习率。完成之后，你会准确知道�?PyTorch 里写�?`model = nn.Sequential(...)` 时发生了什么，也会知道为什么要�?`model.train()`、`model.eval()` 和单独的 `optimizer.zero_grad()`。你会真正理解这一切，因为这些东西都是你亲手搭出来的�?
 ## 概念
 
 ### 模块抽象
 
-PyTorch 中的每一层都继承�?`nn.Module`。模块具有三个职责：
+PyTorch 中的每一层都继承�?`nn.Module`。模块具有三个职责：
 
-1. **forward()** -- 计算给定输入的输�?
-2. **parameters()** -- 返回所有可训练的权�?
-3. **backward()** -- 计算梯度（由 PyTorch 中的 autograd 处理，在我们的中是显式的�?
+1. **forward()** -- 计算给定输入的输�?
+2. **parameters()** -- 返回所有可训练的权�?
+3. **backward()** -- 计算梯度（由 PyTorch 中的 autograd 处理，在我们的中是显式的�?
 
-线性层是一个模块�?ReLU 激活是一个模块�?Dropout 层是一个模块。批量归一化层是一个模块。它们都有相同的界面�?
+线性层是一个模块�?ReLU 激活是一个模块�?Dropout 层是一个模块。批量归一化层是一个模块。它们都有相同的界面�?
 
 ### 顺序容器
 
-`nn.Sequential` 把模块串起来。前向传递就是把数据依次送过模块 1、模�?2、模�?3；后向传递则沿着相反方向回传。容器本身也是一个模块，它同样有 `forward()`、`parameters()` �?`backward()`。这就是复合模式：一组模块本身也可以看成一个模块�?
-### 训练与评估模�?
+`nn.Sequential` 把模块串起来。前向传递就是把数据依次送过模块 1、模�?2、模�?3；后向传递则沿着相反方向回传。容器本身也是一个模块，它同样有 `forward()`、`parameters()` �?`backward()`。这就是复合模式：一组模块本身也可以看成一个模块�?
+### 训练与评估模�?
 
-Dropout 在训练期间随机将神经元归零，但在评估期间通过所有内容。批量归一化在训练期间使用批量统计数据，但在评估期间使用运行平均值�?`train()` �?`eval()` 方法切换此行为。每个模块都有一�?`training` 标志�?
+Dropout 在训练期间随机将神经元归零，但在评估期间通过所有内容。批量归一化在训练期间使用批量统计数据，但在评估期间使用运行平均值�?`train()` �?`eval()` 方法切换此行为。每个模块都有一�?`training` 标志�?
 
-### 优化�?
+### 优化�?
 
-优化器使用参数的梯度来更新参数�?SGD：`param -= lr * grad`�?Adam：维持动量和方差估计，然后更新。优化器不了解网络架构——它只看到参数及其梯度的平面列表�?
+优化器使用参数的梯度来更新参数�?SGD：`param -= lr * grad`�?Adam：维持动量和方差估计，然后更新。优化器不了解网络架构——它只看到参数及其梯度的平面列表�?
 
-### 数据加载�?
+### 数据加载�?
 
-批处理很重要有两个原因。首先，对于大型问题，你无法将整个数据集放入内存中。其次，小批量梯度下降会引入一些噪声，这有助于跳出局部极小值。`DataLoader` 会把数据分成批次，并可选择�?epoch 之间洗牌�?
+批处理很重要有两个原因。首先，对于大型问题，你无法将整个数据集放入内存中。其次，小批量梯度下降会引入一些噪声，这有助于跳出局部极小值。`DataLoader` 会把数据分成批次，并可选择�?epoch 之间洗牌�?
 ### 框架架构
 
 ```mermaid
@@ -52,7 +52,7 @@ graph TD
         ReLU["ReLU<br/>max(0, x)"]
         Sigmoid["Sigmoid<br/>1/(1+e^-x)"]
         Dropout["Dropout<br/>随机置零掩码"]
-        BatchNorm["BatchNorm<br/>归一化激活�?]
+        BatchNorm["BatchNorm<br/>归一化激活�?]
     end
 
     subgraph "Containers"
@@ -61,7 +61,7 @@ graph TD
 
     subgraph "Loss Functions"
         MSE["MSELoss<br/>(pred - target)^2"]
-        BCE["BCELoss<br/>二元交叉�?]
+        BCE["BCELoss<br/>二元交叉�?]
     end
 
     subgraph "Optimizers"
@@ -70,7 +70,7 @@ graph TD
     end
 
     subgraph "Data"
-        DataLoader["DataLoader<br/>批处�?+ 洗牌"]
+        DataLoader["DataLoader<br/>批处�?+ 洗牌"]
     end
 
     Sequential --> |"contains"| Linear
@@ -141,11 +141,11 @@ classDiagram
 gradient-clipping
 ```
 
-## 构建�?
+## 构建�?
 
-### �?1 步：模块基类
+### �?1 步：模块基类
 
-每层实现的抽象接口�?
+每层实现的抽象接口�?
 
 ```python
 class Module:
@@ -170,7 +170,7 @@ class Module:
 
 ### 步骤 2：线性层
 
-基本构建块。存储权重和偏差，向前计�?Wx + b，向后计算权�?输入梯度�?
+基本构建块。存储权重和偏差，向前计�?Wx + b，向后计算权�?输入梯度�?
 
 ```python
 import math
@@ -217,9 +217,9 @@ class Linear(Module):
         return params
 ```
 
-### 步骤 3：激活模�?
+### 步骤 3：激活模�?
 
-ReLU、Sigmoid �?Tanh 作为模块。每个缓存向后传递所需的内容�?
+ReLU、Sigmoid �?Tanh 作为模块。每个缓存向后传递所需的内容�?
 
 ```python
 class ReLU(Module):
@@ -266,7 +266,7 @@ class Tanh(Module):
 
 ### 步骤 4：Dropout 模块
 
-在训练期间随机将元素归零。将剩余元素缩放 1/(1-p)，以便预期值保持不变。在评估期间不执行任何操作�?
+在训练期间随机将元素归零。将剩余元素缩放 1/(1-p)，以便预期值保持不变。在评估期间不执行任何操作�?
 
 ```python
 class Dropout(Module):
@@ -289,7 +289,7 @@ class Dropout(Module):
 
 ### 步骤 5：BatchNorm 模块
 
-将批次中每个特征的激活标准化为零均值和单位方差。维�?eval 模式的运行统计信息�?
+将批次中每个特征的激活标准化为零均值和单位方差。维�?eval 模式的运行统计信息�?
 
 ```python
 class BatchNorm(Module):
@@ -367,9 +367,9 @@ class BatchNorm(Module):
         return params
 ```
 
-### 步骤 6：顺序容�?
+### 步骤 6：顺序容�?
 
-链模块。向前从左到右，向后从右到左�?
+链模块。向前从左到右，向后从右到左�?
 
 ```python
 class Sequential(Module):
@@ -404,9 +404,9 @@ class Sequential(Module):
             module.eval()
 ```
 
-### 步骤 7：损失函�?
+### 步骤 7：损失函�?
 
-MSE 和二元交叉熵。每个都返回损失值并提供返回梯度的backward()�?
+MSE 和二元交叉熵。每个都返回损失值并提供返回梯度的backward()�?
 
 ```python
 class MSELoss:
@@ -445,9 +445,9 @@ class BCELoss:
         return grads
 ```
 
-### 步骤 8：SGD �?Adam 优化�?
+### 步骤 8：SGD �?Adam 优化�?
 
-两者都采用参数列表并使用梯度更新权重�?
+两者都采用参数列表并使用梯度更新权重�?
 
 ```python
 class SGD:
@@ -512,7 +512,7 @@ class Adam:
 
 ### 步骤 9：数据加载器
 
-将数据分成批次，可以选择对每个时期进行洗牌�?
+将数据分成批次，可以选择对每个时期进行洗牌�?
 
 ```python
 class DataLoader:
@@ -536,9 +536,9 @@ class DataLoader:
         return (len(self.data) + self.batch_size - 1) // self.batch_size
 ```
 
-### 步骤 10：训练圆形分类的 4 层网�?
+### 步骤 10：训练圆形分类的 4 层网�?
 
-将所有东西连接在一起。定义模型，选择损失，选择优化器，运行训练循环�?
+将所有东西连接在一起。定义模型，选择损失，选择优化器，运行训练循环�?
 
 ```python
 def make_circle_data(n=500, seed=42):
@@ -606,7 +606,7 @@ def train():
         accuracy = total_correct / total_samples * 100
 
         if epoch % 10 == 0 or epoch == 99:
-            print(f"Epoch {epoch:3d} | Loss: {avg_loss:.6f} | Train Accuracy: {accuracy:.1f}%")
+            print(f"第 {epoch:3d} 轮 | 损失: {avg_loss:.6f} | 训练准确率: {accuracy:.1f}%")
 
     model.eval()
     correct = 0
@@ -616,14 +616,14 @@ def train():
         if predicted_class == t[0]:
             correct += 1
     test_accuracy = correct / len(test_data) * 100
-    print(f"\nTest Accuracy: {test_accuracy:.1f}% ({correct}/{len(test_data)})")
+    print(f"\\n测试准确率: {test_accuracy:.1f}% ({correct}/{len(test_data)})")
 
     return model, test_accuracy
 ```
 
-## 使用�?
+## 使用�?
 
-这是与你刚刚构建�?PyTorch 等价的内容：
+这是与你刚刚构建�?PyTorch 等价的内容：
 
 ```python
 import torch
@@ -658,40 +658,41 @@ for epoch in range(100):
         test_predictions = model(test_inputs)
 ```
 
-结构是相同的。`Sequential`、`Linear`、`ReLU`、`Sigmoid`、`BCELoss`、`Adam`、`zero_grad`、`backward`、`step`、`train`、`eval`。每个概念都是一一对应的。不同之处在�?PyTorch 会自动处�?autograd（你不需要在每个模块里实�?`backward()`），它还能在 GPU 上运行，而且已经优化了很多年。但骨架是一样的。现在，当你看到 PyTorch 代码时，你就能确切知道每一行在做什么。这种理解就是重点�?
+结构是相同的。`Sequential`、`Linear`、`ReLU`、`Sigmoid`、`BCELoss`、`Adam`、`zero_grad`、`backward`、`step`、`train`、`eval`。每个概念都是一一对应的。不同之处在�?PyTorch 会自动处�?autograd（你不需要在每个模块里实�?`backward()`），它还能在 GPU 上运行，而且已经优化了很多年。但骨架是一样的。现在，当你看到 PyTorch 代码时，你就能确切知道每一行在做什么。这种理解就是重点�?
 ## 发货
 
-本课产生�?
-- `outputs/prompt-framework-architect.md` -- ʹ�ÿ�ܳ������������ܹ�����ʾ��
+本课产生�?
+- `outputs/prompt-framework-architect.md` -- ʹ�ÿ�ܳ������������ܹ�����ʾ��
 
-## ��ϰ
+## ��ϰ
 
-1. 添加 `SoftmaxCrossEntropyLoss` 类以进行多类分类�?Softmax 预测、计算交叉熵损失并处理组合后向传递。在 3 类螺旋数据集上进行测试�?
+1. 添加 `SoftmaxCrossEntropyLoss` 类以进行多类分类�?Softmax 预测、计算交叉熵损失并处理组合后向传递。在 3 类螺旋数据集上进行测试�?
 
-2. ���Ż�����ʵ��ѧϰ�ʵ��ȣ����� `set_lr()` ���������ӵ��� 09 ��������ҵ��ȡ�ʹ��Ԥ�� + ����ѵ��Բ�η����������볣�� LR ���бȽϡ�
+2. ���Ż�����ʵ��ѧϰ�ʵ��ȣ���� `set_lr()` ���������ӵ��� 09 ��������ҵ��ȡ�ʹ��Ԥ�� + ����ѵ��Բ�η����������볣�� LR ���бȽϡ�
 
-3. �?`save()` �?`load()` 方法添加�?Sequential，将所有权重序列化�?JSON 文件并将其加载回来。验证加载的模型是否产生与原始模型相同的预测�?
+3. �?`save()` �?`load()` 方法添加�?Sequential，将所有权重序列化�?JSON 文件并将其加载回来。验证加载的模型是否产生与原始模型相同的预测�?
 
-4. �� Adam �Ż�����ʵ��Ȩ��˥����L2 ���򻯣�������һ�� `weight_decay` ��������ÿһ����Ȩ����С���㡣�Ƚ� `weight_decay = 0` �� `weight_decay = 0.01` ��ѵ����
+4. �� Adam �Ż�����ʵ��Ȩ��˥����L2 ���򻯣������һ�� `weight_decay` ��������ÿһ����Ȩ����С���㡣�Ƚ� `weight_decay = 0` �� `weight_decay = 0.01` ��ѵ����
 
-5. �ú��ʵ�С�����ݶ��ۻ��滻ÿ��������ѵ��ѭ�����ۼ�һ���������������ݶȣ�Ȼ����� batch ��С��ִ��һ���Ż������衣�������Ƿ��ı������ٶȡ�
+5. �ú��ʵ�С�����ݶ��ۻ��滻ÿ��������ѵ��ѭ�����ۼ�һ���������������ݶȣ�Ȼ����� batch ��С��ִ��һ���Ż������衣�������Ƿ��ı������ٶȡ�
 
-## �ؼ���
+## �ؼ���
 
-| ���� | ������ô˵ | ��ʵ����ʲô��˼ |
+| ���� | ������ô˵ | ��ʵ����ʲô��˼ |
 |------|----------------|----------------------|
-| ģ�� | ��һ�㡱 | ����еĻ�������ͨ������ `forward()`��`backward()` �� `parameters()`
-| ˳�� | ����˳��ѵ�ͼ�㡱 | һ����ʽ��������˳��Ѷ��ģ�鴮����
-| ǰ�򴫲� | ���������硱 | ��˳������봫��ÿ��ģ�飬�������
-| ���򴫲� | �������ݶȡ� | ͨ��ÿ��ģ�鷴�򴫲���ʧ�ݶ�����������ݶ�
-| ���� | ����ѵ����Ȩ�ء� | �Ż������Ը��µ������е�������ֵ������Ȩ�غ�ƫ��
-| ���ݼ����� | ���ṩ���ݵĶ����� | �����ݼ��ֳ����εĵ�����������ѡ���� epoch ֮��ϴ��
-| ��ѵģʽ | ��ģ��.train()�� | һ����־����ʵ�������Ϊ������ʹ������ͳ����Ϣ���ж�����������һ��
-| ����ģʽ | ��ģ��.eval()�� | ���� dropout ��ʹ������ͳ�����ݽ���������׼���ı�־
-| ���ݶ� | ��������䡱 | �ڼ�����һ�����ݶ�֮ǰ�����в����ݶ�����Ϊ��
+| ģ�� | ��һ�㡱 | ����еĻ�������ͨ������ `forward()`��`backward()` �� `parameters()`
+| ˳�� | ����˳��ѵ�ͼ�㡱 | һ����ʽ��������˳��Ѷ��ģ�鴮����
+| ǰ�򴫲� | ���������硱 | ��˳������봫��ÿ��ģ�飬�������
+| ���򴫲� | �������ݶȡ� | ͨ��ÿ��ģ�鷴�򴫲���ʧ�ݶ�����������ݶ�
+| ���� | ����ѵ����Ȩ�ء� | �Ż������Ը��µ������е�������ֵ������Ȩ�غ�ƫ��
+| ���ݼ����� | ���ṩ���ݵĶ����� | �����ݼ��ֳ����εĵ�����������ѡ���� epoch ֮��ϴ��
+| ��ѵģʽ | ��ģ��.train()�� | һ����־����ʵ�������Ϊ������ʹ������ͳ����Ϣ���ж�����������һ��
+| ����ģʽ | ��ģ��.eval()�� | ���� dropout ��ʹ������ͳ�����ݽ���������׼���ı�־
+| ���ݶ� | ��������䡱 | �ڼ�����һ�����ݶ�֮ǰ�����в����ݶ�����Ϊ��
 
-## ��һ���Ķ�
+## ��һ���Ķ�
 
-- Paszke ���ˣ���PyTorch��һ������ʽ�ĸ��������ѧϰ�⡷��2019 �꣩�������� PyTorch ��ƾ��ߵ�����
-- Chollet����Python ���ѧϰ���ڶ��棩����2021 �꣩������ 3 �½����˾�����ͬģ��/������ Keras �ڲ��ṹ
-- Johnson����Tiny-DNN����https://github.com/tiny-dnn/tiny-dnn������һ��������ͷ�ļ��� C++ ���ѧϰ��ܣ������������ڲ��ṹ
+- Paszke ���ˣ���PyTorch��һ������ʽ�ĸ��������ѧϰ�⡷��2019 �꣩�������� PyTorch ��ƾ��ߵ�����
+- Chollet����Python ���ѧϰ���ڶ��棩����2021 �꣩������ 3 �½����˾�����ͬģ��/������ Keras �ڲ��ṹ
+- Johnson����Tiny-DNN����https://github.com/tiny-dnn/tiny-dnn������һ��������ͷ�ļ��� C++ ���ѧϰ��ܣ�����������ڲ��ṹ
+
