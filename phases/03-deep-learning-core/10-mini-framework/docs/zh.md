@@ -48,7 +48,7 @@ Dropout 在训练期间随机将神经元归零，但在评估期间通过所有
 
 ### 数据加载器
 
-批处理很重要有两个原因。首先，对于大型问题，您无法将整个数据集放入内存中。其次，小批量梯度下降提供了有助于逃避局部极小值的噪声。 DataLoader 将数据分成批次，并可选择在纪元之间进行洗牌。
+批处理很重要有两个原因。首先，对于大型问题，你无法将整个数据集放入内存中。其次，小批量梯度下降会引入一些噪声，这有助于跳出局部极小值。`DataLoader` 会把数据分成批次，并可选择在 epoch 之间洗牌。
 
 ### 框架架构
 
@@ -630,7 +630,7 @@ def train():
 
 ## 使用它
 
-这是与您刚刚构建的 PyTorch 等效的内容：
+这是与你刚刚构建的 PyTorch 等价的内容：
 
 ```python
 import torch
@@ -665,7 +665,7 @@ for epoch in range(100):
         test_predictions = model(test_inputs)
 ```
 
-结构是相同的。 `Sequential`、`Linear`、`ReLU`、`Sigmoid`、`BCELoss`、`Adam`、`zero_grad`、`backward`、`step`、 `train`、`eval`。每个概念都是一一对应的。不同之处在于 PyTorch 自动处理 autograd（无需在每个模块中实现backward()），在 GPU 上运行，并且已经优化多年。但骨头是一样的。现在，当您看到 PyTorch 代码时，您可以确切地知道每一行发生了什么。这种理解就是重点。
+结构是相同的。`Sequential`、`Linear`、`ReLU`、`Sigmoid`、`BCELoss`、`Adam`、`zero_grad`、`backward`、`step`、`train`、`eval`。每个概念都是一一对应的。不同之处在于 PyTorch 会自动处理 autograd（你不需要在每个模块里实现 `backward()`），它还能在 GPU 上运行，而且已经优化了很多年。但骨架是一样的。现在，当你看到 PyTorch 代码时，你就能确切知道每一行在做什么。这种理解就是重点。
 
 ## 发货
 
