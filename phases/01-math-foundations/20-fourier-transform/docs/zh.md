@@ -242,11 +242,11 @@ PE(pos, 2i+1) = cos(pos / 10000^(2i/d_model))
 STFT procedure:
 1. Choose a window size (e.g., 1024 samples)
 2. Choose a hop size (e.g., 256 samples -- 75% overlap)
-3. For each window position:
-   a. Extract the windowed segment
-   b. Apply a Hann/Hamming window
-   c. Compute FFT
-   d. Store the magnitude spectrum as one column of the spectrogram
+3. 对每个窗口位置：
+   a. 截取对应的窗口片段
+   b. 乘上 Hann/Hamming 窗
+   c. 计算 FFT
+   d. 把幅度谱作为频谱图的一列存起来
 ```
 
 音频模型标准输入通常是 spectrogram。语音模型（Whisper、DeepSpeech）常用 mel-spectrogram（符合人耳感知的频率刻度）。
