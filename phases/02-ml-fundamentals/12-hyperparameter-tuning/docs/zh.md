@@ -1,6 +1,6 @@
-﻿# 超参数调优
+# 超参数调优
 
-> 超参数是训练前要先转好的旋钮；调得好，模型质量会有质的飞跃。
+> 超参数是训练前先调好的旋钮；它们决定训练过程是否走对方向。
 
 **类型:** Build  
 **语言:** Python  
@@ -9,271 +9,139 @@
 
 ## 学习目标
 
-- 从零实现网格搜索、随机搜索与贝叶斯优化并比较样本利用效率。
-- 理解搜索空间、先验、预算与早停对搜索过程的约束。
-- 实现多组验证折叠流程以避免对测试集过拟合。
-- 结合时间与算力，建立适合项目约束的调参策略。
+- 从零实现网格搜索、随机搜索和贝叶斯优化，并比较搜索效率
+- 理解搜索空间、先验、预算与提前停止对调参的影响
+- 建立支持跨验证的搜索流程，避免在验证集上过拟合
+- 根据时间和算力制定适合项目约束的调参策略
 
+## 问题
 
-下方保留英文原文作为对照。
+一个梯度提升模型通常有很多旋钮：学习率、树数、深度、每叶最小样本、采样比、列采样比。假设每个参数有 5 个候选值，网格规模就是 \(5^6=15{,}625\)。每组训练 10 秒，总耗时 43 小时。
 
----
-# Hyperparameter Tuning
+网格搜索看似朴素，实务里经常最慢。随机搜索通常更有效；贝叶斯优化更进一步，它会根据历史评估结果“学会”去哪儿试。最关键的是先知道该用什么策略、该调哪些参数，避免盲目枚举。
 
-> Hyperparameters are the knobs you turn before training starts. Turning them well is the difference between a mediocre model and a great one.
+## 核心概念
 
-**Type:** Build
-**Language:** Python
-**Prerequisites:** Phase 2, Lesson 11 (Ensemble Methods)
-**Time:** ~90 minutes
+### 参数与超参数
 
-## Learning Objectives
+模型参数在训练中更新（权重、偏置、分裂阈值）。超参数由训练前人工设置，决定学习过程本身。
 
-- Implement grid search, random search, and Bayesian optimization from scratch and compare their sample efficiency
-- Explain why random search outperforms grid search when most hyperparameters have low effective dimensionality
-- Build a Bayesian optimization loop using a surrogate model and acquisition function to guide the search
-- Design a hyperparameter tuning strategy that avoids overfitting the validation set through proper cross-validation
+| 超参数 | 控制作用 | 常见范围 |
+|--------|---------|---------|
+| 学习率 | 每步更新幅度 | 0.001 到 1.0 |
+| 树数/epoch | 训练长度 | 10 到 10,000 |
+| 最大深度 | 模型复杂度 | 1 到 30 |
+| 正则（lambda） | 抑制过拟合 | 0.0001 到 100 |
+| 批大小 | 梯度噪声 | 16 到 512 |
+| Dropout | 随机失活比例 | 0 到 0.5 |
 
-## The Problem
+### 网格搜索
 
-Your gradient boosting model has a learning rate, number of trees, max depth, min samples per leaf, subsample ratio, and column sample ratio. That is six hyperparameters. If each has 5 reasonable values, the grid has 5^6 = 15,625 combinations. Training each takes 10 seconds. That is 43 hours of compute to try them all.
-
-Grid search is the obvious approach and the worst one at scale. Random search does better with less compute. Bayesian optimization does even better by learning from past evaluations. Knowing which strategy to use, and which hyperparameters actually matter, saves days of wasted GPU time.
-
-## The Concept
-
-### Parameters vs Hyperparameters
-
-Parameters are learned during training (weights, biases, split thresholds). Hyperparameters are set before training starts and control how learning happens.
-
-| Hyperparameter | What it controls | Typical range |
-|---------------|-----------------|---------------|
-| Learning rate | Step size per update | 0.001 to 1.0 |
-| Number of trees/epochs | How long to train | 10 to 10,000 |
-| Max depth | Model complexity | 1 to 30 |
-| Regularization (lambda) | Overfitting prevention | 0.0001 to 100 |
-| Batch size | Gradient estimation noise | 16 to 512 |
-| Dropout rate | Fraction of neurons dropped | 0.0 to 0.5 |
-
-### Grid Search
-
-Grid search evaluates every combination of specified values. It is exhaustive and easy to understand, but scales exponentially with the number of hyperparameters.
+网格搜索尝试每个组合，完整穷举。优点是简单，缺点是指数级增长。
 
 ```
-Grid for 2 hyperparameters:
-
-  learning_rate: [0.01, 0.1, 1.0]
-  max_depth:     [3, 5, 7]
-
-  Evaluations: 3 x 3 = 9 combinations
-
-  (0.01, 3)  (0.01, 5)  (0.01, 7)
-  (0.1,  3)  (0.1,  5)  (0.1,  7)
-  (1.0,  3)  (1.0,  5)  (1.0,  7)
+二维网格示例
+  学习率: [0.01, 0.1, 1.0]
+  最大深度: [3, 5, 7]
+  总评估数: 9
 ```
 
-Grid search has a fundamental flaw: if one hyperparameter matters and the other does not, most evaluations are wasted. You get only 3 unique values of the important parameter from 9 evaluations.
+其根本问题是：若某个参数关键、其余不敏感，大部分评估都在浪费。上述 9 次里只有 3 个有效学习率值，信息效率很低。
 
-### Random Search
+### 随机搜索
 
-Random search samples hyperparameters from distributions instead of a grid. With the same budget of 9 evaluations, you get 9 unique values of each hyperparameter.
+随机搜索不是枚举，而是从分布中采样。相同预算下它往往覆盖更多信息。
 
-```mermaid
-flowchart LR
-    subgraph Grid Search
-        G1[3 unique learning rates]
-        G2[3 unique max depths]
-        G3[9 total evaluations]
-    end
-
-    subgraph Random Search
-        R1[9 unique learning rates]
-        R2[9 unique max depths]
-        R3[9 total evaluations]
-    end
+```
+网格: 3 个学习率 * 3 个深度 = 9 种组合
+随机: 可获得 9 个学习率 + 9 个深度（通常互异）
 ```
 
-Why random beats grid (Bergstra & Bengio, 2012):
+常见经验：多数任务里只有 1~2 个超参数真正关键，随机搜索在高维空间比网格更快发现好区域。
 
-- Most hyperparameters have low effective dimensionality. Only 1-2 of 6 hyperparameters usually matter for a given problem.
-- Grid search wastes evaluations on unimportant dimensions.
-- Random search covers the important dimensions more densely for the same budget.
-- At 60 random trials, you have a 95% chance of finding a point within 5% of the optimum (if one exists in the search space).
+### 贝叶斯优化
 
-### Bayesian Optimization
-
-Random search ignores results. It does not learn that high learning rates cause divergence or that depth 3 consistently outperforms depth 10. Bayesian optimization uses past evaluations to decide where to search next.
+随机搜索不会“记住”历史结果；贝叶斯优化会。
 
 ```mermaid
 flowchart TD
-    A[Define search space] --> B[Evaluate initial random points]
-    B --> C[Fit surrogate model to results]
-    C --> D[Use acquisition function to pick next point]
-    D --> E[Evaluate the model at that point]
-    E --> F{Budget exhausted?}
-    F -->|No| C
-    F -->|Yes| G[Return best hyperparameters found]
+    A[定义搜索空间] --> B[初始随机采样]
+    B --> C[拟合代理模型]
+    C --> D[用采集函数选下一个点]
+    D --> E[评估目标]
+    E --> F{预算用尽？}
+    F -->|否| C
+    F -->|是| G[返回最优超参数]
 ```
 
-The two key components:
+关键组件：
 
-**Surrogate model:** A cheap-to-evaluate model (usually a Gaussian process) that approximates the expensive objective function. It gives both a prediction and an uncertainty estimate at any point in the search space.
+**代理模型（Surrogate）**：用廉价模型近似代价昂贵的目标函数，常见是高斯过程。它在每个点给出“均值+不确定性”。
 
-**Acquisition function:** Decides where to evaluate next by balancing exploitation (search near known good points) and exploration (search where uncertainty is high). Common choices:
+**采集函数（Acquisition）**：在“开发”与“探索”间权衡。  
+- 期望改进（EI）：这个点预期提升有多大？  
+- 上置信界（UCB）：预测值 + 不确定性倍数  
+- 改进概率（PI）：该点超过当前最好值的概率
 
-- **Expected Improvement (EI):** How much improvement over the current best do we expect at this point?
-- **Upper Confidence Bound (UCB):** Prediction plus a multiple of uncertainty. Higher UCB means either promising or unexplored.
-- **Probability of Improvement (PI):** What is the probability this point beats the current best?
+### 提前停止（Pruning）
 
-Bayesian optimization typically finds better hyperparameters than random search with 2-5x fewer evaluations. The overhead of fitting the surrogate model is negligible compared to training the actual model.
+并非每个试验都要跑完；若 10 个 epoch 后模型明显不好，直接淘汰。
 
-### Early Stopping
+- Patience：验证损失连续 N 轮没提升就停
+- Median pruning：中位数剪枝
+- Hyperband：先给很多配置少量资源，再逐步给少数优秀配置更多预算
 
-Not every training run needs to finish. If a configuration is clearly bad after 10 epochs, stop it and move on. This is early stopping in the context of hyperparameter search.
+Hyperband 常把 81 个配置先各训练 1 个 epoch，剩下 1/3 再给 3 个，下一轮再留 1/3，通常比跑满预算快 10~50 倍。
 
-Strategies:
-- **Patience-based:** Stop if validation loss has not improved for N consecutive epochs
-- **Median pruning:** Stop if the trial's intermediate result is worse than the median of completed trials at the same step
-- **Hyperband:** Allocate small budgets to many configurations, then progressively increase budget for the best ones
+### 学习率调度
 
-Hyperband is particularly effective. It starts 81 configurations with 1 epoch each, keeps the top third, gives them 3 epochs, keeps the top third, and so on. This finds good configurations 10-50x faster than evaluating all configs for the full budget.
+学习率通常最关键，直接把它当常数通常不是最优。常见调度器：
 
-### Learning Rate Schedulers
+| 调度器 | 公式 | 适合场景 |
+|--------|------|---------|
+| Step 降低 | 每 N 个 epoch 乘 0.1 | 经典 CNN |
+| 余弦退火 | \(lr * 0.5 * (1 + cos(\pi t/T))\) | 现代常用 |
+| Warmup+退火 | 先线性升温再退火 | Transformer |
+| One-cycle | 一个周期内升降 | 快速收敛 |
+| ReduceLROnPlateau | 指标停滞时降低 | 更稳妥 |
 
-The learning rate is almost always the most important hyperparameter. Rather than keeping it fixed, schedulers adjust it during training.
-
-| Scheduler | Formula | When to use |
-|-----------|---------|-------------|
-| Step decay | Multiply by 0.1 every N epochs | Classic CNN training |
-| Cosine annealing | lr * 0.5 * (1 + cos(pi * t / T)) | Modern default |
-| Warmup + decay | Linear increase then cosine decay | Transformers |
-| One-cycle | Increase then decrease over one cycle | Fast convergence |
-| Reduce on plateau | Reduce by factor when metric stalls | Safe default |
-
-### Hyperparameter Importance
-
-Not all hyperparameters matter equally. Research on random forests (Probst et al., 2019) and gradient boosting shows consistent patterns:
-
-**High importance:**
-- Learning rate (always tune first)
-- Number of estimators / epochs (use early stopping instead of tuning)
-- Regularization strength
-
-**Medium importance:**
-- Max depth / number of layers
-- Min samples per leaf / weight decay
-- Subsample ratio
-
-**Low importance:**
-- Max features (for random forests)
-- Specific activation function choice
-- Batch size (within reasonable range)
-
-Tune the important ones first, leave the rest at defaults.
-
-### Practical Strategy
+### 调参实践
 
 ```mermaid
 flowchart TD
-    A[Start with defaults] --> B[Coarse random search: 20-50 trials]
-    B --> C[Identify important hyperparameters]
-    C --> D[Fine random or Bayesian search: 50-100 trials in narrowed space]
-    D --> E[Final model with best hyperparameters]
-    E --> F[Retrain on full training data]
+    A[默认参数起步] --> B[粗糙随机搜索：20~50 次]
+    B --> C[找关键超参数]
+    C --> D[精细搜索：随机或贝叶斯，50~100 次]
+    D --> E[用最优参数重训全部数据]
 ```
 
-The concrete workflow:
+### 交叉验证内嵌式调参
 
-1. **Start with library defaults.** They are chosen by experienced practitioners and are often 80% of the way there.
-2. **Coarse random search.** Wide ranges, 20-50 trials. Use early stopping to kill bad runs fast.
-3. **Analyze results.** Which hyperparameters correlate with performance? Narrow the search space.
-4. **Fine search.** Bayesian optimization or focused random search in the narrowed space. 50-100 trials.
-5. **Retrain on all training data** with the best hyperparameters found.
+单一验证划分容易过拟合调参结果。推荐：
 
-### Cross-Validation Integration
-
-Tuning hyperparameters on a single validation split is risky. The best hyperparameters might overfit to the specific validation fold. Nested cross-validation solves this by using two loops:
-
-- **Outer loop** (evaluation): splits data into train+val and test. Reports unbiased performance.
-- **Inner loop** (tuning): splits train+val into train and val. Finds best hyperparameters.
+- 外层：评估模型泛化
+- 内层：在外层训练集上搜索超参数
 
 ```mermaid
 flowchart TD
-    D[Full Dataset] --> O1[Outer Fold 1: Test]
-    D --> O2[Outer Fold 2: Test]
-    D --> O3[Outer Fold 3: Test]
-    D --> O4[Outer Fold 4: Test]
-    D --> O5[Outer Fold 5: Test]
+    D[全集数据] --> O1[外层Fold1作为测试]
+    D --> O2[外层Fold2作为测试]
+    D --> O3[外层Fold3作为测试]
+    D --> O4[外层Fold4作为测试]
+    D --> O5[外层Fold5作为测试]
 
-    O1 --> I1[Inner 5-fold CV on remaining data]
-    I1 --> T1[Best hyperparams for fold 1]
-    T1 --> E1[Evaluate on outer test fold 1]
-
-    O2 --> I2[Inner 5-fold CV on remaining data]
-    I2 --> T2[Best hyperparams for fold 2]
-    T2 --> E2[Evaluate on outer test fold 2]
+    O1 --> I1[内层5折CV]
+    I1 --> T1[最佳超参数]
+    T1 --> E1[在外层测试评估]
 ```
 
-Each outer fold finds its own best hyperparameters independently. The outer scores are an unbiased estimate of generalization performance.
+在 `sklearn` 中可直接用 `GridSearchCV`、`RandomizedSearchCV`，但真正生产里常见的是 `optuna`。
 
-With sklearn:
+## 动手实现
 
-```python
-from sklearn.model_selection import cross_val_score, GridSearchCV
-from sklearn.ensemble import GradientBoostingRegressor
+### 步骤 1：网格搜索
 
-inner_cv = GridSearchCV(
-    GradientBoostingRegressor(),
-    param_grid={
-        "learning_rate": [0.01, 0.05, 0.1],
-        "max_depth": [2, 3, 5],
-        "n_estimators": [50, 100, 200],
-    },
-    cv=5,
-    scoring="neg_mean_squared_error",
-)
-
-outer_scores = cross_val_score(
-    inner_cv, X, y, cv=5, scoring="neg_mean_squared_error"
-)
-
-print(f"Nested CV MSE: {-outer_scores.mean():.4f} +/- {outer_scores.std():.4f}")
-```
-
-This is expensive (5 outer folds x 5 inner folds x 27 grid points = 675 model fits), but it gives you a trustworthy performance estimate. Use it when reporting final results in papers or when the stake of the decision is high.
-
-### Practical Tips
-
-**Start with the learning rate.** It is always the most important hyperparameter for gradient-based methods. A bad learning rate makes everything else irrelevant. Fix other hyperparameters at defaults and sweep learning rate first.
-
-**Use log-uniform distributions for learning rate and regularization.** The difference between 0.001 and 0.01 matters as much as the difference between 0.1 and 1.0. Searching linearly wastes budget on the large end.
-
-**Use early stopping instead of tuning n_estimators.** For boosting and neural networks, set n_estimators or epochs high and let early stopping decide when to stop. This removes one hyperparameter from the search.
-
-**Budget allocation.** Spend 60% of your tuning budget on the top 2 most important hyperparameters. Spend the remaining 40% on everything else. The top 2 account for most of the performance variation.
-
-**Scale matters.** Never search batch size on a log scale (16, 32, 64 are fine). Always search learning rate on a log scale. Match the search distribution to how the hyperparameter affects the model.
-
-| Model Type | Top Hyperparameters | Recommended Search | Budget |
-|-----------|--------------------|--------------------|--------|
-| Random Forest | n_estimators, max_depth, min_samples_leaf | Random search, 50 trials | Low (fast training) |
-| Gradient Boosting | learning_rate, n_estimators, max_depth | Bayesian, 100 trials + early stopping | Medium |
-| Neural Network | learning_rate, weight_decay, batch_size | Bayesian or random, 100+ trials | High (slow training) |
-| SVM | C, gamma (RBF kernel) | Grid on log scale, 25-50 trials | Low (2 params) |
-| Lasso/Ridge | alpha | 1D search on log scale, 20 trials | Very low |
-| XGBoost | learning_rate, max_depth, subsample, colsample | Bayesian, 100-200 trials + early stopping | Medium |
-
-**When in doubt:** random search with 2x the number of hyperparameters as trials (e.g., 6 hyperparameters = 12+ trials minimum). You will be surprised how often random search with 50 trials beats carefully designed grid search.
-
-```figure
-k-fold-cv
-```
-
-## Build It
-
-### Step 1: Grid Search from Scratch
-
-The code in `code/tuning.py` implements grid search, random search, and a simple Bayesian optimizer from scratch.
+`code/tuning.py` 包含网格、随机、简单贝叶斯优化三部分。
 
 ```python
 def grid_search(model_fn, param_grid, X_train, y_train, X_val, y_val):
@@ -289,7 +157,6 @@ def grid_search(model_fn, param_grid, X_train, y_train, X_val, y_val):
         model.fit(X_train, y_train)
         score = evaluate(model, X_val, y_val)
         n_evals += 1
-
         if score > best_score:
             best_score = score
             best_params = params
@@ -297,11 +164,10 @@ def grid_search(model_fn, param_grid, X_train, y_train, X_val, y_val):
     return best_params, best_score, n_evals
 ```
 
-### Step 2: Random Search from Scratch
+### 步骤 2：随机搜索
 
 ```python
-def random_search(model_fn, param_distributions, X_train, y_train,
-                  X_val, y_val, n_iter=50, seed=42):
+def random_search(model_fn, param_distributions, X_train, y_train, X_val, y_val, n_iter=50, seed=42):
     rng = np.random.RandomState(seed)
     best_score = -float("inf")
     best_params = None
@@ -319,9 +185,7 @@ def random_search(model_fn, param_distributions, X_train, y_train,
     return best_params, best_score, n_iter
 ```
 
-### Step 3: Bayesian Optimization (Simplified)
-
-The core idea: fit a Gaussian process to observed (hyperparameter, score) pairs, then use an acquisition function to decide where to look next.
+### 步骤 3：简化贝叶斯优化
 
 ```python
 class SimpleBayesianOptimizer:
@@ -330,35 +194,6 @@ class SimpleBayesianOptimizer:
         self.n_initial = n_initial
         self.X_observed = []
         self.y_observed = []
-
-    def _kernel(self, x1, x2, length_scale=1.0):
-        dists = np.sum((x1[:, None, :] - x2[None, :, :]) ** 2, axis=2)
-        return np.exp(-0.5 * dists / length_scale ** 2)
-
-    def _fit_gp(self, X_new):
-        X_obs = np.array(self.X_observed)
-        y_obs = np.array(self.y_observed)
-        y_mean = y_obs.mean()
-        y_centered = y_obs - y_mean
-
-        K = self._kernel(X_obs, X_obs) + 1e-4 * np.eye(len(X_obs))
-        K_star = self._kernel(X_new, X_obs)
-
-        L = np.linalg.cholesky(K)
-        alpha = np.linalg.solve(L.T, np.linalg.solve(L, y_centered))
-        mu = K_star @ alpha + y_mean
-
-        v = np.linalg.solve(L, K_star.T)
-        var = 1.0 - np.sum(v ** 2, axis=0)
-        var = np.maximum(var, 1e-6)
-
-        return mu, var
-
-    def _expected_improvement(self, mu, var, best_y):
-        sigma = np.sqrt(var)
-        z = (mu - best_y) / (sigma + 1e-10)
-        ei = sigma * (z * norm_cdf(z) + norm_pdf(z))
-        return ei
 
     def suggest(self):
         if len(self.X_observed) < self.n_initial:
@@ -375,74 +210,52 @@ class SimpleBayesianOptimizer:
         self.y_observed.append(score)
 ```
 
-The GP surrogate gives two things at each candidate point: a predicted score (mu) and an uncertainty (var). Expected Improvement balances these: it favors points where the model predicts high scores OR where uncertainty is high. Early on, most points have high uncertainty so the optimizer explores. Later, it focuses on the most promising region.
+### 步骤 4：统一比较
 
-### Step 4: Compare All Methods
+用同一合成目标，比较三种搜索在同预算下的最优得分；贝叶斯通常更快收敛到好区域。
 
-Run all three methods on the same synthetic objective and compare. This comparison uses a simplified wrapper that calls each optimizer with a direct objective function (no model training), so the API differs from the model-based implementations above:
+### 步骤 5：Optuna / sklearn 内建调参
+
+`optuna` 支持中值剪枝与可视化。对于中小规模问题可优先 `sklearn` 的网格与随机搜索；当预算有限时可直接上 `optuna`.
+
+## 误区与实践建议
+
+1. **先调学习率。** 对梯度类模型通常最关键。  
+2. **对数空间采样。** 学习率、正则更适合 log-scale。  
+3. **早停替代固定迭代。** 先把树数/epoch 设高，让早停决定合适值。  
+4. **预算分配。** 60% 用于最关键的 2 个超参数，剩下给次要参数。  
+5. **阈值、F1、AUPRC 与业务目标绑定。** 只盯着最小 loss 往往不够。
+
+### 推荐流程
+
+| 模型 | 重点调参 | 推荐策略 | 预算 |
+|------|----------|----------|------|
+| 随机森林 | `n_estimators`, `max_depth`, `min_samples_leaf` | 随机搜索 50 次 | 低（训练快） |
+| 梯度提升 | `learning_rate`, `n_estimators`, `max_depth` | 贝叶斯 + 早停 | 中 |
+| 神经网络 | `learning_rate`, `weight_decay`, `batch_size` | 贝叶斯/随机 100+ 次 | 高 |
+| SVM | `C`, `gamma` | 对数网格 25~50 次 | 低 |
+| XGBoost | `learning_rate`, `max_depth`, `subsample`, `colsample` | 贝叶斯 100~200 次 + 提前停止 | 中 |
+
+经验值：若不确定，随机搜索设置为 `2 * d` 次（d 为超参数个数）的经验值常常有效，很多时候优于“精细网格”。
+
+## 使用示例
 
 ```python
-def synthetic_objective(params):
-    lr = params["learning_rate"]
-    depth = params["max_depth"]
-    return -(np.log10(lr) + 2) ** 2 - (depth - 4) ** 2 + 10
+from sklearn.model_selection import cross_val_score, GridSearchCV
+from sklearn.ensemble import GradientBoostingRegressor
 
-param_grid = {
-    "learning_rate": [0.001, 0.01, 0.1, 1.0],
-    "max_depth": [2, 3, 4, 5, 6, 7, 8],
-}
+inner_cv = GridSearchCV(
+    GradientBoostingRegressor(),
+    param_grid={"learning_rate":[0.01,0.05,0.1],"max_depth":[2,3,5],"n_estimators":[50,100,200]},
+    cv=5,
+    scoring="neg_mean_squared_error",
+)
 
-grid_best = None
-grid_score = -float("inf")
-grid_history = []
-for combo in itertools.product(*param_grid.values()):
-    params = dict(zip(param_grid.keys(), combo))
-    score = synthetic_objective(params)
-    grid_history.append((params, score))
-    if score > grid_score:
-        grid_score = score
-        grid_best = params
-
-param_dist = {
-    "learning_rate": ("log_float", 0.001, 1.0),
-    "max_depth": ("int", 2, 8),
-}
-
-rand_best = None
-rand_score = -float("inf")
-rand_history = []
-rng = np.random.RandomState(42)
-for _ in range(28):
-    params = {k: sample(v, rng) for k, v in param_dist.items()}
-    score = synthetic_objective(params)
-    rand_history.append((params, score))
-    if score > rand_score:
-        rand_score = score
-        rand_best = params
-
-optimizer = SimpleBayesianOptimizer(param_dist, n_initial=5)
-bayes_history = []
-for _ in range(28):
-    params = optimizer.suggest()
-    score = synthetic_objective(params)
-    optimizer.observe(params, score)
-    bayes_history.append((params, score))
-bayes_score = max(s for _, s in bayes_history)
-
-print(f"{'Method':<20} {'Best Score':>12} {'Evaluations':>12}")
-print("-" * 50)
-print(f"{'Grid Search':<20} {grid_score:>12.4f} {len(grid_history):>12}")
-print(f"{'Random Search':<20} {rand_score:>12.4f} {len(rand_history):>12}")
-print(f"{'Bayesian Opt':<20} {bayes_score:>12.4f} {len(bayes_history):>12}")
+outer_scores = cross_val_score(inner_cv, X, y, cv=5, scoring="neg_mean_squared_error")
+print(f"Nested CV MSE: {-outer_scores.mean():.4f} +/- {outer_scores.std():.4f}")
 ```
 
-With the same budget, Bayesian optimization usually finds the best score fastest because it does not waste evaluations in clearly bad regions. Random search covers more ground than grid search. Grid search only wins when you have very few hyperparameters and can afford to be exhaustive.
-
-## Use It
-
-### Optuna in Practice
-
-Optuna is the recommended library for serious hyperparameter tuning. It supports pruning, distributed search, and visualization out of the box.
+### Optuna 示例
 
 ```python
 import optuna
@@ -453,134 +266,35 @@ def objective(trial):
     max_depth = trial.suggest_int("max_depth", 2, 10)
 
     model = GradientBoostingRegressor(
-        learning_rate=lr,
-        n_estimators=n_est,
-        max_depth=max_depth,
+        learning_rate=lr, n_estimators=n_est, max_depth=max_depth
     )
     model.fit(X_train, y_train)
     return mean_squared_error(y_val, model.predict(X_val))
-
-study = optuna.create_study(direction="minimize")
-study.optimize(objective, n_trials=100)
-
-print(f"Best params: {study.best_params}")
-print(f"Best MSE: {study.best_value:.4f}")
 ```
 
-Key Optuna features:
-- `suggest_float(..., log=True)` for parameters best searched on log scale (learning rate, regularization)
-- `suggest_int` for integer parameters
-- `suggest_categorical` for discrete choices
-- Built-in MedianPruner for early stopping of bad trials
-- `study.trials_dataframe()` for analysis
+## 练习
 
-### Optuna with Pruning
+1. 用同一预算对比网格和随机搜索（比如各 50 次），重复 10 次种子，比较命中率。
+2. 自实现 Hyperband，验证其在样本效率上的收益。
+3. 对一个 from-scratch 梯度提升实现加学习率退火（余弦退火）测试性能变化。
+4. 用 Optuna 调一个真实数据集上的 `RandomForestClassifier`，画参数重要性图，检验是否符合你的理解。
+5. 实现 EI 采集函数并可视化探索-开发平衡。
 
-Pruning stops unpromising trials early, saving massive compute. Here is the pattern:
+## 关键术语
 
-```python
-import optuna
-from sklearn.model_selection import cross_val_score
+| 术语 | 常见说法 | 实际含义 |
+|------|----------|----------|
+| 网格搜索 | “全量试所有” | 穷举组合，确定性高但代价高 |
+| 随机搜索 | “随机抽参数” | 覆盖性强，常更高效 |
+| 贝叶斯优化 | “智能选点” | 用历史结果拟合代理模型，平衡探索和利用 |
+| 超参数 | “要调的设置” | 训练前固定，不直接学习 |
+| 早停 | “到点自动停” | 基于验证指标防止无效训练 |
+| Hyperband | “自适应预算分配” | 大量小预算 + 少量优胜者加预算 |
+| 采集函数 | “下一步去哪儿” | EI/UCB/PI 等策略 |
 
-def objective(trial):
-    params = {
-        "learning_rate": trial.suggest_float("lr", 1e-4, 0.5, log=True),
-        "max_depth": trial.suggest_int("max_depth", 2, 10),
-        "n_estimators": trial.suggest_int("n_estimators", 50, 500),
-        "subsample": trial.suggest_float("subsample", 0.5, 1.0),
-    }
+## 延展阅读
 
-    model = GradientBoostingRegressor(**params)
-    scores = cross_val_score(model, X_train, y_train, cv=3,
-                             scoring="neg_mean_squared_error")
-    mean_score = -scores.mean()
-
-    trial.report(mean_score, step=0)
-    if trial.should_prune():
-        raise optuna.TrialPruned()
-
-    return mean_score
-
-pruner = optuna.pruners.MedianPruner(n_startup_trials=10, n_warmup_steps=5)
-study = optuna.create_study(direction="minimize", pruner=pruner)
-study.optimize(objective, n_trials=200)
-```
-
-The `MedianPruner` stops a trial if its intermediate value is worse than the median of all completed trials at the same step. Pruning requires calling `trial.report()` to report intermediate metrics and `trial.should_prune()` to check whether the trial should be stopped. The `n_startup_trials=10` ensures at least 10 trials complete fully before pruning kicks in. This typically saves 40-60% of total compute.
-
-### sklearn's Built-in Tuners
-
-For quick experiments, sklearn provides `GridSearchCV`, `RandomizedSearchCV`, and `HalvingRandomSearchCV`:
-
-```python
-from sklearn.model_selection import RandomizedSearchCV
-from scipy.stats import loguniform, randint
-
-param_dist = {
-    "learning_rate": loguniform(1e-4, 0.5),
-    "max_depth": randint(2, 10),
-    "n_estimators": randint(50, 500),
-}
-
-search = RandomizedSearchCV(
-    GradientBoostingRegressor(),
-    param_dist,
-    n_iter=100,
-    cv=5,
-    scoring="neg_mean_squared_error",
-    random_state=42,
-    n_jobs=-1,
-)
-search.fit(X_train, y_train)
-print(f"Best params: {search.best_params_}")
-print(f"Best CV MSE: {-search.best_score_:.4f}")
-```
-
-Use `loguniform` from scipy for learning rate and regularization. Use `randint` for integer hyperparameters. The `n_jobs=-1` flag parallelizes across all CPU cores.
-
-### Common Mistakes in Hyperparameter Tuning
-
-**Data leakage through preprocessing.** If you fit a scaler on the full dataset before cross-validation, information from the validation fold leaks into training. Always put preprocessing inside a `Pipeline` so it is fit only on the training fold.
-
-**Overfitting to the validation set.** Running thousands of trials effectively trains on the validation set. Use nested cross-validation for final performance estimates, or hold out a separate test set that you never touch during tuning.
-
-**Searching too narrow a range.** If your best value is at the boundary of your search space, you have not searched widely enough. The optimal value might be outside your range. Always check if the best parameters are at the edges.
-
-**Ignoring interaction effects.** Learning rate and number of estimators interact strongly in boosting. A low learning rate needs more estimators. Tuning them independently gives worse results than tuning them together.
-
-**Not using early stopping for iterative models.** For gradient boosting and neural networks, set n_estimators or epochs to a high value and use early stopping. This is strictly better than tuning the number of iterations as a hyperparameter.
-
-## Exercises
-
-1. Run grid search and random search with the same total budget (e.g., 50 evaluations). Compare the best scores found. Run the experiment 10 times with different seeds. How often does random search win?
-
-2. Implement Hyperband from scratch. Start with 81 configurations, each trained for 1 epoch. Keep the top 1/3 at each round and triple their budget. Compare total compute (sum of all epochs across all configs) to running 81 configs for the full budget.
-
-3. Add a learning rate scheduler (cosine annealing) to the gradient boosting implementation from Lesson 11. Does it help compared to a fixed learning rate?
-
-4. Use Optuna to tune a RandomForestClassifier on a real dataset (e.g., sklearn's breast cancer dataset). Use `optuna.visualization.plot_param_importances(study)` to see which hyperparameters matter most. Does it match the importance ranking from this lesson?
-
-5. Implement a simple acquisition function (Expected Improvement) and demonstrate exploration vs exploitation. Plot the surrogate model's mean and uncertainty, and show where EI chooses to evaluate next.
-
-## Key Terms
-
-| Term | What people say | What it actually means |
-|------|----------------|----------------------|
-| Hyperparameter | "A setting you choose" | A value set before training that controls the learning process, not learned from data |
-| Grid search | "Try every combination" | Exhaustive search over a specified parameter grid. Exponential cost. |
-| Random search | "Just sample randomly" | Sample hyperparameters from distributions. Covers important dimensions better than grid search. |
-| Bayesian optimization | "Smart search" | Uses a surrogate model of the objective to decide where to evaluate next, balancing exploration and exploitation |
-| Surrogate model | "A cheap approximation" | A model (usually Gaussian process) that approximates the expensive objective function from observed evaluations |
-| Acquisition function | "Where to look next" | Scores candidate points by balancing expected improvement with uncertainty. EI and UCB are common choices. |
-| Early stopping | "Stop wasting time" | Terminate training early when validation performance stops improving |
-| Hyperband | "Tournament bracket for configs" | Adaptive resource allocation: start many configs with small budgets, keep the best and increase their budgets |
-| Learning rate scheduler | "Change lr during training" | A function that adjusts the learning rate over the course of training for better convergence |
-
-## Further Reading
-
-- [Bergstra & Bengio: Random Search for Hyper-Parameter Optimization (2012)](https://jmlr.org/papers/v13/bergstra12a.html) -- the paper that showed random beats grid
-- [Snoek et al., Practical Bayesian Optimization of Machine Learning Algorithms (2012)](https://arxiv.org/abs/1206.2944) -- Bayesian optimization for ML
-- [Li et al., Hyperband: A Novel Bandit-Based Approach (2018)](https://jmlr.org/papers/v18/16-558.html) -- the Hyperband paper
-- [Optuna: A Next-generation Hyperparameter Optimization Framework](https://arxiv.org/abs/1907.10902) -- the Optuna paper
-- [Probst et al., Tunability: Importance of Hyperparameters (2019)](https://jmlr.org/papers/v20/18-444.html) -- which hyperparameters matter
-
+- [Bergstra & Bengio: Random Search for Hyper-Parameter Optimization (2012)](https://jmlr.org/papers/v13/bergstra12a.html) -- 随机搜索论文
+- [Snoek et al., Practical Bayesian Optimization of ML Algorithms (2012)](https://arxiv.org/abs/1206.2944) -- 贝叶斯优化核心文献
+- [Li et al., Hyperband: A Novel Bandit-Based Approach (2018)](https://jmlr.org/papers/v18/16-558.html) -- Hyperband 理论与实践
+- [Optuna: A Next-generation Hyperparameter Optimization Framework](https://arxiv.org/abs/1907.10902) -- Optuna 框架
