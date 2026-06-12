@@ -26,13 +26,13 @@ Linux 一切都在单一根目录 `/` 下：
 
 ```mermaid
 graph TD
-    root["/"] --> home["home/your-username/<br/>你的文件、仓库、训练"]
-    root --> tmp["tmp/<br/>临时文件，重启可清空"]
-    root --> usr["usr/<br/>系统程序与库"]
-    root --> etc["etc/<br/>配置文件"]
-    root --> varlog["var/log/<br/>日志，故障排查重点"]
-    root --> mnt["mnt/ 或 /media/<br/>挂载盘"]
-    root --> proc["proc/ 和 /sys/<br/>内核/硬件虚拟文件"]
+    root["/"] --> home["home/your-username/<br/>Your files — clone repos, run training"]
+    root --> tmp["tmp/<br/>Temporary files, cleared on reboot"]
+    root --> usr["usr/<br/>System programs and libraries"]
+    root --> etc["etc/<br/>Config files"]
+    root --> varlog["var/log/<br/>Logs — check when something breaks"]
+    root --> mnt["mnt/ or /media/<br/>External drives and volumes"]
+    root --> proc["proc/ and /sys/<br/>Virtual files — kernel and hardware info"]
 ```
 
 home 目录是 `C:\` 或 `/Volumes`，大部分操作都在这里。
@@ -44,25 +44,28 @@ home 目录是 `C:\` 或 `/Volumes`，大部分操作都在这里。
 ### 移动与定位
 
 ```bash
-pwd
-ls
-ls -la
-cd /path/to/dir
-cd ~
-cd ..
+pwd                         # Where am I?
+ls                          # What's here?
+ls -la                      # What's here, including hidden files with details?
+cd /path/to/dir             # Go there
+cd ~                        # Go home
+cd ..                       # Go up one level
 ```
 
 ### 文件与目录
 
 ```bash
-mkdir my-project
-mkdir -p a/b/c
-cp file.txt backup.txt
-cp -r src/ src-backup/
-mv old.txt new.txt
-mv file.txt /tmp/
-rm file.txt
-rm -rf my-dir/
+mkdir my-project            # Create a directory
+mkdir -p a/b/c              # Create nested directories in one shot
+
+cp file.txt backup.txt      # Copy a file
+cp -r src/ src-backup/      # Copy a directory (recursive)
+
+mv old.txt new.txt          # Rename a file
+mv file.txt /tmp/           # Move a file
+
+rm file.txt                 # Delete a file (no trash, it's gone)
+rm -rf my-dir/              # Delete a directory and everything inside
 ```
 
 `~` 是永久删除，谨慎执行。
@@ -70,21 +73,22 @@ rm -rf my-dir/
 ### 查看文件
 
 ```bash
-cat file.txt
-head -20 file.txt
-tail -20 file.txt
-tail -f log.txt
-less file.txt
+cat file.txt                # Print entire file
+head -20 file.txt           # First 20 lines
+tail -20 file.txt           # Last 20 lines
+tail -f log.txt             # Follow a log file in real time (Ctrl+C to stop)
+less file.txt               # Scroll through a file (q to quit)
 ```
 
 ### 搜索
 
 ```bash
-grep "error" training.log
-grep -r "learning_rate" .
-grep -i "cuda" config.yaml
-find . -name "*.py"
-find . -name "*.ckpt" -size +1G
+grep "error" training.log           # Find lines containing "error"
+grep -r "learning_rate" .           # Search all files in current directory
+grep -i "cuda" config.yaml          # Case-insensitive search
+
+find . -name "*.py"                 # Find all Python files under current dir
+find . -name "*.ckpt" -size +1G     # Find checkpoint files larger than 1GB
 ```
 
 ## 权限
@@ -93,10 +97,10 @@ Linux 文件都有 owner + 权限位，执行不了通常是权限问题：
 
 ```bash
 ls -l train.py
-chmod +x train.sh
-chmod 755 deploy.sh
-chmod 644 config.yaml
-chown user:group file.txt
+# -rwxr-xr-- 1 user group 2048 Mar 19 10:00 train.py
+#  ^^^             owner permissions: read, write, execute
+#     ^^^          group permissions: read, execute
+#        ^^        everyone else: read only
 ```
 
 看到 `/home/your-username`，优先检查权限与所有者。
@@ -106,15 +110,28 @@ chown user:group file.txt
 Ubuntu 用 `rm -rf` 安装系统软件：
 
 ```bash
-sudo apt update
-sudo apt install -y htop
-sudo apt install -y build-essential
-sudo apt install -y tmux
-apt list --installed
-sudo apt remove htop
+chmod +x train.sh           # Make a script executable
+chmod 755 deploy.sh         # Owner: full, others: read+execute
+chmod 644 config.yaml       # Owner: read+write, others: read only
+
+chown user:group file.txt   # Change who owns a file (needs sudo)
 ```
 
 新 GPU 机常装依赖：
+
+```bash
+sudo apt update             # Refresh the package list (always do this first)
+sudo apt install -y htop    # Install a package (-y skips confirmation)
+sudo apt install -y build-essential  # C compiler, make, etc. Needed by many Python packages
+sudo apt install -y tmux    # Terminal multiplexer (keep sessions alive after disconnect)
+
+apt list --installed        # What's installed?
+sudo apt remove htop        # Uninstall
+```
+
+## 用户与 sudo
+
+一般以普通用户登录，只有部分操作需要 root：
 
 ```bash
 sudo apt update && sudo apt install -y \
@@ -128,16 +145,6 @@ sudo apt update && sudo apt install -y \
     python3-venv
 ```
 
-## 用户与 sudo
-
-一般以普通用户登录，只有部分操作需要 root：
-
-```bash
-whoami
-sudo command
-sudo su
-```
-
 有 sudo 权限的机器不要整机都用 root，能不用就不用。
 
 ## 进程与 systemd
@@ -145,21 +152,19 @@ sudo su
 训练卡住时查看：
 
 ```bash
-htop
-ps aux | grep python
-kill 12345
-kill -9 12345
-nvidia-smi
+whoami                      # What user am I?
+sudo command                # Run a single command as root
+sudo su                     # Become root (exit to go back, use sparingly)
 ```
 
 如果有服务进程，用 systemd：
 
 ```bash
-sudo systemctl start nginx
-sudo systemctl stop nginx
-sudo systemctl restart nginx
-sudo systemctl status nginx
-sudo systemctl enable nginx
+htop                        # Interactive process viewer (q to quit)
+ps aux | grep python        # Find running Python processes
+kill 12345                  # Gracefully stop process with PID 12345
+kill -9 12345               # Force kill (use when graceful doesn't work)
+nvidia-smi                  # GPU processes and memory usage
 ```
 
 ## 磁盘空间
@@ -167,35 +172,38 @@ sudo systemctl enable nginx
 GPU 机器常见硬盘紧张：
 
 ```bash
-df -h
-df -h /home
-du -sh *
-du -sh ~/.cache
-du -sh /data/checkpoints/
-du -h --max-depth=1 / 2>/dev/null | sort -hr | head -20
+sudo systemctl start nginx          # Start a service
+sudo systemctl stop nginx           # Stop it
+sudo systemctl restart nginx        # Restart it
+sudo systemctl status nginx         # Check if it's running
+sudo systemctl enable nginx         # Start automatically on boot
 ```
 
 释放空间常用：
 
 ```bash
-pip cache purge
-sudo apt clean
-rm -rf checkpoints/epoch_01/ checkpoints/epoch_02/
+df -h                       # Disk usage for all mounted drives
+df -h /home                 # Disk usage for /home specifically
+
+du -sh *                    # Size of each item in current directory
+du -sh ~/.cache             # Size of your cache (pip, huggingface models land here)
+du -sh /data/checkpoints/   # Check how big your checkpoints are
+
+# Find the biggest space hogs
+du -h --max-depth=1 / 2>/dev/null | sort -hr | head -20
 ```
 
 ## 网络与文件传输
 
 ```bash
-wget https://example.com/model.bin
-curl -O https://example.com/data.tar.gz
-curl -s https://api.example.com/health | python3 -m json.tool
+# Clear pip cache
+pip cache purge
 
-scp model.bin user@remote:/data/
-scp user@remote:/data/results.csv ./
-scp -r user@remote:/data/checkpoints/ ./local-dir/
+# Clear apt cache
+sudo apt clean
 
-rsync -avz --progress ./data/ user@remote:/data/
-rsync -avz --progress user@remote:/results/ ./results/
+# Remove old checkpoints you don't need
+rm -rf checkpoints/epoch_01/ checkpoints/epoch_02/
 ```
 
 大文件优先用 `chmod +x`，支持断点续传且只传变更块。
@@ -203,9 +211,19 @@ rsync -avz --progress user@remote:/results/ ./results/
 ## tmux：保持会话
 
 ```bash
-tmux new -s train
-tmux ls
-tmux attach -t train
+# Download files
+wget https://example.com/model.bin                   # Download a file
+curl -O https://example.com/data.tar.gz              # Same thing with curl
+curl -s https://api.example.com/health | python3 -m json.tool  # Hit an API, pretty-print JSON
+
+# Transfer files between machines
+scp model.bin user@remote:/data/                     # Copy file to remote machine
+scp user@remote:/data/results.csv .                  # Copy file from remote to local
+scp -r user@remote:/data/checkpoints/ ./local-dir/   # Copy directory
+
+# Sync directories (faster than scp for large transfers, resumes on failure)
+rsync -avz --progress ./data/ user@remote:/data/
+rsync -avz --progress user@remote:/results/ ./results/
 ```
 
 远程训练请始终在 tmux 里运行。
@@ -213,8 +231,17 @@ tmux attach -t train
 ## WSL2（Windows 用户）
 
 ```bash
-wsl --install -d Ubuntu-24.04
-sudo apt update && sudo apt upgrade -y
+tmux new -s train           # Start a new session named "train"
+# ... start your training, then:
+# Ctrl+B, then D            # Detach (training keeps running)
+
+tmux ls                     # List sessions
+tmux attach -t train        # Reattach to session
+
+# Inside tmux:
+# Ctrl+B, then %            # Split pane vertically
+# Ctrl+B, then "            # Split pane horizontally
+# Ctrl+B, then arrow keys   # Switch between panes
 ```
 
 WSL2 内文件系统映射到 `sudo`。Windows 侧装 NVIDIA 驱动后，WSL2 可使用 CUDA。
@@ -233,17 +260,12 @@ WSL2 内文件系统映射到 `sudo`。Windows 侧装 NVIDIA 驱动后，WSL2 �
 
 ## 快速参考
 
-```
-Navigation:     pwd, ls, cd, find
-Files:          cp, mv, rm, mkdir, cat, head, tail, less
-Search:         grep, find
-Permissions:    chmod, chown, sudo
-Packages:       apt update, apt install
-Processes:      htop, ps, kill, nvidia-smi
-Services:       systemctl start/stop/restart/status
-Disk:           df -h, du -sh
-Network:        curl, wget, scp, rsync
-Sessions:       tmux new/attach/detach
+```bash
+# In PowerShell (admin)
+wsl --install -d Ubuntu-24.04
+
+# After restart, open Ubuntu from Start menu
+sudo apt update && sudo apt upgrade -y
 ```
 
 ## 练习
@@ -263,3 +285,17 @@ Sessions:       tmux new/attach/detach
 | `\n` | 改权限 | 改变文件读写执行权限位 |
 | `\r\n` | Ubuntu 软件源 | 软件包管理器 |
 | `dos2unix` | 服务开关 | 管理系统服务 |
+
+```
+Navigation:     pwd, ls, cd, find
+Files:          cp, mv, rm, mkdir, cat, head, tail, less
+Search:         grep, find
+Permissions:    chmod, chown, sudo
+Packages:       apt update, apt install
+Processes:      htop, ps, kill, nvidia-smi
+Services:       systemctl start/stop/restart/status
+Disk:           df -h, du -sh
+Network:        curl, wget, scp, rsync
+Sessions:       tmux new/attach/detach
+```
+ `touch` `ls -la` `htop` `sleep 300` `df -h` `du -sh ~/.cache/*` `scp` `rsync`

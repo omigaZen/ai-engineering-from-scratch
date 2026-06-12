@@ -366,3 +366,4 @@ docker logs -f <container_id>
 | NVIDIA Container Toolkit | “Docker 内的 GPU” | 通过 `devel` 让容器访问宿主 GPU 的运行时能力 |
 | Volume mount | “共享文件夹” | 宿主目录映射进容器，容器停止后数据仍保留 |
 | Base image | “起始镜像” | Dockerfile 的 `runtime`，决定了预装组件与基础环境 |
+ `--gpus` `FROM`

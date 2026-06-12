@@ -29,13 +29,13 @@
 线性方程组可以几何理解：每条方程对应一个超平面，解是它们的交点/交集。
 
 ```
-2x + y = 5
-x - y  = 1
+2x + y = 5          Two lines in 2D.
+x - y  = 1          They intersect at x=2, y=1.
 ```
 
 ```mermaid
 graph LR
-    A["2x + y = 5"] --- S["解： (2, 1)"]
+    A["2x + y = 5"] --- S["Solution: (2, 1)"]
     B["x - y = 1"] --- S
 ```
 
@@ -43,14 +43,14 @@ graph LR
 
 ```mermaid
 graph TD
-    subgraph "唯一解"
-        A1["两条线交于一点"]
+    subgraph "One Solution"
+        A1["Lines intersect at a single point"]
     end
-    subgraph "无解"
-        A2["平行，不相交"]
+    subgraph "No Solution"
+        A2["Lines are parallel — no intersection"]
     end
-    subgraph "无穷解"
-        A3["重合，所有点都满足"]
+    subgraph "Infinite Solutions"
+        A3["Lines are identical — every point is a solution"]
     end
 ```
 
@@ -68,10 +68,11 @@ Ax=b 有两种读法。
 A = | 2  1 |    b = | 5 |
     | 1 -1 |        | 1 |
 
-行视角：同时满足 2x+y=5 与 x-y=1
-列视角：找 x1, x2 使
-  x1 * [2,1] + x2 * [1,-1] = [5,1]
-  x1=2, x2=1 时成立
+Row picture: solve 2x + y = 5 and x - y = 1 simultaneously.
+
+Column picture: find x1, x2 such that:
+  x1 * [2, 1] + x2 * [1, -1] = [5, 1]
+  2 * [2, 1] + 1 * [1, -1] = [4+1, 2-1] = [5, 1]   check.
 ```
 
 列视角更根本：若 b 在 A 的列空间里，系统有解；若不在，就找离它最近的点，这就是最小二乘。
@@ -81,19 +82,19 @@ A = | 2  1 |    b = | 5 |
 高斯消元把 Ax=b 变成上三角系统 Ux=c，再用回代解方程。
 
 ```
-1. 对每个主元列 k：
-   a. 在 k 列 k 行以下找绝对值最大的元素（部分主元）
-   b. 交换该行到第 k 行
-   c. 对下方每行 i：
-      - 计算 m = A[i][k] / A[k][k]
-      - 用行消元：R_i <- R_i - m * R_k
-2. 回代：从最后一行向上求解
+1. For each column k (the pivot column):
+   a. Find the largest entry in column k at or below row k (partial pivoting).
+   b. Swap that row with row k.
+   c. For each row i below k:
+      - Compute multiplier m = A[i][k] / A[k][k]
+      - Subtract m times row k from row i.
+2. Back substitute: solve from the last equation upward.
 ```
 
 样例：
 
 ```
-原始:
+Original:
 | 2  1  1 | 8 |       R2 = R2 - (2)R1     | 2  1   1 |  8 |
 | 4  3  3 |20 |  -->  R3 = R3 - (1)R1 --> | 0  1   1 |  4 |
 | 2  3  1 |12 |                            | 0  2   0 |  4 |
@@ -102,10 +103,10 @@ A = | 2  1 |    b = | 5 |
                                        --> | 0  1   1 |  4 |
                                            | 0  0  -2 | -4 |
 
-回代:
-  -2x3 = -4  -> x3 = 2
-   x2+2=4    -> x2 = 2
-   2x1+2+2=8 -> x1 = 2
+Back substitute:
+  -2 * x3 = -4    -->  x3 = 2
+  x2 + 2  = 4     -->  x2 = 2
+  2*x1 + 2 + 2 = 8 --> x1 = 2
 ```
 
 复杂度 O(n^3)。对 1000x1000 系统约十亿次浮点操作，快，但如果同一个 A 要解多个 b，可以更省。
@@ -115,13 +116,18 @@ A = | 2  1 |    b = | 5 |
 不主元化时，主元可能为 0（除零）或很小（放大误差）。
 
 ```
-不主元:                     部分主元后:
-| 0.001  1 | 1.001 |       先交换行:
-| 1      1 | 2     |       | 1      1 | 2     |
-                                | 0.001  1 | 1.001 |
-m=1/0.001=1000              m=0.001/1=0.001
-R2 = R2 - 1000*R1           R2 = R2 - 0.001*R1
-| 0.001  1 | 1.001 |       | 0      0.999 | 0.999 |
+Bad pivot:                       With partial pivoting:
+| 0.001  1 | 1.001 |            Swap rows first:
+| 1      1 | 2     |            | 1      1 | 2     |
+                                 | 0.001  1 | 1.001 |
+m = 1/0.001 = 1000              m = 0.001/1 = 0.001
+R2 = R2 - 1000*R1               R2 = R2 - 0.001*R1
+| 0.001  1     | 1.001   |      | 1      1     | 2     |
+| 0     -999   | -999.0  |      | 0      0.999 | 0.999 |
+
+x2 = 1.000 (correct)            x2 = 1.000 (correct)
+x1 = (1.001 - 1)/0.001          x1 = (2 - 1)/1 = 1.000 (correct)
+   = 0.001/0.001 = 1.000        Stable because the multiplier is small.
 ```
 
 前者会带来巨量舍入误差；后者稳定得多。部分主元总是选当前列最大绝对值主元以抑制误差放大。
@@ -143,9 +149,9 @@ A = L @ U
 ```
 Ax = b
 LUx = b
-令 y = Ux
-  Ly = b     （前代）
-  Ux = y     （回代）
+Let y = Ux:
+  Ly = b    (forward substitution, O(n^2))
+  Ux = y    (back substitution, O(n^2))
 ```
 
 如果有行交换，得到 PA = LU。
@@ -156,18 +162,30 @@ QR 将 A = QR，Q 正交矩阵（列向量单位正交），R 上三角。
 
 ```
 A = Q @ R
-Q^T Q = I
 
-QRx = b  =>  Rx = Q^T b
+Q has orthonormal columns: Q^T Q = I
+R is upper triangular
+
+To solve Ax = b:
+  QRx = b
+  Rx = Q^T b    (just multiply by Q^T, no inversion needed)
+  Back substitute to get x.
 ```
 
 QR 在最小二乘上通常比 LU 更稳。Gram-Schmidt 构造 Q：
 
 ```
+Given columns a1, a2, ... of A:
+
 q1 = a1 / ||a1||
-q2 = a2 - (a2·q1)q1, 再归一化
-q3 = a3 - (a3·q1)q1 - (a3·q2)q2, 再归一化
-R[i][j] = qi · aj, i <= j
+
+q2 = a2 - (a2 . q1) * q1        (subtract projection onto q1)
+q2 = q2 / ||q2||                (normalize)
+
+q3 = a3 - (a3 . q1) * q1 - (a3 . q2) * q2
+q3 = q3 / ||q3||
+
+R[i][j] = qi . aj    for i <= j
 ```
 
 每一步都移除在已有 q 方向上的分量，留下新正交方向。
@@ -181,13 +199,18 @@ A = L @ L^T
 
 | 4  2 |   | 2  0 |   | 2  1 |
 | 2  5 | = | 1  2 | @ | 0  2 |
+
+L[i][i] = sqrt(A[i][i] - sum(L[i][k]^2 for k < i))
+L[i][j] = (A[i][j] - sum(L[i][k]*L[j][k] for k < j)) / L[j][j]    for i > j
 ```
 
 公式：
 
 ```
-L[i][i] = sqrt(A[i][i] - Σ_{k<i} L[i][k]^2)
-L[i][j] = (A[i][j] - Σ_{k<j} L[i][k]L[j][k]) / L[j][j], i>j
+minimize ||Ax - b||^2
+
+This is the sum of squared residuals:
+  sum((A[i,:] @ x - b[i])^2 for i in range(m))
 ```
 
 Cholesky 比 LU 更快（约一半运算量），但要求更严格；它经常出现于：
@@ -203,29 +226,32 @@ Cholesky 比 LU 更快（约一半运算量），但要求更严格；它经常�
 当 A 是 m×n 且 m>n（过定）时通常无精确解，改为最小化残差平方：
 
 ```
-min ||Ax - b||^2
+A^T A x = A^T b
 ```
 
 对应正规方程：
 
 ```
-A^T A x = A^T b
+Original system (overdetermined, 4 equations, 2 unknowns):
+| 1  1 |         | 3 |
+| 1  2 | x     = | 5 |       No exact x satisfies all 4 equations.
+| 1  3 |         | 6 |
+| 1  4 |         | 8 |
+
+Normal equations:
+A^T A = | 4  10 |    A^T b = | 22 |
+        | 10 30 |            | 63 |
+
+Solve: x = [1.5, 1.7]
+
+This is linear regression. x[0] is the intercept, x[1] is the slope.
 ```
 
 推导来自 ||Ax-b||^2 = x^T A^T A x - 2x^T A^T b + b^T b，对 x 求梯度为零。
 
 ```
-原系统（过定，4 方程 2 未知）:
-|1 1|x=[1.5,1.7]?           |3|
-|1 2|       + 噪声           |5|
-|1 3|                     -> |6|
-|1 4|                        |8|
-
-A^T A = | 4 10 |
-        |10 30 |
-A^T b = | 22 |
-        | 63 |
-解得 x=[1.5,1.7]
+X^T X w = X^T y
+w = (X^T X)^(-1) X^T y
 ```
 
 这就是线性回归里斜率与截距的 closed-form。
@@ -235,15 +261,16 @@ A^T b = | 22 |
 线性回归中：
 
 ```
-X^T X w = X^T y
-w = (X^T X)^(-1) X^T y
+(X^T X + lambda * I) w = X^T y
+w = (X^T X + lambda * I)^(-1) X^T y
 ```
 
 Ridge 在左侧加 λI：
 
 ```
-(X^T X + λI)w = X^T y
-w = (X^T X + λI)^(-1) X^T y
+x = A+ b
+
+where A+ = V Sigma+ U^T    (computed via SVD)
 ```
 
 正则化提高可逆性和数值稳定，抑制过拟合。X^T X + λI 在 λ>0 时是 SPD，可用 Cholesky。
@@ -253,9 +280,13 @@ w = (X^T X + λI)^(-1) X^T y
 伪逆把“非方阵/奇异”情形统一起来。对任意 A：
 
 ```
-x = A+ b
+A = U Sigma V^T        (SVD)
 
-A+ = V Σ+ U^T（通过 SVD 计算）
+Sigma = | 5  0 |       Sigma+ = | 1/5  0  0 |
+        | 0  2 |                | 0  1/2  0 |
+        | 0  0 |
+
+A+ = V Sigma+ U^T
 ```
 
 将非零奇异值取倒数后转置得 Σ+。若 A = U Σ V^T，则 A+ = V Σ+ U^T。
@@ -272,11 +303,16 @@ np.linalg.lstsq、np.linalg.pinv 本质都依赖 SVD。
 条件数衡量输入微小扰动下输出敏感性。
 
 ```
-κ(A) = ||A|| * ||A^{-1}|| = σ_max / σ_min
+kappa(A) = ||A|| * ||A^(-1)|| = sigma_max / sigma_min
 ```
 
 ```
-κ≈1: 条件好      κ≈10^15: 条件很差
+Well-conditioned (kappa ~ 1):        Ill-conditioned (kappa ~ 10^15):
+Small change in b -->                Small change in b -->
+small change in x                    huge change in x
+
+| 2  0 |   kappa = 2/1 = 2          | 1   1          |   kappa ~ 10^15
+| 0  1 |   safe to solve            | 1   1+10^(-15) |   solution is garbage
 ```
 
 规则：
@@ -285,14 +321,24 @@ np.linalg.lstsq、np.linalg.pinv 本质都依赖 SVD。
 - κ≈10^16（float64）：结果可能没意义
 
 ```
-| 2  0 |        κ=2/1=2          |1  1        | κ≈10^15
-| 0  1 |                          |1 1+10^-15 |
+Algorithm sketch:
+  x0 = initial guess (often zero)
+  r0 = b - A x0           (residual)
+  p0 = r0                 (search direction)
+
+  For k = 0, 1, 2, ...:
+    alpha = (rk . rk) / (pk . A pk)
+    x_{k+1} = xk + alpha * pk
+    r_{k+1} = rk - alpha * A pk
+    beta = (r_{k+1} . r_{k+1}) / (rk . rk)
+    p_{k+1} = r_{k+1} + beta * pk
+    if ||r_{k+1}|| < tolerance: stop
 ```
 
 在 ML 中，特征近似共线导致 κ 很大。加 λI 时：
 
-```
-σ_max/σ_min -> (σ_max+λ)/(σ_min+λ)
+```figure
+linear-system-conditioning
 ```
 
 条件改善、解更稳。
@@ -301,18 +347,29 @@ np.linalg.lstsq、np.linalg.pinv 本质都依赖 SVD。
 
 超大稀疏系统（百万级未知量）不适合 LU/Cholesky，改用迭代法。CG 解 SPD 系统，通常比直接法便宜。
 
-```
-x0 = 0
-r0 = b - Ax0
-p0 = r0
+```python
+import numpy as np
 
-for k:
-  α = (r_k·r_k)/(p_k·A p_k)
-  x_{k+1} = x_k + α p_k
-  r_{k+1} = r_k - α A p_k
-  β = (r_{k+1}·r_{k+1})/(r_k·r_k)
-  p_{k+1} = r_{k+1} + β p_k
-  if ||r_{k+1}|| < tol: stop
+def gaussian_elimination(A, b):
+    n = len(b)
+    Ab = np.hstack([A.astype(float), b.reshape(-1, 1).astype(float)])
+
+    for k in range(n):
+        max_row = k + np.argmax(np.abs(Ab[k:, k]))
+        Ab[[k, max_row]] = Ab[[max_row, k]]
+
+        if abs(Ab[k, k]) < 1e-12:
+            raise ValueError(f"Matrix is singular or nearly singular at pivot {k}")
+
+        for i in range(k + 1, n):
+            m = Ab[i, k] / Ab[k, k]
+            Ab[i, k:] -= m * Ab[k, k:]
+
+    x = np.zeros(n)
+    for i in range(n - 1, -1, -1):
+        x[i] = (Ab[i, -1] - Ab[i, i+1:n] @ x[i+1:n]) / Ab[i, i]
+
+    return x
 ```
 
 CG 在浮点理想下最多 n 步收敛，特征值分布好时通常更快。  
@@ -343,41 +400,6 @@ CG 在浮点理想下最多 n 步收敛，特征值分布好时通常更快。
 - NN 初始化：正交初始化使用 QR
 - 预条件：大规模优化可用不完全 Cholesky/ LU 做预处理
 - 特征工程：X^T X 的条件数揭示共线性，κ 大时降维或加正则
-
-```figure
-linear-system-conditioning
-```
-
-## 实践
-
-### 步骤 1：部分主元高斯消元
-
-```python
-import numpy as np
-
-def gaussian_elimination(A, b):
-    n = len(b)
-    Ab = np.hstack([A.astype(float), b.reshape(-1, 1).astype(float)])
-
-    for k in range(n):
-        max_row = k + np.argmax(np.abs(Ab[k:, k]))
-        Ab[[k, max_row]] = Ab[[max_row, k]]
-
-        if abs(Ab[k, k]) < 1e-12:
-            raise ValueError(f"矩阵在第 {k} 个主元处奇异或近似奇异")
-
-        for i in range(k + 1, n):
-            m = Ab[i, k] / Ab[k, k]
-            Ab[i, k:] -= m * Ab[k, k:]
-
-    x = np.zeros(n)
-    for i in range(n - 1, -1, -1):
-        x[i] = (Ab[i, -1] - Ab[i, i+1:n] @ x[i+1:n]) / Ab[i, i]
-
-    return x
-```
-
-### 步骤 2：LU 分解
 
 ```python
 def lu_decompose(A):
@@ -415,7 +437,9 @@ def lu_solve(P, L, U, b):
     return x
 ```
 
-### 步骤 3：Cholesky
+## 实践
+
+### 步骤 1：部分主元高斯消元
 
 ```python
 def cholesky(A):
@@ -427,7 +451,7 @@ def cholesky(A):
             s = A[i, j] - L[i, :j] @ L[j, :j]
             if i == j:
                 if s <= 0:
-                    raise ValueError("矩阵不是正定矩阵")
+                    raise ValueError("Matrix is not positive definite")
                 L[i, j] = np.sqrt(s)
             else:
                 L[i, j] = s / L[j, j]
@@ -435,7 +459,7 @@ def cholesky(A):
     return L
 ```
 
-### 步骤 4：最小二乘与岭回归
+### 步骤 2：LU 分解
 
 ```python
 def least_squares_normal(A, b):
@@ -457,7 +481,7 @@ def ridge_regression(A, b, lam):
     return x
 ```
 
-### 步骤 5：条件数
+### 步骤 3：Cholesky
 
 ```python
 def condition_number(A):
@@ -465,9 +489,7 @@ def condition_number(A):
     return S[0] / S[-1]
 ```
 
-## 应用
-
-以下代码用自实现求解做线性/岭回归，并与 NumPy、sklearn 对照：
+### 步骤 4：最小二乘与岭回归
 
 ```python
 np.random.seed(42)
@@ -478,20 +500,28 @@ y = X_raw @ w_true + np.random.randn(100) * 0.1
 X = np.column_stack([np.ones(100), X_raw])
 
 w_ols = least_squares_normal(X, y)
-print(f"OLS(weights, ours):    {w_ols}")
+print(f"OLS weights (ours):    {w_ols}")
 
 w_np = np.linalg.lstsq(X, y, rcond=None)[0]
-print(f"OLS(weights, numpy):   {w_np}")
-print(f"Max diff: {np.max(np.abs(w_ols - w_np)):.2e}")
+print(f"OLS weights (numpy):   {w_np}")
+print(f"Max difference: {np.max(np.abs(w_ols - w_np)):.2e}")
 
 w_ridge = ridge_regression(X, y, lam=1.0)
-print(f"Ridge(ours):  {w_ridge}")
+print(f"Ridge weights (ours):  {w_ridge}")
 
 from sklearn.linear_model import Ridge
 ridge_sk = Ridge(alpha=1.0, fit_intercept=False)
 ridge_sk.fit(X, y)
-print(f"Ridge(sklearn): {ridge_sk.coef_}")
+print(f"Ridge weights (sklearn): {ridge_sk.coef_}")
 ```
+
+### 步骤 5：条件数
+
+
+## 应用
+
+以下代码用自实现求解做线性/岭回归，并与 NumPy、sklearn 对照：
+
 
 ## 输出产物
 

@@ -35,12 +35,12 @@
 做 \(n\) 步后位置是 \(n\) 个 \(\pm1\) 的和。期望位置是 0，但期望到原点距离是 \(\sqrt n\)。
 
 ```
-Step 0: Position = 0
-Step 1: Position = +1 or -1
-Step 2: Position = +2, 0, or -2
+Step 0:  Position = 0
+Step 1:  Position = +1 or -1
+Step 2:  Position = +2, 0, or -2
 ...
-Step 100: Expected distance ~ 10
-Step 10000: Expected distance ~ 100
+Step 100: Expected distance from origin ~ 10 (sqrt(100))
+Step 10000: Expected distance from origin ~ 100 (sqrt(10000))
 ```
 
 二维随机游走（上下左右）同理，距离原点仍按 \(\sqrt n\) 增长。路径看上去像“分形样”扩散。
@@ -58,13 +58,13 @@ Step 10000: Expected distance ~ 100
 马尔可夫链下一个状态仅依赖当前状态，不依赖历史：
 
 ```
-P(X_{t+1}=j | X_t=i, X_{t-1},...) = P(X_{t+1}=j | X_t=i)
+P(X_{t+1} = j | X_t = i, X_{t-1} = ...) = P(X_{t+1} = j | X_t = i)
 ```
 
 用转移矩阵 \(P\) 表示：
 
 ```
-P[i][j] = from i to j 的概率
+P[i][j] = probability of going from state i to state j
 ```
 
 每行和为 1。
@@ -72,20 +72,20 @@ P[i][j] = from i to j 的概率
 **例子：天气链**
 
 ```
-状态: 晴(0), 雨(1), 阴(2)
+States: Sunny (0), Rainy (1), Cloudy (2)
 
-P = [[0.7, 0.1, 0.2],
-     [0.3, 0.4, 0.3],
-     [0.4, 0.2, 0.4]]
+P = [[0.7, 0.1, 0.2],    (if sunny: 70% sunny, 10% rainy, 20% cloudy)
+     [0.3, 0.4, 0.3],    (if rainy: 30% sunny, 40% rainy, 30% cloudy)
+     [0.4, 0.2, 0.4]]    (if cloudy: 40% sunny, 20% rainy, 40% cloudy)
 ```
 
 经过多步后分布会收敛到稳态 \(\pi\)，满足 \(\pi P = \pi\)（\(P\) 的左特征向量，特征值 1）。
 
 ```mermaid
 graph LR
-    S["晴"] -->|0.7| S
-    S -->|0.1| R["雨"]
-    S -->|0.2| C["阴"]
+    S["Sunny"] -->|0.7| S
+    S -->|0.1| R["Rainy"]
+    S -->|0.2| C["Cloudy"]
     R -->|0.3| S
     R -->|0.4| R
     R -->|0.3| C
@@ -109,7 +109,7 @@ graph LR
 LLM 的下一 token 分布可近似看作马尔可夫过程：
 
 ```
-P(token_i) = exp(logit_i / T) / sum(exp(logit_j / T))
+P(token_i) = exp(logit_i / temperature) / sum(exp(logit_j / temperature))
 ```
 
 温度 \(T\) 调节随机性（越低越确定，越高越随机），top-k/top-p 是对转移分布的截断变换。
@@ -124,7 +124,7 @@ P(token_i) = exp(logit_i / T) / sum(exp(logit_j / T))
 离散近似：
 
 ```
-B(t + dt) = B(t) + sqrt(dt) * z,   z ~ N(0,1)
+B(t + dt) = B(t) + sqrt(dt) * z,    where z ~ N(0, 1)
 ```
 
 ### Langevin 动力学
@@ -132,7 +132,7 @@ B(t + dt) = B(t) + sqrt(dt) * z,   z ~ N(0,1)
 梯度下降找到能量最小点。Langevin 在其中加噪，使样本分布收敛到 \(\exp(-U(x)/T)\)：
 
 ```
-x_{t+1} = x_t - dt * grad(U(x_t)) + sqrt(2*T*dt) * z_t
+x_{t+1} = x_t - dt * gradient(U(x_t)) + sqrt(2 * T * dt) * z_t
 ```
 
 前半段是梯度项，后半段是随机项。\(T=0\) 时近似纯梯度下降；高温更像随机游走。
@@ -176,13 +176,29 @@ MCMC 用于目标分布 \(p(x)\) 只能“按比例”算出但难直接采样�
 | MDP | 强化学习 |
 | Metropolis-Hastings | 贝叶斯后验采样 |
 
-```figure
-random-walk-diffusion
+```mermaid
+graph LR
+    subgraph "Forward Process (add noise)"
+        X0["x_0 (data)"] -->|"+ noise"| X1["x_1"]
+        X1 -->|"+ noise"| X2["x_2"]
+        X2 -->|"..."| XT["x_T (pure noise)"]
+    end
+    subgraph "Reverse Process (denoise)"
+        XT2["x_T (noise)"] -->|"neural net"| XR2["x_{T-1}"]
+        XR2 -->|"neural net"| XR1["x_{T-2}"]
+        XR1 -->|"..."| XR0["x_0 (generated data)"]
+    end
 ```
 
 ## 动手实现
 
 ### 步骤 1：随机游走
+
+```figure
+random-walk-diffusion
+```
+
+### 步骤 2：马尔可夫链
 
 ```python
 import numpy as np
@@ -199,16 +215,16 @@ def random_walk_2d(n_steps, seed=None):
     directions = rng.choice(4, size=n_steps)
     dx = np.zeros(n_steps)
     dy = np.zeros(n_steps)
-    dx[directions == 0] = 1
-    dx[directions == 1] = -1
-    dy[directions == 2] = 1
-    dy[directions == 3] = -1
+    dx[directions == 0] = 1   # right
+    dx[directions == 1] = -1  # left
+    dy[directions == 2] = 1   # up
+    dy[directions == 3] = -1  # down
     x = np.concatenate([[0], np.cumsum(dx)])
     y = np.concatenate([[0], np.cumsum(dy)])
     return x, y
 ```
 
-### 步骤 2：马尔可夫链
+### 步骤 3：Langevin
 
 ```python
 class MarkovChain:
@@ -240,7 +256,7 @@ class MarkovChain:
         return np.abs(stationary)
 ```
 
-### 步骤 3：Langevin
+### 步骤 4：Metropolis-Hastings
 
 ```python
 def langevin_dynamics(grad_U, x0, dt, temperature, n_steps, seed=None):
@@ -254,7 +270,7 @@ def langevin_dynamics(grad_U, x0, dt, temperature, n_steps, seed=None):
     return np.array(trajectory)
 ```
 
-### 步骤 4：Metropolis-Hastings
+## 应用
 
 ```python
 def metropolis_hastings(target_log_prob, proposal_std, x0, n_samples, seed=None):
@@ -273,31 +289,16 @@ def metropolis_hastings(target_log_prob, proposal_std, x0, n_samples, seed=None)
     return np.array(samples), acceptance_rate
 ```
 
-## 应用
+### 使用转移矩阵
 
 ```python
 import numpy as np
 
 rng = np.random.RandomState(42)
 walk = np.cumsum(rng.choice([-1, 1], size=10000))
-print(f"Final: {walk[-1]}")
+print(f"Final position: {walk[-1]}")
 print(f"Expected distance: {np.sqrt(10000):.1f}")
 print(f"Actual distance: {abs(walk[-1])}")
-```
-
-### 使用转移矩阵
-
-```python
-import numpy as np
-
-P = np.array([[0.7, 0.1, 0.2],
-              [0.3, 0.4, 0.3],
-              [0.4, 0.2, 0.4]])
-
-dist = np.array([1.0, 0.0, 0.0])
-for _ in range(100):
-    dist = dist @ P
-print(f"Stationary approx: {np.round(dist, 4)}")
 ```
 
 ### 与框架对齐
@@ -310,12 +311,16 @@ print(f"Stationary approx: {np.round(dist, 4)}")
 
 ```python
 import numpy as np
-P = np.array([[0.9, 0.1], [0.3, 0.7]])
-eigs = np.linalg.eigvals(P)
-spectral_gap = 1 - sorted(np.abs(eigs))[-2]
-print(f"Eigenvalues: {eigs}")
-print(f"Spectral gap: {spectral_gap:.4f}")
-print(f"Approx mix steps: {1/spectral_gap:.1f}")
+
+P = np.array([[0.7, 0.1, 0.2],
+              [0.3, 0.4, 0.3],
+              [0.4, 0.2, 0.4]])
+
+distribution = np.array([1.0, 0.0, 0.0])
+for _ in range(100):
+    distribution = distribution @ P
+
+print(f"Stationary distribution: {np.round(distribution, 4)}")
 ```
 
 谱间隙越大，混合越快。
@@ -329,14 +334,22 @@ print(f"Approx mix steps: {1/spectral_gap:.1f}")
 
 扩散模型中 DDPM（Ho et al.）可写成：
 
-```
-q(x_t | x_{t-1}) = N(x_t; sqrt(1-beta_t)x_{t-1}, beta_t I)
+```python
+import numpy as np
+
+P = np.array([[0.9, 0.1], [0.3, 0.7]])
+
+eigenvalues = np.linalg.eigvals(P)
+spectral_gap = 1 - sorted(np.abs(eigenvalues))[-2]
+print(f"Eigenvalues: {eigenvalues}")
+print(f"Spectral gap: {spectral_gap:.4f}")
+print(f"Approximate mixing time: {1/spectral_gap:.1f} steps")
 ```
 
 每步后向生成：
 
 ```
-p_theta(x_{t-1}|x_t)=N(x_{t-1}; mu_theta(x_t,t), sigma_t^2 I)
+q(x_t | x_{t-1}) = N(x_t; sqrt(1-beta_t) * x_{t-1}, beta_t * I)
 ```
 
 所以每步采样都是学习到的马尔可夫链。理解马尔可夫链就理解了“为啥扩散能生成数据”。
@@ -373,3 +386,7 @@ SGLD 把小批量梯度和 Langevin 噪声结合，学习率衰减后从优化�
 - Roberts & Rosenthal (2004): MCMC 理论基础  
 - Norris (1997): 《Markov Chains》  
 - Welling & Teh (2011): SGLD 与贝叶斯学习
+
+```
+p_theta(x_{t-1} | x_t) = N(x_{t-1}; mu_theta(x_t, t), sigma_t^2 * I)
+```

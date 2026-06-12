@@ -45,7 +45,7 @@ P(B|A) = P(A and B) / P(A)
 ```
 P(A and B) = P(A|B) * P(B) = P(B|A) * P(A)
 
-所以:
+Therefore:
 
 P(A|B) = P(B|A) * P(A) / P(B)
 ```
@@ -72,9 +72,9 @@ P(B) = P(B|A) * P(A) + P(B|not A) * P(not A)
 一种疾病每 10,000 人有 1 人患病。检测准确率 99%（能找出 99% 患病者，1% 健康者误报）。
 
 ```
-P(sick)              = 0.0001     （先验：该病很少见）
-P(positive|sick)     = 0.99       （似然：检测抓到病人的概率）
-P(positive|healthy)  = 0.01       （假阳性率）
+P(sick)          = 0.0001     (prior: disease is rare)
+P(positive|sick) = 0.99       (likelihood: test catches it)
+P(positive|healthy) = 0.01    (false positive rate)
 
 P(positive) = P(positive|sick) * P(sick) + P(positive|healthy) * P(healthy)
             = 0.99 * 0.0001 + 0.01 * 0.9999
@@ -94,9 +94,9 @@ P(sick|positive) = P(positive|sick) * P(sick) / P(positive)
 你收到一封包含单词“lottery”的邮件，它是不是垃圾邮件？
 
 ```
-P(spam)                = 0.3      （30% 邮件是 spam）
-P("lottery"|spam)      = 0.05     （5% 的 spam 包含 lottery）
-P("lottery"|not spam)  = 0.001    （0.1% 的正常邮件包含 lottery）
+P(spam)                = 0.3      (30% of email is spam)
+P("lottery"|spam)      = 0.05     (5% of spam emails contain "lottery")
+P("lottery"|not spam)  = 0.001    (0.1% of legitimate emails contain "lottery")
 
 P("lottery") = 0.05 * 0.3 + 0.001 * 0.7
              = 0.015 + 0.0007
@@ -124,7 +124,7 @@ P(class | feature_1, feature_2, ..., feature_n)
 分母对所有类别相同，可省略，仅比较分子：
 
 ```
-score(class) = P(class) * Π P(feature_i | class)
+score(class) = P(class) * product of P(feature_i | class)
 ```
 
 取得分最高的类别作为预测。
@@ -134,7 +134,7 @@ score(class) = P(class) * Π P(feature_i | class)
 P(feature|class) 怎么从训练数据得到？计数即可。
 
 ```
-P("free"|spam) = (垃圾邮件中包含 "free" 的数量) / (垃圾邮件总数)
+P("free"|spam) = (number of spam emails containing "free") / (total spam emails)
 ```
 
 这就是 MLE：找一组参数让观测数据概率最大。对离散计数来说就是相对频率。
@@ -152,19 +152,25 @@ P(word|class) = (count(word, class) + 1) / (total_words_in_class + vocabulary_si
 MLE 在最大化：
 
 ```
-P(data|parameters)
+P(parameters|data) proportional to P(data|parameters) * P(parameters)
 ```
 
 MAP 在最大化：
 
-```
-P(parameters|data)
+```figure
+bayes-update
 ```
 
 根据贝叶斯定理：
 
-```
-P(parameters|data) 与 P(data|parameters) * P(parameters) 成正比
+```python
+def bayes(prior, likelihood, false_positive_rate):
+    evidence = likelihood * prior + false_positive_rate * (1 - prior)
+    posterior = likelihood * prior / evidence
+    return posterior
+
+result = bayes(prior=0.0001, likelihood=0.99, false_positive_rate=0.01)
+print(f"P(sick|positive) = {result:.4f}")
 ```
 
 MAP 在参数上加上先验。如果你认为参数应更小，可通过先验对大参数进行惩罚。这与机器学习中的正则化等价；岭回归中的 L2 惩罚就是对权重的高斯先验。
@@ -197,26 +203,6 @@ MAP 在参数上加上先验。如果你认为参数应更小，可通过先验�
 - **后验就是不确定性。** 单一预测概率不能说明模型对该估计有多自信；贝叶斯输出一条分布，例如“我认为 spam 概率在 0.8 到 0.95 之间”。
 - **贝叶斯更新即在线学习。** 今天的后验可作为明天的先验，模型可增量更新，不必每次重训全部历史数据。
 - **模型比较也可贝叶斯。** BIC、边缘似然、Bayes factor 都用贝叶斯思想在比较模型，且能抑制过拟合。
-
-```figure
-bayes-update
-```
-
-## 动手实践
-
-### 步骤1：贝叶斯函数
-
-```python
-def bayes(prior, likelihood, false_positive_rate):
-    evidence = likelihood * prior + false_positive_rate * (1 - prior)
-    posterior = likelihood * prior / evidence
-    return posterior
-
-result = bayes(prior=0.0001, likelihood=0.99, false_positive_rate=0.01)
-print(f"P(sick|positive) = {result:.4f}")
-```
-
-### 步骤2：朴素贝叶斯分类器
 
 ```python
 import math
@@ -257,9 +243,9 @@ class NaiveBayes:
         return best_class
 ```
 
-对数空间可避免下溢。许多小概率连乘会过小，直接相乘会掉到浮点数下限；对数空间下变加法，数值更稳定，数学等价。
+## 动手实践
 
-### 步骤3：训练 spam 数据
+### 步骤1：贝叶斯函数
 
 ```python
 train_docs = [
@@ -296,7 +282,7 @@ for msg in test_messages:
     print(f"  '{msg}' -> {classifier.predict(msg)}")
 ```
 
-### 步骤4：查看学习到的概率
+### 步骤2：朴素贝叶斯分类器
 
 ```python
 def show_top_words(classifier, cls, n=5):
@@ -316,9 +302,9 @@ print("\nTop ham words:")
 show_top_words(classifier, "ham")
 ```
 
-## 使用实践
+对数空间可避免下溢。许多小概率连乘会过小，直接相乘会掉到浮点数下限；对数空间下变加法，数值更稳定，数学等价。
 
-Scikit-learn 提供生产可用的朴素贝叶斯实现：
+### 步骤3：训练 spam 数据
 
 ```python
 from sklearn.feature_extraction.text import CountVectorizer
@@ -334,6 +320,25 @@ X_test = vectorizer.transform(test_messages)
 predictions = clf.predict(X_test)
 for msg, pred in zip(test_messages, predictions):
     print(f"  '{msg}' -> {pred}")
+```
+
+### 步骤4：查看学习到的概率
+
+```
+Prior:     Beta(a, b)
+Data:      s successes, f failures
+Posterior: Beta(a + s, b + f)
+```
+
+## 使用实践
+
+Scikit-learn 提供生产可用的朴素贝叶斯实现：
+
+```mermaid
+graph LR
+    A["Prior<br/>Beta(1,1)<br/>mean = 0.50"] -->|"7H, 3T"| B["Posterior 1<br/>Beta(8,4)<br/>mean = 0.67"]
+    B -->|"becomes prior"| C["Prior 2<br/>Beta(8,4)"]
+    C -->|"5H, 5T"| D["Posterior 2<br/>Beta(13,9)<br/>mean = 0.59"]
 ```
 
 同一算法，CountVectorizer 负责分词和词汇表，MultinomialNB 内部处理平滑和对数概率。你手写的版本用不到第三方库也能实现同一逻辑。
@@ -365,9 +370,9 @@ Beta 先验的特例：
 更新规则非常简单：
 
 ```
-Prior:     Beta(a, b)
-Data:      s successes, f failures
-Posterior: Beta(a + s, b + f)
+1. Draw 100,000 samples from Beta(51, 951)  -> samples_A
+2. Draw 100,000 samples from Beta(66, 936)  -> samples_B
+3. P(B > A) = fraction of samples where B > A
 ```
 
 无需积分、无需采样，只需加法。
@@ -394,12 +399,6 @@ Posterior: Beta(a + s, b + f)
 - 后验均值：13/22 = 0.591
 - 新增平衡数据把估计拉回 0.5
 
-```mermaid
-graph LR
-    A["Prior<br/>Beta(1,1)<br/>mean = 0.50"] -->|"7H, 3T"| B["Posterior 1<br/>Beta(8,4)<br/>mean = 0.67"]
-    B -->|"becomes prior"| C["Prior 2<br/>Beta(8,4)"]
-    C -->|"5H, 5T"| D["Posterior 2<br/>Beta(13,9)<br/>mean = 0.59"]
-```
 
 观测顺序不影响结果。若把 Beta(1,1) 与全部 12 次正面、8 次反面一次性更新，仍会得到 Beta(13,9)。顺序更新与批量更新数学上等价，但顺序更新更适合在线决策和省存储。
 
@@ -422,11 +421,6 @@ A/B 测试本质上就是贝叶斯推断。
 
 P(B > A) 可通过蒙特卡洛近似：
 
-```
-1. 从 Beta(51, 951) 抽 100,000 个样本 -> samples_A
-2. 从 Beta(66, 936) 抽 100,000 个样本 -> samples_B
-3. P(B > A) = B>A 的样本比例
-```
 
 若 P(B > A) > 0.95，上线 B；若介于 0.05~0.95，继续采样；若 P(B > A) < 0.05，上线 A。
 

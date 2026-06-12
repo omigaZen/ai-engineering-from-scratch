@@ -49,8 +49,8 @@
 对含 \(n\) 个节点的图：
 
 ```
-A[i][j] = 1    如果存在 i -> j 的边
-A[i][j] = 0    否则
+A[i][j] = 1    if there is an edge from node i to node j
+A[i][j] = 0    otherwise
 ```
 
 无向图中 \(A\) 对称；加权图中 \(A[i][j]\) 是边权值。
@@ -58,12 +58,12 @@ A[i][j] = 0    否则
 三角形例子：
 
 ```
-节点: 0,1,2
-边: (0,1), (1,2), (0,2)
+Nodes: 0, 1, 2
+Edges: (0,1), (1,2), (0,2)
 
-A = [[0,1,1],
-     [1,0,1],
-     [1,1,0]]
+A = [[0, 1, 1],
+     [1, 0, 1],
+     [1, 1, 0]]
 ```
 
 邻接矩阵是所有 GNN 的入口，后续的矩阵乘法都是对它的操作。
@@ -75,8 +75,8 @@ A = [[0,1,1],
 度矩阵 \(D\) 是对角矩阵：
 
 ```
-D[i][i] = node i 的度
-D[i][j] = 0 (i != j)
+D[i][i] = degree of node i
+D[i][j] = 0    for i != j
 ```
 
 三角形中每个节点度为 2，所以 \(D=diag(2,2,2)\)。
@@ -105,12 +105,15 @@ DFS 常用于连通分量、环检测、拓扑排序。
 三角形的 \(L\)：
 
 ```
-D = [[2,0,0],
-     [0,2,0],
-     [0,0,2]],   A = [[0,1,1],[1,0,1],[1,1,0]],   L = D - A
-L = [[ 2,-1,-1],
-     [-1, 2,-1],
-     [-1,-1, 2]]
+BFS from node 0:
+  Visit 0
+  Queue: [1, 2]        (neighbors of 0)
+  Visit 1
+  Queue: [2, 3]        (add neighbors of 1)
+  Visit 2
+  Queue: [3]           (neighbors of 2 already visited)
+  Visit 3
+  Queue: []            (done)
 ```
 
 拉普拉斯性质：
@@ -120,21 +123,16 @@ L = [[ 2,-1,-1],
 3. 第二小特征值（Fiedler 值）反映连通性强弱。
 4. Fiedler 向量可用于二分聚类，符号决定划分。
 
-```mermaid
-graph TD
-    subgraph "从图到矩阵"
-        G["图 G"] --> A["邻接矩阵 A"]
-        G --> D["度矩阵 D"]
-        A --> L["拉普拉斯 L = D - A"]
-        D --> L
-    end
-    subgraph "谱分析"
-        L --> E["L 的特征值"]
-        L --> V["L 的特征向量"]
-        E --> C["连通分量（零特征值）"]
-        E --> F["连通性（Fiedler 值）"]
-        V --> S["谱聚类"]
-    end
+```
+DFS from node 0:
+  Visit 0
+  Stack: [1, 2]        (neighbors of 0)
+  Visit 2               (pop from stack)
+  Stack: [1, 3]         (add neighbors of 2)
+  Visit 3               (pop from stack)
+  Stack: [1]
+  Visit 1               (pop from stack)
+  Stack: []             (done)
 ```
 
 ### 谱性质与谱聚类
@@ -153,34 +151,63 @@ graph TD
 GNN 的核心公式：
 
 ```
-h_v^(k+1) = UPDATE(h_v^(k), AGGREGATE({h_u^(k) : u in neighbors(v)}))
+D = [[2, 0, 0],    A = [[0, 1, 1],    L = [[2, -1, -1],
+     [0, 2, 0],         [1, 0, 1],         [-1, 2, -1],
+     [0, 0, 2]]         [1, 1, 0]]         [-1, -1,  2]]
 ```
 
 最简化版本可写为平均聚合 + 线性变换 + 激活：
 
-```
-h_v^(k+1) = sigma(W * mean({h_u^(k) : u in neighbors(v)}))
+```mermaid
+graph TD
+    subgraph "Graph to Matrices"
+        G["Graph G"] --> A["Adjacency Matrix A"]
+        G --> D["Degree Matrix D"]
+        A --> L["Laplacian L = D - A"]
+        D --> L
+    end
+    subgraph "Spectral Analysis"
+        L --> E["Eigenvalues of L"]
+        L --> V["Eigenvectors of L"]
+        E --> C["Connected components (zeros)"]
+        E --> F["Connectivity (Fiedler value)"]
+        V --> S["Spectral clustering"]
+    end
 ```
 
 等价矩阵形式：
 
 ```
-H^(k+1) = sigma(A_norm * H^(k) * W)
+h_v^(k+1) = UPDATE(h_v^(k), AGGREGATE({h_u^(k) : u in neighbors(v)}))
 ```
 
 其中 \(A_{norm}\) 行归一化，使每行和为 1。消息传递一轮让每个节点看到一跳邻居，k 轮后可看到 k 跳邻居。
 
+```
+h_v^(k+1) = sigma(W * mean({h_u^(k) : u in neighbors(v)}))
+```
+
+## 动手实现
+
+### 步骤 1：图类
+
+```
+H^(k+1) = sigma(A_norm * H^(k) * W)
+```
+
+### 步骤 2：BFS 与 DFS
+
 ```mermaid
 graph LR
     subgraph "Round 0"
-        A0["A 节点特征: [1,0]"]
-        B0["B 节点特征: [0,1]"]
-        C0["C 节点特征: [1,1]"]
+        A0["Node A: [1,0]"]
+        B0["Node B: [0,1]"]
+        C0["Node C: [1,1]"]
     end
-    subgraph "Round 1"
-        A1["A: avg(B,C)=[0.5,1.0]"]
-        B1["B: avg(A,C)=[1.0,0.5]"]
-        C1["C: avg(A,B)=[0.5,0.5]"]
+    subgraph "Round 1 (aggregate neighbors)"
+        A1["Node A: avg(B,C) = [0.5, 1.0]"]
+        B1["Node B: avg(A,C) = [1.0, 0.5]"]
+        C1["Node C: avg(A,B) = [0.5, 0.5]"]
     end
     A0 --> A1
     B0 --> A1
@@ -191,9 +218,17 @@ graph LR
     B0 --> C1
 ```
 
-## 动手实现
+BFS 用双端队列的 \(popleft\)，DFS 用列表栈。都在 \(O(V+E)\) 内遍历一次所有可达节点。
 
-### 步骤 1：图类
+### 步骤 3：连通分量与谱值
+
+```figure
+graph-degree-distribution
+```
+
+`self.adj` 返回对称矩阵实特征值，排序后零特征值个数即连通分量数。
+
+### 步骤 4：谱聚类
 
 ```python
 class Graph:
@@ -232,7 +267,7 @@ class Graph:
         return self.degree_matrix() - self.adjacency_matrix()
 ```
 
-### 步骤 2：BFS 与 DFS
+### 步骤 5：消息传递
 
 ```python
 from collections import deque
@@ -270,9 +305,11 @@ def dfs(graph, start):
     return order
 ```
 
-BFS 用双端队列的 \(popleft\)，DFS 用列表栈。都在 \(O(V+E)\) 内遍历一次所有可达节点。
+上面是单轮消息传递：每个节点取邻居均值后再线性变换。多层堆叠可获得更远的信息。
 
-### 步骤 3：连通分量与谱值
+## 实践
+
+用 networkx + numpy 可快速复现：
 
 ```python
 def connected_components(graph):
@@ -289,12 +326,11 @@ def connected_components(graph):
 def laplacian_eigenvalues(graph):
     import numpy as np
     L = graph.laplacian()
-    return np.linalg.eigvalsh(L)
+    eigenvalues = np.linalg.eigvalsh(L)
+    return eigenvalues
 ```
 
-`self.adj` 返回对称矩阵实特征值，排序后零特征值个数即连通分量数。
-
-### 步骤 4：谱聚类
+### numpy 谱分析
 
 ```python
 def spectral_clustering(graph, k=2):
@@ -305,76 +341,11 @@ def spectral_clustering(graph, k=2):
 
     labels = np.zeros(graph.n, dtype=int)
     for i in range(graph.n):
-        labels[i] = 0 if features[i, 0] >= 0 else 1
+        if features[i, 0] >= 0:
+            labels[i] = 0
+        else:
+            labels[i] = 1
     return labels
-```
-
-### 步骤 5：消息传递
-
-```python
-def message_passing(graph, features, weight_matrix):
-    import numpy as np
-    A = graph.adjacency_matrix()
-    row_sums = A.sum(axis=1, keepdims=True)
-    row_sums[row_sums == 0] = 1
-    A_norm = A / row_sums
-    aggregated = A_norm @ features
-    output = aggregated @ weight_matrix
-    return output
-```
-
-上面是单轮消息传递：每个节点取邻居均值后再线性变换。多层堆叠可获得更远的信息。
-
-## 实践
-
-用 networkx + numpy 可快速复现：
-
-```python
-import networkx as nx
-import numpy as np
-
-G = nx.karate_club_graph()
-
-A = nx.adjacency_matrix(G).toarray()
-L = nx.laplacian_matrix(G).toarray()
-
-eigenvalues = np.linalg.eigvalsh(L.astype(float))
-print(f"最小特征值: {eigenvalues[:5]}")
-print(f"连通分量: {nx.number_connected_components(G)}")
-
-communities = nx.community.greedy_modularity_communities(G)
-print(f"检测到的社区数: {len(communities)}")
-
-pr = nx.pagerank(G)
-print(f"Top-5 PageRank: {sorted(pr.items(), key=lambda x: x[1], reverse=True)[:5]}")
-```
-
-### numpy 谱分析
-
-```python
-import numpy as np
-
-A = np.array([
-    [0,1,1,0,0],
-    [1,0,1,0,0],
-    [1,1,0,1,0],
-    [0,0,1,0,1],
-    [0,0,0,1,0]
-])
-
-D = np.diag(A.sum(axis=1))
-L = D - A
-
-eigenvalues, eigenvectors = np.linalg.eigh(L)
-print(f"特征值: {np.round(eigenvalues, 4)}")
-print(f"Fiedler 值: {eigenvalues[1]:.4f}")
-print(f"Fiedler 向量: {np.round(eigenvectors[:,1],4)}")
-
-fiedler = eigenvectors[:,1]
-group_a = np.where(fiedler >= 0)[0]
-group_b = np.where(fiedler < 0)[0]
-print(f"Cluster A: {group_a}")
-print(f"Cluster B: {group_b}")
 ```
 
 ## 输出文件
@@ -397,8 +368,16 @@ print(f"Cluster B: {group_b}")
 
 GCN（Kipf & Welling, 2017）使用自环后的归一化形式：
 
-```
-H^(l+1) = sigma(D_hat^(-1/2) * A_hat * D_hat^(-1/2) * H^(l) * W^(l))
+```python
+def message_passing(graph, features, weight_matrix):
+    import numpy as np
+    A = graph.adjacency_matrix()
+    row_sums = A.sum(axis=1, keepdims=True)
+    row_sums[row_sums == 0] = 1
+    A_norm = A / row_sums
+    aggregated = A_norm @ features
+    output = aggregated @ weight_matrix
+    return output
 ```
 
 其中 \(A_{hat}=A+I\)，\(D_{hat}\) 是 \(A_{hat}\) 的度矩阵。自环意味着每个节点保留自己的特征。该归一化和 \(L_{sym}=I-D^{-1/2}AD^{-1/2}\) 的谱性质高度相关。
@@ -433,3 +412,55 @@ H^(l+1) = sigma(D_hat^(-1/2) * A_hat * D_hat^(-1/2) * H^(l) * W^(l))
 - Hamilton (2020): 《Graph Representation Learning》  
 - Bronstein et al. (2021): 几何深度学习框架  
 - Veličković et al. (2018): 图注意力网络（GAT）
+
+```python
+import networkx as nx
+import numpy as np
+
+G = nx.karate_club_graph()
+
+A = nx.adjacency_matrix(G).toarray()
+L = nx.laplacian_matrix(G).toarray()
+
+eigenvalues = np.linalg.eigvalsh(L.astype(float))
+print(f"Smallest eigenvalues: {eigenvalues[:5]}")
+print(f"Connected components: {nx.number_connected_components(G)}")
+
+communities = nx.community.greedy_modularity_communities(G)
+print(f"Communities found: {len(communities)}")
+
+pr = nx.pagerank(G)
+top_nodes = sorted(pr.items(), key=lambda x: x[1], reverse=True)[:5]
+print(f"Top 5 PageRank nodes: {top_nodes}")
+```
+
+```python
+import numpy as np
+
+A = np.array([
+    [0, 1, 1, 0, 0],
+    [1, 0, 1, 0, 0],
+    [1, 1, 0, 1, 0],
+    [0, 0, 1, 0, 1],
+    [0, 0, 0, 1, 0]
+])
+
+D = np.diag(A.sum(axis=1))
+L = D - A
+
+eigenvalues, eigenvectors = np.linalg.eigh(L)
+print(f"Eigenvalues: {np.round(eigenvalues, 4)}")
+print(f"Fiedler value: {eigenvalues[1]:.4f}")
+print(f"Fiedler vector: {np.round(eigenvectors[:, 1], 4)}")
+
+fiedler = eigenvectors[:, 1]
+group_a = np.where(fiedler >= 0)[0]
+group_b = np.where(fiedler < 0)[0]
+print(f"Cluster A: {group_a}")
+print(f"Cluster B: {group_b}")
+```
+
+```text
+H^(l+1) = sigma(D_hat^(-1/2) * A_hat * D_hat^(-1/2) * H^(l) * W^(l))
+```
+ `outputs/skill-graph-analysis.md`
