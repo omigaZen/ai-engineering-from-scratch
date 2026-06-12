@@ -340,7 +340,7 @@ def apply_kernel(img2d, kernel):
 
 ## 进一步使用
 
-`nn.Conv2d` 在 PyTorch 中将同一运算封装起来，并增加 autograd、CUDA kernel、cuDNN 优化。形状语义依然一致。
+`nn.Conv2d` 在 PyTorch 中将同一运算封装起来，并增加自动微分、CUDA 内核、cuDNN 优化。形状语义依然一致。
 
 ```python
 import torch
