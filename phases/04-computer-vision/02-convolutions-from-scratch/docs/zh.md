@@ -1,11 +1,11 @@
-﻿# Convolutions from Scratch
+﻿# 从零实现卷积
 
 > 卷积是一个很小的可学习权重核，你将它在图像上滑动，并在每个位置共享同一组参数。
 
-**Type:** Build
-**Languages:** Python
-**Prerequisites:** 阶段3（深度学习核心）、阶段4 第1课（Image Fundamentals）
-**Time:** ~75 分钟
+**类型:** 构建
+**语言:** Python
+**先修:** 第 3 阶段（深度学习核心）、第 4 阶段第 1 课（图像基础）
+**时长:** ~75 分钟
 
 ## 学习目标
 
