@@ -106,22 +106,22 @@ Llama 3（405B 参数，126 层）使用类似的方案。如果没有这种扩�
 
 ```mermaid
 flowchart TD
-    subgraph "Zero Init"
-        Z1["Layer 1<br/>All weights = 0"] --> Z2["Layer 2<br/>All neurons identical"]
-        Z2 --> Z3["Layer 3<br/>Still identical"]
-        Z3 --> ZR["Result: 1 effective neuron<br/>regardless of width"]
+    subgraph "零初始化"
+        Z1["第 1 层<br/>所有权重都为 0"] --> Z2["第 2 层<br/>所有神经元都一样"]
+        Z2 --> Z3["第 3 层<br/>仍然一样"]
+        Z3 --> ZR["结果：只有 1 个有效神经元<br/>与宽度无关"]
     end
 
-    subgraph "Xavier Init"
-        X1["Layer 1<br/>Var = 2/(fan_in+fan_out)"] --> X2["Layer 2<br/>Signal stable"]
-        X2 --> X3["Layer 50<br/>Signal stable"]
-        X3 --> XR["Result: Trains with<br/>sigmoid/tanh"]
+    subgraph "Xavier 初始化"
+        X1["第 1 层<br/>Var = 2/(fan_in+fan_out)"] --> X2["第 2 层<br/>信号稳定"]
+        X2 --> X3["第 50 层<br/>信号稳定"]
+        X3 --> XR["结果：可用<br/>sigmoid/tanh 训练"]
     end
 
-    subgraph "Kaiming Init"
-        K1["Layer 1<br/>Var = 2/fan_in"] --> K2["Layer 2<br/>Signal stable"]
-        K2 --> K3["Layer 50<br/>Signal stable"]
-        K3 --> KR["Result: Trains with<br/>ReLU/GELU"]
+    subgraph "Kaiming 初始化"
+        K1["第 1 层<br/>Var = 2/fan_in"] --> K2["第 2 层<br/>信号稳定"]
+        K2 --> K3["第 50 层<br/>信号稳定"]
+        K3 --> KR["结果：可用<br/>ReLU/GELU 训练"]
     end
 ```
 
@@ -129,15 +129,15 @@ flowchart TD
 
 ```mermaid
 graph LR
-    subgraph "Mean Activation Magnitude"
+    subgraph "平均激活幅度"
         direction LR
         L1["Layer 1"] --> L10["Layer 10"] --> L25["Layer 25"] --> L50["Layer 50"]
     end
 
-    subgraph "Results"
-        R1["Random N(0,1): EXPLODES by layer 5"]
-        R2["Random N(0,0.01): Vanishes by layer 10"]
-        R3["Xavier + Sigmoid: ~1.0 at layer 50"]
+    subgraph "结果"
+        R1["随机 N(0,1)：到第 5 层就爆炸"]
+        R2["随机 N(0,0.01)：到第 10 层就消失"]
+        R3["Xavier + Sigmoid：到第 50 层约为 1.0"]
         R4["Kaiming + ReLU: ~1.0 at layer 50"]
     end
 ```
