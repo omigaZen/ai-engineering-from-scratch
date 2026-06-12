@@ -1,480 +1,223 @@
 ﻿# 异常检测
 
-> “正常”容易定义，“异常”通常是例外的偏离。
+> “正常”容易定义，“异常”通常是偏离正常的某种形式。
 
-**类型:** Build  
-**语言:** Python  
-**先修:** 第 2 期第 1-9 课  
+**类型:** Build
+**语言:** Python
+**先修:** 第 2 期第 01-09 课
 **时长:** ~75 分钟
 
 ## 学习目标
 
-- 从零实现 Z-score、IQR、Isolation Forest 三类异常检测。
-- 理解基于上下文与统计定义的异常差异，以及它们在告警系统中的影响。
-- 评估阈值、漏报率与误报率之间的业务权衡。
-- 实现一个可落地的异常分数流程并结合时间窗口做稳定验证。
+- 从零实现 Z-score、IQR、Isolation Forest 三类异常检测
+- 理解上下文异常、点异常、团体异常的差异并选对方法
+- 明白为什么异常检测更像“建模正常数据”而非“识别异常标签”
+- 对比监督与非监督路径，平衡新异常覆盖率与精度
 
+## 问题
 
-下方保留英文原文作为对照。
+纽约下午 2 点刷卡，东京 2:05 再次刷卡；工厂温度应在 80-120，却读到 150；单台服务器每秒 50,000 请求，而日均 200。
 
----
-# Anomaly Detection
+这些都是异常，通常意味着风险。问题是：异常样本常常稀缺。
 
-> Normal is easy to define. Abnormal is whatever doesn't fit.
+欺诈可能只占 0.1%，设备故障每年几次，入侵样本更少。你很难拿到足够“异常类”标签训练监督分类器；即使有，也会不断出现全新异常形态。
 
-**Type:** Build
-**Language:** Python
-**Prerequisites:** Phase 2, Lessons 01-09
-**Time:** ~75 minutes
+异常检测通常换个思路：先学会“正常长什么样”，凡是不符合正常的都可疑。这样不依赖异常标签，更适合上线。
 
-## Learning Objectives
+## 核心概念
 
-- Implement Z-score, IQR, and Isolation Forest anomaly detection methods from scratch
-- Distinguish between point, contextual, and collective anomalies and select the appropriate detection method for each
-- Explain why anomaly detection is framed as modeling normal data rather than classifying anomalies
-- Compare unsupervised anomaly detection with supervised classification and evaluate the tradeoff between novel anomaly coverage and precision
+### 异常类型
 
-## The Problem
+- **点异常（Point）**：单个数据点与大多数情况下偏离很大。温度 500 度，交易额异常巨大的单笔。
+- **上下文异常（Contextual）**：是否异常依赖上下文。90 度夏天是正常的，冬天却异常。
+- **群体异常（Collective）**：一组点整体异常，单点看似正常。比如 1 次登录失败正常，连续 50 次是攻击。
 
-A credit card is used in New York at 2pm, then in Tokyo at 2:05pm. A factory sensor reads 150 degrees when the normal range is 80-120. A server sends 50,000 requests per second when the daily average is 200.
+多数方法默认只看点异常；上下文异常需要上下文特征；群体异常更依赖序列模型。
 
-These are anomalies. Finding them matters. Fraud costs billions. Equipment failures cost downtime. Network intrusions cost data.
+### 非监督视角
 
-The challenge: you rarely have labeled examples of anomalies. Fraud makes up 0.1% of transactions. Equipment failures happen a few times per year. You cannot train a standard classifier because there is almost nothing in the "anomaly" class to learn from. Even if you have some labels, the anomalies you have seen are not the only types you will encounter. Tomorrow's fraud scheme looks different from today's.
+传统监督学习需要“异常/正常”标签；异常检测常见三种：
 
-Anomaly detection flips the problem. Instead of learning what is abnormal, learn what is normal. Anything that deviates from normal is suspicious. This works without labels, adapts to new types of anomalies, and scales to massive datasets.
+1. **完全无监督。** 全部无标签，假设异常极少。
+2. **半监督。** 只有干净正常样本，最理想。
+3. **弱监督。** 有少量异常标签，用于评估，不用于训练。
 
-## The Concept
+### 监督 vs 非监督
 
-### Types of Anomalies
+- 监督方法：精度高、可解释性强、但依赖标签覆盖度。
+- 非监督方法：能覆盖新异常类型，部署早期更稳，但误报会更多。
 
-Not all anomalies are the same:
+### Z-score 方法
 
-- **Point anomalies.** A single data point that is unusual regardless of context. A temperature reading of 500 degrees. A transaction of $50,000 from an account that normally spends $50.
-- **Contextual anomalies.** A data point that is unusual given its context. A temperature of 90 degrees is normal in summer, anomalous in winter. Same value, different context.
-- **Collective anomalies.** A sequence of data points that is unusual as a group, even though each individual point might be normal. Five login failures is normal. Fifty in a row is a brute-force attack.
-
-Most methods detect point anomalies. Contextual anomalies need time or location features. Collective anomalies need sequence-aware methods.
-
-```mermaid
-flowchart TD
-    A[Anomaly Types] --> B[Point Anomaly]
-    A --> C[Contextual Anomaly]
-    A --> D[Collective Anomaly]
-
-    B --> B1["Single unusual value<br/>Temperature: 500F"]
-    C --> C1["Unusual in context<br/>90F in January"]
-    D --> D1["Unusual sequence<br/>50 failed logins"]
-
-    style B fill:#fdd,stroke:#333
-    style C fill:#ffd,stroke:#333
-    style D fill:#fdf,stroke:#333
-```
-
-### The Unsupervised Framing
-
-In standard classification, you have labels for both classes. In anomaly detection, you typically have one of three situations:
-
-1. **Fully unsupervised.** No labels at all. You fit the detector on all data and hope anomalies are rare enough not to corrupt the "normal" model.
-2. **Semi-supervised.** You have a clean dataset of normal data only. You fit on this clean set and score everything else. This is the strongest setup when possible.
-3. **Weakly supervised.** You have a few labeled anomalies. Use them for evaluation, not training. Train unsupervised, then measure precision/recall on the labeled subset.
-
-The key insight: anomaly detection is fundamentally different from classification. You are modeling the distribution of normal data, not the decision boundary between two classes.
-
-### Supervised vs Unsupervised: The Tradeoff
-
-If you do have labeled anomalies, should you use them for training (supervised classification) or for evaluation only (unsupervised detection)?
-
-**Supervised (treat as classification):**
-- Catches the exact types of anomalies you have seen before
-- Higher precision on known anomaly types
-- Misses novel anomaly types entirely
-- Requires retraining when new anomaly types emerge
-- Needs enough anomaly examples (often too few)
-
-**Unsupervised (model normal, flag deviations):**
-- Catches any deviation from normal, including novel types
-- Does not require labeled anomalies
-- Higher false positive rate (not everything unusual is bad)
-- More robust to distribution shift
-
-In practice, the best systems combine both: unsupervised detection for broad coverage, supervised models for known high-priority anomaly types, and human review for ambiguous cases.
-
-### Z-Score Method
-
-The simplest approach. Compute the mean and standard deviation of each feature. Flag any point more than k standard deviations from the mean.
+若数据近似正态，异常分数可用标准分：
 
 ```text
-z_score = (x - mean) / std
-anomaly if |z_score| > threshold
+z = (x - mean) / std
 ```
 
-The default threshold is 3.0 (99.7% of normal data falls within 3 standard deviations for a Gaussian distribution).
+`|z| > 3` 常用为异常阈值。它假设“尾部行为”接近高斯，不适合重尾分布。
 
-**Strengths:** Simple. Fast. Interpretable ("this value is 4.5 standard deviations from normal").
+### IQR 方法
 
-**Weaknesses:** Assumes data is normally distributed. Sensitive to outliers in the training data (the outliers shift the mean and inflate the std, making them harder to detect). Fails on multimodal distributions.
+四分位间距更稳健：
 
-**When it works well:** Single-feature monitoring where data is roughly bell-shaped. Server response times, manufacturing tolerances, sensor readings with stable baselines.
-
-**When it fails:** Multi-cluster data (two office locations with different baseline temperatures), skewed data (transaction amounts where $1000 is rare but not anomalous), data with outliers in the training set.
-
-### IQR Method
-
-More robust than Z-score. Uses the interquartile range instead of mean and standard deviation.
-
-```
-Q1 = 25th percentile
-Q3 = 75th percentile
+```text
 IQR = Q3 - Q1
-lower_bound = Q1 - factor * IQR
-upper_bound = Q3 + factor * IQR
-anomaly if x < lower_bound or x > upper_bound
+Lower = Q1 - 1.5 * IQR
+Upper = Q3 + 1.5 * IQR
 ```
 
-The default factor is 1.5.
-
-**Strengths:** Robust to outliers (percentiles are not affected by extreme values). Works on skewed distributions. No normality assumption.
-
-**Weaknesses:** Univariate only (applies per feature independently). Cannot detect anomalies that are unusual only when features are considered together (a point might be normal in each feature individually but anomalous in the joint space).
-
-**Practical note:** The 1.5 factor in IQR corresponds to the whiskers in a box plot. Points outside the whiskers are potential outliers. Using 3.0 instead of 1.5 makes the detector more conservative (fewer flags, fewer false positives). The right factor depends on your tolerance for false alarms.
+超出区间的点可疑。对重尾分布更友好，不受极端值太大影响。
 
 ### Isolation Forest
 
-The key insight: anomalies are few and different. In a random partitioning of the data, anomalies are easier to isolate -- they need fewer random splits to be separated from the rest.
+异常点在树结构上更容易被“孤立”：
 
-```mermaid
-flowchart TD
-    A[All Data Points] --> B{Random Feature + Random Split}
-    B --> C[Left Partition]
-    B --> D[Right Partition]
-    C --> E{Random Feature + Random Split}
-    E --> F[Normal Point - deep in tree]
-    E --> G[More splits needed...]
-    D --> H["Anomaly - isolated quickly (short path)"]
+1. 随机采样子样本
+2. 随机选特征和分割阈值
+3. 随机构建树
 
-    style H fill:#fdd,stroke:#333
-    style F fill:#dfd,stroke:#333
-```
+少量分裂就能孤立的点，异常分数高。
 
-**How it works:**
-1. Build many random trees (an isolation forest)
-2. At each node, pick a random feature and a random split value between the feature's min and max
-3. Keep splitting until every point is isolated (in its own leaf)
-4. Anomalies have shorter average path lengths across all trees
+### LOF（局部离群因子）
 
-**Why it works:** Normal points live in dense regions. Many random splits are needed to isolate one from its neighbors. Anomalies live in sparse regions. One or two random splits are enough to isolate them.
+LOF 比较每个样本与其 k 近邻的距离密度。局部稀疏区域中的点可能是异常。
 
-The anomaly score is based on the average path length across all trees, normalized by the expected path length of a random binary search tree:
+### 方法对比
 
-```
-score(x) = 2^(-average_path_length(x) / c(n))
-```
+| 方法 | 优点 | 局限 |
+|---|---|---|
+| Z-score | 实现简单，快 | 强假设分布 |
+| IQR | 稳健，易解释 | 一维效果更好，多维难直接扩展 |
+| Isolation Forest | 适配高维，覆盖面广 | 结果解释不如统计阈值直观 |
+| LOF | 能捕捉局部模式 | 计算成本较高，参数敏感 |
 
-Where `c(n)` is the expected path length for n samples. Score near 1 means anomaly. Score near 0.5 means normal. Score near 0 means very normal (deep in dense clusters).
+### 评估难点
 
-**Strengths:** No distribution assumptions. Works in high dimensions. Scales well (sublinear in sample size because each tree uses a subsample). Handles mixed feature types.
+异常检测评估常见困境：
 
-**Weaknesses:** Struggles with anomalies in dense regions (masking effect). Random splitting is less effective when many features are irrelevant.
+- 类别不平衡导致 accuracy 无意义
+- 阈值选择影响很大
+- 误报/漏报成本通常不对称
 
-**Key hyperparameters:**
-- `n_estimators`: Number of trees. 100 is usually enough. More trees give more stable scores but slower computation.
-- `max_samples`: Number of samples per tree. 256 is the default in the original paper. Smaller values make individual trees less accurate but increase diversity. The subsampling is what makes Isolation Forest fast -- each tree sees a small fraction of the data.
-- `contamination`: Expected fraction of anomalies. Used only for setting the threshold. Does not affect the scores themselves.
+通常报告：
+- ROC / PR 曲线
+- 精度 / 召回（更看重召回）
+- 告警率、平均响应时间
 
-### Local Outlier Factor (LOF)
-
-LOF compares the local density around a point to the density around its neighbors. A point in a sparse region surrounded by dense regions is anomalous.
-
-**How it works:**
-1. For each point, find its k nearest neighbors
-2. Compute the local reachability density (how dense is the neighborhood)
-3. Compare each point's density to its neighbors' densities
-4. If a point has much lower density than its neighbors, it is an outlier
-
-**LOF score:**
-- LOF close to 1.0 means similar density as neighbors (normal)
-- LOF greater than 1.0 means lower density than neighbors (potentially anomalous)
-- LOF much greater than 1.0 (e.g., 2.0+) means significantly lower density (likely anomaly)
-
-The "local" part is critical. Consider a dataset with two clusters: a dense cluster of 1000 points and a sparse cluster of 50 points. A point on the edge of the sparse cluster is not globally unusual -- it has 50 neighbors. But it is locally unusual if its immediate neighbors are denser than it is. LOF captures this nuance that global methods miss.
-
-**Strengths:** Detects local anomalies (points that are unusual in their neighborhood, even if they are not globally unusual). Works on clusters of different densities.
-
-**Weaknesses:** Slow on large datasets (O(n^2) for naive implementation). Sensitive to the choice of k. Does not work well in very high dimensions (curse of dimensionality affects distance calculations).
-
-### Comparison
-
-| Method | Assumptions | Speed | Handles High Dims | Detects Local Anomalies |
-|--------|------------|-------|-------------------|------------------------|
-| Z-score | Normal distribution | Very fast | Yes (per feature) | No |
-| IQR | None (per feature) | Very fast | Yes (per feature) | No |
-| Isolation Forest | None | Fast | Yes | Partially |
-| LOF | Distance is meaningful | Slow | Poorly | Yes |
-
-### Evaluation Challenges
-
-Evaluating anomaly detectors is harder than evaluating classifiers:
-
-- **Extreme class imbalance.** With 0.1% anomalies, predicting "normal" for everything gives 99.9% accuracy. Accuracy is useless.
-- **AUROC is misleading.** With heavy imbalance, AUROC can look good even when the model misses most anomalies at practical thresholds.
-- **Better metrics:** Precision@k (of the top k flagged items, how many are real anomalies), AUPRC (area under precision-recall curve), and recall at a fixed false positive rate.
+### 异常检测流水线
 
 ```mermaid
 flowchart LR
-    A[Raw Data] --> B[Train on Normal Data Only]
-    B --> C[Score All Test Data]
-    C --> D[Rank by Anomaly Score]
-    D --> E[Evaluate Top-K Flagged Items]
-    E --> F[Precision at K / AUPRC]
-
-    style A fill:#f9f,stroke:#333
-    style F fill:#9f9,stroke:#333
+    A[采集时间序列/日志] --> B[清洗与归一化]
+    B --> C[选择方法（Z/IQR/IF/LOF）]
+    C --> D[生成异常分数]
+    D --> E[阈值搜索]
+    E --> F[告警 + 回溯分析]
 ```
 
-### Anomaly Detection Pipeline
+## 代码实现
 
-In practice, anomaly detection follows this workflow:
-
-1. **Collect baseline data.** Ideally, a period where you know there are no (or very few) anomalies.
-2. **Feature engineering.** Raw features plus derived features (rolling statistics, time features, ratios).
-3. **Train the detector.** Fit on the baseline data. The model learns what "normal" looks like.
-4. **Score new data.** Each new observation gets an anomaly score.
-5. **Threshold selection.** Choose the score cutoff. This is a business decision: higher threshold means fewer false alarms but more missed anomalies.
-6. **Alert and investigate.** Flagged points go to human review or automated response.
-7. **Feedback collection.** Record whether flagged items were true anomalies or false alarms. Use this data to evaluate the detector and tune the threshold over time.
-
-The pipeline is never "done." Data distributions shift, new anomaly types emerge, and thresholds need adjustment. Treat anomaly detection as a living system, not a one-time model.
-
-## Build It
-
-The code in `code/anomaly_detection.py` implements Z-score, IQR, and Isolation Forest from scratch.
-
-### Z-Score Detector
+### Z-score 检测器
 
 ```python
-def zscore_detect(X, threshold=3.0):
-    mean = X.mean(axis=0)
-    std = X.std(axis=0)
-    std[std == 0] = 1.0
-    z = np.abs((X - mean) / std)
-    return z.max(axis=1) > threshold
+def detect_zscore(x, threshold=3.0):
+    mu = mean(x)
+    sigma = std(x)
+    z = (x - mu) / (sigma + 1e-9)
+    return abs(z) > threshold
 ```
 
-Simple and vectorized. Flags a point if any feature exceeds the threshold.
-
-### IQR Detector
+### IQR 检测器
 
 ```python
-def iqr_detect(X, factor=1.5):
-    q1 = np.percentile(X, 25, axis=0)
-    q3 = np.percentile(X, 75, axis=0)
-    iqr = q3 - q1
-    iqr[iqr == 0] = 1.0
-    lower = q1 - factor * iqr
-    upper = q3 + factor * iqr
-    outside = (X < lower) | (X > upper)
-    return outside.any(axis=1)
+q1, q3 = np.percentile(x, [25, 75])
+iqr = q3 - q1
+low, high = q1 - 1.5*iqr, q3 + 1.5*iqr
+return (x < low) | (x > high)
 ```
 
-### Isolation Forest from Scratch
+### Isolation Forest 从零实现
 
-The from-scratch implementation builds isolation trees that randomly partition the feature space:
+通过随机树路径长度近似异常性：
 
 ```python
-class IsolationTree:
-    def __init__(self, max_depth):
-        self.max_depth = max_depth
-
-    def fit(self, X, depth=0):
-        n, p = X.shape
-        if depth >= self.max_depth or n <= 1:
-            self.is_leaf = True
-            self.size = n
-            return self
-        self.is_leaf = False
-        self.feature = np.random.randint(p)
-        x_min = X[:, self.feature].min()
-        x_max = X[:, self.feature].max()
-        if x_min == x_max:
-            self.is_leaf = True
-            self.size = n
-            return self
-        self.threshold = np.random.uniform(x_min, x_max)
-        left_mask = X[:, self.feature] < self.threshold
-        self.left = IsolationTree(self.max_depth).fit(X[left_mask], depth + 1)
-        self.right = IsolationTree(self.max_depth).fit(X[~left_mask], depth + 1)
-        return self
+# 仅示意：真实实现省略建树细节
+score = mean([path_length(sample) for tree in forest])
+anomaly = score < threshold
 ```
 
-The path length to isolate a point determines its anomaly score. Shorter paths mean more anomalous.
+### 场景演示
 
-The `IsolationForest` class wraps multiple trees:
+演示三类场景：
 
-```python
-class IsolationForest:
-    def __init__(self, n_estimators=100, max_samples=256, seed=42):
-        self.n_estimators = n_estimators
-        self.max_samples = max_samples
+- 单点突增（Z-score）
+- 长周期突变（IQR + 窗口）
+- 多维特征下结构性异常（IF/LOF）
 
-    def fit(self, X):
-        sample_size = min(self.max_samples, X.shape[0])
-        max_depth = int(np.ceil(np.log2(sample_size)))
-        for _ in range(self.n_estimators):
-            idx = rng.choice(X.shape[0], size=sample_size, replace=False)
-            tree = IsolationTree(max_depth=max_depth)
-            tree.fit(X[idx])
-            self.trees.append(tree)
+## 工程实践
 
-    def anomaly_score(self, X):
-        avg_path = average path length across all trees
-        scores = 2.0 ** (-avg_path / c(max_samples))
-        return scores
-```
+### sklearn 的 contamination 参数
 
-The normalization factor `c(n)` is the expected path length of an unsuccessful search in a binary search tree with n elements. It equals `2 * H(n-1) - 2*(n-1)/n` where `H` is the harmonic number. This normalization ensures scores are comparable across datasets of different sizes.
-
-### Demo Scenarios
-
-The code generates multiple test scenarios:
-
-1. **Single cluster with outliers.** A 2D Gaussian cluster with anomalies injected far from the center. All methods should work here.
-2. **Multimodal data.** Three clusters of different sizes and densities. Points between clusters are anomalous. Z-score struggles because the per-feature ranges are wide.
-3. **High-dimensional data.** 50 features, but anomalies differ in only 5 of them. Tests whether methods can find anomalies in a subset of features.
-
-Each demo compares all methods using precision, recall, F1, and Precision@k.
-
-## Use It
-
-With sklearn (using library implementations, not from-scratch):
-
-```python
-from sklearn.ensemble import IsolationForest
-from sklearn.neighbors import LocalOutlierFactor
-
-iso = IsolationForest(n_estimators=100, contamination=0.05, random_state=42)
-iso.fit(X_train)
-predictions = iso.predict(X_test)
-
-lof = LocalOutlierFactor(n_neighbors=20, contamination=0.05, novelty=True)
-lof.fit(X_train)
-predictions = lof.predict(X_test)
-```
-
-Note `contamination` sets the expected fraction of anomalies. Setting it correctly matters -- too low misses anomalies, too high creates false alarms.
-
-The code in `anomaly_detection.py` compares from-scratch implementations against sklearn on the same data.
-
-### sklearn Contamination Parameter
-
-The `contamination` parameter in sklearn determines the threshold for converting continuous anomaly scores into binary predictions. It does not change the underlying scores.
-
-```python
-iso_5 = IsolationForest(contamination=0.05)
-iso_10 = IsolationForest(contamination=0.10)
-```
-
-Both produce the same anomaly scores. But `iso_5` flags the top 5% while `iso_10` flags the top 10%. If you do not know the true anomaly rate (you usually do not), set contamination to "auto" and work with the raw scores directly. Set your own threshold based on the cost tradeoff between false positives and false negatives.
+在 `IsolationForest` 中可设置 `contamination` 作为期望异常比例，影响阈值。
 
 ### One-Class SVM
 
-Another unsupervised anomaly detector worth knowing. One-Class SVM fits a boundary around normal data in a high-dimensional feature space (using the kernel trick).
+它学习“正常类边界”，属于核方法的异常检测：适合小数据和高维，但调参敏感。
 
-```python
-from sklearn.svm import OneClassSVM
+### 自编码器（预览）
 
-oc_svm = OneClassSVM(kernel="rbf", gamma="auto", nu=0.05)
-oc_svm.fit(X_train)
-predictions = oc_svm.predict(X_test)
+训练重构网络，重构误差大者视作异常。对复杂非线性模式有效，但训练成本高。
+
+### 异常融合
+
+组合多个方法往往更稳：
+
+```text
+final_score = 0.5*z_norm + 0.3*if_norm + 0.2*lof_norm
 ```
 
-The `nu` parameter approximates the fraction of anomalies. One-Class SVM works well on small to medium datasets but does not scale to very large data (the kernel matrix grows quadratically).
+不同方法对不同异常敏感，ensemble 可降低单点脆弱性。
 
-### Autoencoder Approach (Preview)
+### 生产部署考虑
 
-Autoencoders are neural networks that learn to compress and reconstruct data. Train on normal data. At test time, anomalies have high reconstruction error because the network learned to reconstruct normal patterns only.
+- 阈值按业务代价调（误报/漏报）
+- 冷启动阶段先“高召回、可接受误报”
+- 定期重训，避免数据漂移
 
-This is covered in Phase 3 (Deep Learning), but the principle is the same: model what is normal, flag what deviates.
+## 落地
 
-### Ensemble Anomaly Detection
+### 阈值选型
 
-Just as ensemble methods improve classification (Lesson 11), combining multiple anomaly detectors improves detection. The simplest approach:
+阈值通常不是固定经验值。应用验证集、历史告警分布、成本函数联合选取。
 
-1. Run multiple detectors (Z-score, IQR, Isolation Forest, LOF)
-2. Normalize each detector's scores to [0, 1]
-3. Average the normalized scores
-4. Flag points above the threshold on the average score
+### 扩展到生产
 
-This reduces false positives because different methods have different failure modes. A point flagged by all four methods is almost certainly anomalous. A point flagged by only one might be a quirk of that method.
+- 指标打点：每类异常、处理时延、人工复核命中率
+- 自动化回放与回溯（最近 N 天样本）
+- 与告警系统联动：自动降噪、分级告警、告警抑制窗口
 
-More sophisticated ensembles weight each detector by its estimated reliability (measured on a validation set with known anomalies, if available).
+## 练习
 
-### Production Considerations
+1. 在合成温度序列里注入点异常与连续异常，比较 Z-score 与 IQR 命中率。
+2. 用 Isolation Forest 在两维异常数据上可视化正常/异常区域。
+3. 调整 `contamination`，观察误报率和漏报率曲线。
+4. 用 LOF 对比“局部异常密度”与 Z-score 的结果差异。
+5. 建立一个“可上线”检测脚本：输入新样本实时输出异常分数和等级。
 
-1. **Threshold drift.** As data distribution shifts, a fixed threshold becomes outdated. Monitor the distribution of anomaly scores and adjust periodically.
-2. **Alert fatigue.** Too many false alarms and operators stop paying attention. Start with a high threshold (fewer, more reliable alerts) and lower it as trust builds.
-3. **Ensemble approach.** In production, combine multiple detectors. Flag a point only if multiple methods agree it is anomalous. This reduces false positives significantly.
-4. **Feature engineering.** Raw features are rarely enough. Add rolling statistics, ratios, time-since-last-event, and domain-specific features. A good feature set matters more than the choice of detector.
-5. **Feedback loop.** When operators investigate flagged items and confirm or dismiss them, feed this back into the system. Accumulate labeled data over time to evaluate and improve the detector.
+## 关键术语
 
-## Ship It
+| 术语 | 解释 |
+|---|---|
+| 假阳性 | 告警触发但实际正常 |
+| 假阴性 | 未告警但实际异常 |
+| precision | 告警中的正确率 |
+| recall | 实际异常被成功捕获率 |
+| contamination | 预期异常比例 |
+| 冷启动 | 没有历史异常标签时的模型启动阶段 |
 
-This lesson produces:
-- `outputs/skill-anomaly-detector.md` -- a decision skill for choosing the right detector
-- `code/anomaly_detection.py` -- Z-score, IQR, and Isolation Forest from scratch, with sklearn comparison
+## 延伸阅读
 
-### Choosing a Threshold
-
-The anomaly score is continuous. You need a threshold to make binary decisions. This is a business decision, not a technical one.
-
-Consider two scenarios:
-- **Fraud detection.** Missing fraud is expensive (chargebacks, customer trust). False alarms cost a human analyst 5 minutes to investigate. Set the threshold low to catch more fraud, accept more false alarms.
-- **Equipment maintenance.** A false alarm means an unnecessary shutdown costing $50,000. A missed failure means a $500,000 repair. Set the threshold to balance these costs.
-
-In both cases, the optimal threshold depends on the cost ratio between false positives and false negatives. Plot precision and recall at different thresholds, overlay the cost function, and pick the minimum-cost point.
-
-### Scaling to Production
-
-For real-time anomaly detection in production:
-
-1. **Batch training, online scoring.** Train the model periodically (daily, weekly) on recent normal data. Score each new observation as it arrives.
-2. **Feature computation must match.** If you trained with rolling statistics over 30 days, you need 30 days of history to compute features for a new observation. Buffer the required history.
-3. **Score distribution monitoring.** Track the distribution of anomaly scores over time. If the median score drifts upward, either the data is changing or the model is stale.
-4. **Explainability.** When you flag an anomaly, say why. Z-score: "Feature X is 4.2 standard deviations above normal." Isolation Forest: "This point was isolated in 3.1 splits on average (normal points take 8.5)."
-
-## Exercises
-
-1. **Threshold tuning.** Run the Z-score detector with thresholds from 1.0 to 5.0 in steps of 0.5. Plot precision and recall at each threshold. Where is the sweet spot for your data?
-
-2. **Multivariate anomalies.** Create 2D data where each feature individually looks normal, but the combination is anomalous (e.g., points far from the main cluster diagonal). Show that Z-score per feature misses these but Isolation Forest catches them.
-
-3. **LOF from scratch.** Implement Local Outlier Factor using k-nearest neighbors. Compare against sklearn's LocalOutlierFactor on the same data. Use k=10 and k=50 -- how does the choice of k affect results?
-
-4. **Streaming anomaly detection.** Modify the Z-score detector to work in a streaming setting: update the running mean and variance as new points arrive (Welford's online algorithm). Compare to batch Z-score on the same data.
-
-5. **Real-world evaluation.** Take a dataset with known anomalies (credit card fraud from Kaggle, for example). Evaluate all four methods using precision@100, precision@500, and AUPRC. Which method works best? Why?
-
-## Key Terms
-
-| Term | What people say | What it actually means |
-|------|----------------|----------------------|
-| Anomaly | "Outlier, unusual point" | A data point that deviates significantly from the expected pattern of normal data |
-| Point anomaly | "A single weird value" | An individual observation that is unusual regardless of context |
-| Contextual anomaly | "Normal value, wrong context" | An observation that is unusual given its context (time, location, etc.) but might be normal in another context |
-| Isolation Forest | "Random splits to find outliers" | An ensemble of random trees that isolates anomalies with fewer splits than normal points |
-| Local Outlier Factor | "Compare density to neighbors" | A method that flags points whose local density is much lower than their neighbors' density |
-| Z-score | "Standard deviations from mean" | (x - mean) / std, measuring how far a point is from the center in units of standard deviation |
-| IQR | "Interquartile range" | Q3 - Q1, measuring the spread of the middle 50% of data, used for robust outlier detection |
-| Contamination | "Expected fraction of anomalies" | A hyperparameter telling the detector what proportion of the data it should flag as anomalous |
-| Precision@k | "Of the top k flags, how many are real" | Precision computed on only the k most suspicious points, useful for imbalanced anomaly detection |
-| AUPRC | "Area under precision-recall curve" | A metric that summarizes precision-recall performance across all thresholds, better than AUROC for imbalanced data |
-
-## Further Reading
-
-- [Liu et al., Isolation Forest (2008)](https://cs.nju.edu.cn/zhouzh/zhouzh.files/publication/icdm08b.pdf) -- the original Isolation Forest paper
-- [Breunig et al., LOF: Identifying Density-Based Local Outliers (2000)](https://dl.acm.org/doi/10.1145/342009.335388) -- the original LOF paper
-- [scikit-learn Outlier Detection docs](https://scikit-learn.org/stable/modules/outlier_detection.html) -- overview of all sklearn anomaly detectors
-- [Chandola et al., Anomaly Detection: A Survey (2009)](https://dl.acm.org/doi/10.1145/1541880.1541882) -- comprehensive survey of anomaly detection methods
-- [Goldstein and Uchida, A Comparative Evaluation of Unsupervised Anomaly Detection Algorithms (2016)](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0152173) -- empirical comparison of 10 methods on real datasets
-
+- [scikit-learn 异常检测文档](https://scikit-learn.org/stable/modules/outlier_detection.html)
+- [PyOD 开源库](https://github.com/yzhao062/pyod)
+- [Breunig et al., LOF（2000）](https://www.dbs.ifi.lmu.de/Publikationen/Papers/LOF.pdf)
