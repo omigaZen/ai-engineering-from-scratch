@@ -45,7 +45,7 @@ Point B = (4, 5)
 
 L1 distance = |4-1| + |5-1| = 3 + 4 = 7
 
-On a grid, you walk 3 blocks east and 4 blocks north.
+在网格上，你先向东走 3 个街区，再向北走 4 个街区。
 ```
 
 何时用 L1：
