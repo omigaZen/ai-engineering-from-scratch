@@ -1,6 +1,6 @@
-# 构建您自己的迷你框架
+# 构建你自己的迷你框架
 
-> 您已经构建了神经元、层、网络、反向传播、激活、损失函数、优化器、正则化、初始化和 LR 调度。全部作为单独的部分。现在将它们连接到一个框架中。不是 PyTorch。不是 TensorFlow。你的。
+> 你已经分别实现了神经元、层、网络、反向传播、激活函数、损失函数、优化器、正则化、初始化和学习率调度。现在把它们串成一个框架。不是 PyTorch，不是 TensorFlow，而是你自己的。
 
 **类型：** 构建
 **语言：** Python
@@ -9,18 +9,18 @@
 
 ## 学习目标
 
-- 使用 Module、Linear、ReLU、Sigmoid、Dropout、BatchNorm、Sequential、损失函数、优化器和 DataLoader 构建完整的深度学习框架（约 500 行）
-- 解释模块抽象（前向、后向、参数）以及为什么需要进行训练/评估模式切换
-- 将所有组件连接到一个工作训练循环中，该循环训练 4 层网络的圆形分类
-- 将框架的每个组件映射到其 PyTorch 等效组件（nn.Module、nn.Sequential、optim.Adam、DataLoader）
+- 使用 Module、Linear、ReLU、Sigmoid、Dropout、BatchNorm、Sequential、损失函数、优化器和 DataLoader 搭出一个完整的深度学习框架（约 500 行）
+- 解释模块抽象（前向、后向、参数）以及为什么需要切换训练/评估模式
+- 把所有组件接到一个能跑通的训练循环里，完成一个 4 层网络的圆形分类任务
+- 将框架中的每个组件对应到 PyTorch 里的等价物（nn.Module、nn.Sequential、optim.Adam、DataLoader）
 
 ## 问题
 
-您有十个课程，内容涉及分散在不同文件中的构建块。这里有一个 `Value` 类，那里有一个训练循环，另一个文件中的权重初始化，另一个文件中的学习率计划。为了训练网络，您需要复制粘贴五个不同的课程，然后手动将它们连接在一起。
+你有十几节课，内容分散在不同文件里：这里是一个 `Value` 类，那里是一个训练循环，别的文件里还有权重初始化和学习率调度。要训练一个网络，你得把几节课的代码复制粘贴到一起，再手动把它们连起来。
 
-这就是框架解决的问题。 PyTorch 为您提供 `nn.Module`、`nn.Sequential`、`optim.Adam`、`DataLoader` 以及将它们联系在一起的训练循环模式。 TensorFlow 为您提供 `keras.Layer`、`keras.Sequential`、`keras.optimizers.Adam`。这些不是魔法。它们是组织模式，使定义、培训和评估网络成为可能，而无需每次都重新发明管道。
+这就是框架要解决的问题。PyTorch 给你 `nn.Module`、`nn.Sequential`、`optim.Adam`、`DataLoader`，以及把它们串起来的训练循环模式。TensorFlow 给你 `keras.Layer`、`keras.Sequential`、`keras.optimizers.Adam`。这些都不是魔法，只是组织方式，让你能定义、训练和评估网络，而不用每次都从头造一遍管道。
 
-您将用大约 500 行 Python 代码构建同样的东西。没有麻木。没有外部依赖。一个可以定义任何前馈网络、使用 SGD 或 Adam 对其进行训练、批量处理数据、应用 dropout 和批量归一化、使用任何激活以及安排学习速率的框架。完成后，您将准确理解在 PyTorch 中编写 `model = nn.Sequential(...)` 时会发生什么。您将理解为什么 `model.train()` 和 `model.eval()` 存在。您将理解为什么 `optimizer.zero_grad()` 是一个单独的调用。你会理解这一切，因为这一切都是你建造的。
+你会用大约 500 行 Python 代码做出同样的东西。没有外部依赖，没有黑箱。它可以定义任意前馈网络，用 SGD 或 Adam 训练它，批量处理数据，应用 dropout 和批量归一化，使用任意激活函数，并安排学习率。完成之后，你会准确知道在 PyTorch 里写下 `model = nn.Sequential(...)` 时发生了什么，也会知道为什么要有 `model.train()`、`model.eval()` 和单独的 `optimizer.zero_grad()`。你会真正理解这一切，因为这些东西都是你亲手搭出来的。
 
 ## 概念
 
