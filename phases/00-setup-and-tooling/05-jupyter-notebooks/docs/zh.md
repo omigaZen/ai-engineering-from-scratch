@@ -35,7 +35,7 @@ Kernel 是后台运行的 Python 进程。你执行某个 cell 时，代码会�
 graph LR
     A[Notebook UI] <--> B[Kernel\nPython process]
     B --> C[Keeps variables in memory]
-    B --> D[Runs cells in whatever order you click]
+    B --> D[按你点击的任意顺序运行单元格]
     B --> E[Dies when you restart it]
 ```
 
