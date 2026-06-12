@@ -206,7 +206,7 @@ d_M(x, y) = sqrt((x - y)^T * S^(-1) * (x - y))
 直观上，它先对数据做去相关与标准化（白化），然后在变换后的空间计算 L2。若 S 是单位矩阵（特征无相关且方差为 1），Mahalanobis 就退化为欧氏距离。
 
 ```
-Example: height and weight are correlated.
+示例：身高和体重是相关的。
 Someone 6'2" and 180 lbs is not unusual.
 Someone 5'0" and 180 lbs is unusual.
 
