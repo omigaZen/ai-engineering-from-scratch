@@ -103,8 +103,8 @@ v |R G B|R G B|R G B|                   v |G G G G G G|
                                           |B B B B B B|
                                           +-----+-----+
 
-   PIL, OpenCV, matplotlib,              PyTorch, most deep learning
-   almost every image file on disk       frameworks, cuDNN kernels
+   PIL、OpenCV、matplotlib，             PyTorch、大多数深度学习
+   磁盘上的几乎所有图像文件             框架、cuDNN 内核
 ```
 
 CHW 之所以常见于卷积，是因为卷积核沿 H、W 滑动时，通道轴放在前面可让每个核访问每个通道的连续二维平面，便于高效矢量化。磁盘格式常见 HWC，是因为它贴近扫描线输出方式。
