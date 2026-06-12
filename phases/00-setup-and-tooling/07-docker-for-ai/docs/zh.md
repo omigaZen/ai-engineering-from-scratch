@@ -58,16 +58,16 @@ graph TD
 
 ```
 Dev Container
-  Full toolkit. Editor support. Jupyter. Debugging tools.
-  Used during development and experimentation.
+  工具齐全。支持编辑器、Jupyter 和调试工具。
+  用于开发和实验。
 
 Training Container
-  Minimal. Just the training script and dependencies.
-  Runs on GPU clusters. No editor, no Jupyter.
+  极简。只有训练脚本和依赖。
+  运行在 GPU 集群上。没有编辑器，也没有 Jupyter。
 
 Inference Container
-  Optimized for serving. Small image. Fast cold start.
-  Runs behind a load balancer in production.
+  针对推理服务优化。镜像小，冷启动快。
+  生产环境中运行在负载均衡器后面。
 ```
 
 ## 动手
