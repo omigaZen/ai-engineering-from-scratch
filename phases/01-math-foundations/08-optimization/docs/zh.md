@@ -57,18 +57,18 @@ graph TD
 
 ```mermaid
 graph LR
-    subgraph TooLarge["Too Large (lr = 1.0)"]
-        A1["Step 1"] -->|overshoot| A2["Step 2"]
-        A2 -->|overshoot| A3["Step 3"]
-        A3 -->|diverging| A4["..."]
+    subgraph TooLarge["太大（lr = 1.0）"]
+        A1["第 1 步"] -->|步子太大| A2["第 2 步"]
+        A2 -->|步子太大| A3["第 3 步"]
+        A3 -->|发散| A4["..."]
     end
-    subgraph TooSmall["Too Small (lr = 0.0001)"]
-        B1["Step 1"] -->|tiny step| B2["Step 2"]
-        B2 -->|tiny step| B3["Step 3"]
-        B3 -->|10,000 steps later| B4["Minimum"]
+    subgraph TooSmall["太小（lr = 0.0001）"]
+        B1["第 1 步"] -->|步子太小| B2["第 2 步"]
+        B2 -->|步子太小| B3["第 3 步"]
+        B3 -->|1 万步之后| B4["最小值"]
     end
-    subgraph JustRight["Just Right (lr = 0.01)"]
-        C1["Start"] --> C2["..."] --> C3["Converged in ~100 steps"]
+    subgraph JustRight["刚刚好（lr = 0.01）"]
+        C1["开始"] --> C2["..."] --> C3["约 100 步收敛"]
     end
 ```
 
@@ -103,7 +103,7 @@ w = w - lr * v
 
 ```mermaid
 graph TD
-    subgraph Without["Without Momentum (zigzag, slow)"]
+    subgraph Without["没有动量（之字形，慢）"]
         W1["Start"] -->|left| W2[" "]
         W2 -->|right| W3[" "]
         W3 -->|left| W4[" "]
@@ -111,7 +111,7 @@ graph TD
         W5 -->|left| W6[" "]
         W6 --> W7["Minimum"]
     end
-    subgraph With["With Momentum (smooth, fast)"]
+    subgraph With["有动量（平滑，快）"]
         M1["Start"] --> M2[" "] --> M3[" "] --> M4["Minimum"]
     end
 ```
