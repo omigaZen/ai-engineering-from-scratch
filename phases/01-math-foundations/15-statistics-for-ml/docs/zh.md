@@ -166,7 +166,7 @@ Properties:
 Null hypothesis (H0):        the default assumption, usually "no effect"
 Alternative hypothesis (H1): what you are trying to show
 
-Example:
+示例：
   H0: Model A and Model B have the same accuracy
   H1: Model B has higher accuracy than Model A
 ```
@@ -233,7 +233,7 @@ ML 中常见配对 t 检验：同一 10 折验证里，两模型同样本、同�
 ```
 chi^2 = sum((observed - expected)^2 / expected)
 
-Example: does a language model's output distribution match the
+示例：语言模型的输出分布是否与
 training distribution across categories?
 
 Category    Observed   Expected
@@ -281,7 +281,7 @@ ML 的 A/B 和网页实验不同，模型对比有专有挑战：
 一个结果可能统计显著却实践上无意义。样本足够大时，极小差异也会显著。
 
 ```
-Example:
+示例：
   Model A accuracy: 0.9234
   Model B accuracy: 0.9237
   n = 1,000,000 test samples
