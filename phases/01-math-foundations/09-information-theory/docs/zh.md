@@ -253,9 +253,9 @@ Negative log-likelihood = -sum( log(q(y_i)) )
 区别仅在 log 的底数：
 
 ```
-log base 2   -> bits      (information theory tradition)
-log base e   -> nats      (machine learning convention)
-log base 10  -> hartleys  (rarely used)
+以 2 为底的对数  -> bits      （信息论中的传统写法）
+以 e 为底的对数  -> nats      （机器学习里的常用写法）
+以 10 为底的对数 -> hartleys  （很少使用）
 ```
 
 1 nat = 1/ln(2) bits，即 1.4427 bits。PyTorch 和 TensorFlow 默认用自然对数（nats）。
