@@ -138,7 +138,7 @@ Input:   (C_in,  H,  W)        3 x 5 x 5
 Kernel:  (C_in,  K,  K)        3 x 3 x 3 (one kernel)
 Output:  (1,     H', W')       2D map
 
-For a layer that produces C_out output channels, you stack C_out kernels:
+对于输出 `C_out` 个通道的层，你需要堆叠 `C_out` 个卷积核：
 
 Weight:  (C_out, C_in, K, K)   e.g. 64 x 3 x 3 x 3
 Output:  (C_out, H', W')       64 x 3 x 3
@@ -154,12 +154,12 @@ Parameter count: C_out * C_in * K * K + C_out   (the + C_out is biases)
 
 ```mermaid
 flowchart LR
-    X["Input<br/>(C_in, H, W)"] --> IM2COL["im2col<br/>(extract patches)"]
-    IM2COL --> COLS["Cols matrix<br/>(C_in * K * K, H_out * W_out)"]
-    W["Weight<br/>(C_out, C_in, K, K)"] --> FLAT["Flatten<br/>(C_out, C_in * K * K)"]
+    X["输入<br/>(C_in, H, W)"] --> IM2COL["im2col<br/>(提取补丁)"]
+    IM2COL --> COLS["列矩阵<br/>(C_in * K * K, H_out * W_out)"]
+    W["权重<br/>(C_out, C_in, K, K)"] --> FLAT["展平<br/>(C_out, C_in * K * K)"]
     FLAT --> MM["matmul"]
     COLS --> MM
-    MM --> OUT["Output<br/>(C_out, H_out * W_out)<br/>reshape to (C_out, H_out, W_out)"]
+    MM --> OUT["输出<br/>(C_out, H_out * W_out)<br/>重塑为 (C_out, H_out, W_out)"]
 
     style X fill:#dbeafe,stroke:#2563eb
     style W fill:#fef3c7,stroke:#d97706
