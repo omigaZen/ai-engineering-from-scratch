@@ -120,15 +120,15 @@ img_chw = img_hwc.permute(2, 0, 1)        # PyTorch tensor
 
 ```mermaid
 flowchart TB
-    subgraph HWC["HWC — pixels stored interleaved (PIL, OpenCV, JPEG)"]
+    subgraph HWC["HWC — 像素交错存储（PIL、OpenCV、JPEG）"]
         H1["row 0: R G B | R G B | R G B ..."]
         H2["row 1: R G B | R G B | R G B ..."]
         H3["row 2: R G B | R G B | R G B ..."]
     end
-    subgraph CHW["CHW — channels stored as stacked planes (PyTorch, cuDNN)"]
-        C1["plane R: entire H x W of red values"]
-        C2["plane G: entire H x W of green values"]
-        C3["plane B: entire H x W of blue values"]
+    subgraph CHW["CHW — 通道按平面堆叠存储（PyTorch、cuDNN）"]
+        C1["R 平面：整块 H x W 的红色值"]
+        C2["G 平面：整块 H x W 的绿色值"]
+        C3["B 平面：整块 H x W 的蓝色值"]
     end
     HWC -->|"transpose(2, 0, 1)"| CHW
     CHW -->|"transpose(1, 2, 0)"| HWC
