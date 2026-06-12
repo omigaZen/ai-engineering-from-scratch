@@ -1,4 +1,4 @@
-# 贝叶斯定理
+﻿# 贝叶斯定理
 
 > 概率是在描述“你预期会怎样”，贝叶斯定理是在描述“你学到了什么”。
 
@@ -63,7 +63,7 @@ P(A|B) = P(B|A) * P(A) / P(B)
 
 证据项 P(B) 起归一化作用。可用全概率公式展开：
 
-```text
+```
 P(B) = P(B|A) * P(A) + P(B|not A) * P(not A)
 ```
 
@@ -123,7 +123,7 @@ P(class | feature_1, feature_2, ..., feature_n)
 
 分母对所有类别相同，可省略，仅比较分子：
 
-```text
+```
 score(class) = P(class) * Π P(feature_i | class)
 ```
 
@@ -364,7 +364,7 @@ Beta 先验的特例：
 
 更新规则非常简单：
 
-```text
+```
 Prior:     Beta(a, b)
 Data:      s successes, f failures
 Posterior: Beta(a + s, b + f)
@@ -422,7 +422,7 @@ A/B 测试本质上就是贝叶斯推断。
 
 P(B > A) 可通过蒙特卡洛近似：
 
-```text
+```
 1. 从 Beta(51, 951) 抽 100,000 个样本 -> samples_A
 2. 从 Beta(66, 936) 抽 100,000 个样本 -> samples_B
 3. P(B > A) = B>A 的样本比例

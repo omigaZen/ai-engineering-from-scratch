@@ -45,7 +45,7 @@
         "Wasserstein 不对称，KL 对称",
         "二者都对称且等价"
       ],
-      "correct": 1,
+      "correct": 3,
       "explanation": "Wasserstein 是真距离，分布不重叠时依然可定义并给出平滑梯度。KL 非对称且在支持集不重叠时会趋于无穷，这使得 WGAN 在稳定训练上比传统 GAN 更有优势。"
     },
     {

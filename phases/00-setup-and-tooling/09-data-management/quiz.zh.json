@@ -21,7 +21,7 @@
         "管理 Python 虚拟环境",
         "像 GitHub 一样做源码版本控制"
       ],
-      "correct": 1,
+      "correct": 0,
       "explanation": "Hugging Face Hub 是模型、数据集和示例的托管平台；`datasets` 提供从 Hub 标准化加载数据的方式。"
     },
     {
