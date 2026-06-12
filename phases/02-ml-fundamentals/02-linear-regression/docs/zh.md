@@ -1,26 +1,26 @@
-# 线性回�?
+﻿# 线性回�?
 
-> 线性回归在数据中找一条最贴近的直线。它是机器学习里的“Hello World”�?
+> 线性回归在数据中找一条最贴近的直线。它是机器学习里的“Hello World”�?
 
-**类型�?* Build
-**语言�?* Python
-**先修课程�?* 第一阶段（线性代数、微积分、优化）、第二阶段课�?1
-**时长�?* ~90 分钟
+**类型�?* Build
+**语言�?* Python
+**先修课程�?* 第一阶段（线性代数、微积分、优化）、第二阶段课�?1
+**时长�?* ~90 分钟
 
 ## 学习目标
 
-- 从头推导均方误差的梯度下降更新公式，并实现线性回�?
+- 从头推导均方误差的梯度下降更新公式，并实现线性回�?
 - 比较梯度下降与正规方程在复杂度与适用场景上的差异
 - 构建带有特征标准化的多元线性回归，并解读得到的权重
-- 解释岭回归（L2 正则化）如何通过惩罚大权重来抑制过拟�?
+- 解释岭回归（L2 正则化）如何通过惩罚大权重来抑制过拟�?
 
 ## 问题
 
-现在你有一组数据：房屋面积和对应售价。你想根据面积预测一栋新房的售价。你可以在散点图上“猜”一条线，但你需要的是一个公式。你需要一条最能贴合数据的直线，这样就能把任意面积代入后得到价格预测�?
+现在你有一组数据：房屋面积和对应售价。你想根据面积预测一栋新房的售价。你可以在散点图上“猜”一条线，但你需要的是一个公式。你需要一条最能贴合数据的直线，这样就能把任意面积代入后得到价格预测�?
 
-线性回归就是做这件事的。更重要的是，它把完整的机器学习训练闭环讲透了：先定义模型，再定义代价函数，再优化参数。每个机器学习算法都遵循这个模式。我们先从最简单的情况掌握它，后续你会在很多地方看到同样的结构�?
+线性回归就是做这件事的。更重要的是，它把完整的机器学习训练闭环讲透了：先定义模型，再定义代价函数，再优化参数。每个机器学习算法都遵循这个模式。我们先从最简单的情况掌握它，后续你会在很多地方看到同样的结构�?
 
-它不仅适用于简单题。线性回归在生产系统里也大量使用，例如需求预测、A/B 检验分析、金融建模，以及作为各种回归任务的基线�?
+它不仅适用于简单题。线性回归在生产系统里也大量使用，例如需求预测、A/B 检验分析、金融建模，以及作为各种回归任务的基线�?
 
 ## 概念
 
@@ -32,8 +32,8 @@
 y = wx + b
 ```
 
-- `w`（权�?斜率）：x 增加 1 �?y 的变化量
-- `b`（偏�?截距）：x = 0 时的 y �?
+- `w`（权�?斜率）：x 增加 1 �?y 的变化量
+- `b`（偏�?截距）：x = 0 时的 y �?
 
 对于多个输入（特征），可扩展为：
 
@@ -43,7 +43,7 @@ y = w1*x1 + w2*x2 + ... + wn*xn + b
 
 也可以写成向量形式：`y = w^T * x + b`
 
-目标是找�?w �?b 的取值，使得预测�?y 与真实�?y 在所有训练样本上尽可能接近�?
+目标是找�?w �?b 的取值，使得预测�?y 与真实�?y 在所有训练样本上尽可能接近�?
 
 ### 代价函数（均方误差）
 
@@ -53,13 +53,13 @@ y = w1*x1 + w2*x2 + ... + wn*xn + b
 MSE = (1/n) * sum((y_predicted - y_actual)^2)
 ```
 
-为什么要平方？有两个原因。第一，平方会放大大误差的惩罚（误差为 10 的惩罚是 100，而不�?10）；第二，平方函数在整个定义域光滑可导，优化更顺手�?
+为什么要平方？有两个原因。第一，平方会放大大误差的惩罚（误差为 10 的惩罚是 100，而不�?10）；第二，平方函数在整个定义域光滑可导，优化更顺手�?
 
-代价函数会形成一张曲面。对单个权重 w 和偏�?b 来说，MSE 曲面像一个碗（凸抛物面）。碗底是 MSE 的最小点。训练就是要找到这个底部�?
+代价函数会形成一张曲面。对单个权重 w 和偏�?b 来说，MSE 曲面像一个碗（凸抛物面）。碗底是 MSE 的最小点。训练就是要找到这个底部�?
 
 ### 梯度下降
 
-梯度下降通过沿着“下坡方向”逐步前进来找到碗底�?
+梯度下降通过沿着“下坡方向”逐步前进来找到碗底�?
 
 ```mermaid
 flowchart TD
@@ -72,25 +72,25 @@ flowchart TD
     F -->|Yes| G[Done: optimal w and b found]
 ```
 
-梯度告诉你两件事：每个参数该往哪个方向走、以及步幅大小�?
+梯度告诉你两件事：每个参数该往哪个方向走、以及步幅大小�?
 
-�?y_hat = wx + b �?MSE，梯度为�?
+�?y_hat = wx + b �?MSE，梯度为�?
 
 ```
 dMSE/dw = (2/n) * sum((y_hat - y) * x)
 dMSE/db = (2/n) * sum(y_hat - y)
 ```
 
-更新规则如下�?
+更新规则如下�?
 
 ```
 w = w - learning_rate * dMSE/dw
 b = b - learning_rate * dMSE/db
 ```
 
-学习率控制步长。太大：会跨过最小值并发散。太小：训练会很慢。常见起始值有 0.01�?.001�?.0001�?
+学习率控制步长。太大：会跨过最小值并发散。太小：训练会很慢。常见起始值有 0.01�?.001�?.0001�?
 
-### 正规方程（闭式解�?
+### 正规方程（闭式解�?
 
 对线性回归来说，存在一个直接公式可以直接得到最优权重，不需要迭代：
 
@@ -98,9 +98,9 @@ b = b - learning_rate * dMSE/db
 w = (X^T * X)^(-1) * X^T * y
 ```
 
-这个公式通过矩阵求逆一步得到答案。对于小数据集它非常有效；但在大规模数据（百万行、上千特征）下，梯度下降更常用，因为矩阵求逆在特征数上�?O(n^3)�?
+这个公式通过矩阵求逆一步得到答案。对于小数据集它非常有效；但在大规模数据（百万行、上千特征）下，梯度下降更常用，因为矩阵求逆在特征数上�?O(n^3)�?
 
-### 多元线性回�?
+### 多元线性回�?
 
 有多个特征时，模型变为：
 
@@ -108,11 +108,11 @@ w = (X^T * X)^(-1) * X^T * y
 y = w1*x1 + w2*x2 + ... + wn*xn + b
 ```
 
-逻辑仍然一致：代价函数仍是 MSE，梯度下降同时更新全部权重。唯一不同的是你拟合的是超平面，而不是一条线�?
+逻辑仍然一致：代价函数仍是 MSE，梯度下降同时更新全部权重。唯一不同的是你拟合的是超平面，而不是一条线�?
 
-特征缩放在这里很关键。如果一个特征范围是 0~1，另一个是 0~1,000,000，梯度下降会很难收敛，因为代价曲面会拉得很长。训练前先标准化特征（减均值再除以标准差）�?
+特征缩放在这里很关键。如果一个特征范围是 0~1，另一个是 0~1,000,000，梯度下降会很难收敛，因为代价曲面会拉得很长。训练前先标准化特征（减均值再除以标准差）�?
 
-### 多项式回�?
+### 多项式回�?
 
 如果关系不是线性的，仍可以通过构造多项式特征来用线性回归：
 
@@ -120,40 +120,40 @@ y = w1*x1 + w2*x2 + ... + wn*xn + b
 y = w1*x + w2*x^2 + w3*x^3 + b
 ```
 
-这仍是“线性”回归，因为模型对权重（w1, w2, w3）是线性的，只是对 x 使用了非线性特征�?
+这仍是“线性”回归，因为模型对权重（w1, w2, w3）是线性的，只是对 x 使用了非线性特征�?
 
-更高阶多项式能拟合更复杂的曲线，但会更容易过拟合。一�?10 点数据集上的 10 次多项式会穿过每个点，却可能在新数据上预测很差�?
+更高阶多项式能拟合更复杂的曲线，但会更容易过拟合。一�?10 点数据集上的 10 次多项式会穿过每个点，却可能在新数据上预测很差�?
 
-### 决定系数（R-Squared�?
+### 决定系数（R-Squared�?
 
-MSE 告诉你误差有多大，但它依�?y 的量纲。R 平方（R^2）提供了与尺度无关的指标�?
+MSE 告诉你误差有多大，但它依�?y 的量纲。R 平方（R^2）提供了与尺度无关的指标�?
 
 ```
 R^2 = 1 - (sum of squared residuals) / (sum of squared deviations from mean)
     = 1 - SS_res / SS_tot
 ```
 
-- R^2 = 1.0：完美拟�?
-- R^2 = 0.0：模型效果不如每次都预测均�?
-- R^2 < 0.0：模型比“总是预测均值”还�?
+- R^2 = 1.0：完美拟�?
+- R^2 = 0.0：模型效果不如每次都预测均�?
+- R^2 < 0.0：模型比“总是预测均值”还�?
 
 ### 正则化预览（岭回归）
 
-当特征很多时，模型可能通过赋予很大权重来过拟合。岭回归（L2 正则化）会加一个惩罚项�?
+当特征很多时，模型可能通过赋予很大权重来过拟合。岭回归（L2 正则化）会加一个惩罚项�?
 
 ```
 Cost = MSE + lambda * sum(w_i^2)
 ```
 
-这个惩罚项会抑制权重过大。超参数 lambda 决定权衡强度：lambda 越大，权重更小、正则化更强。这个内容将在后续课程详细讲解。现在先知道它的作用和原因�?
+这个惩罚项会抑制权重过大。超参数 lambda 决定权衡强度：lambda 越大，权重更小、正则化更强。这个内容将在后续课程详细讲解。现在先知道它的作用和原因�?
 
 ```figure
 linear-regression-fit
 ```
 
-## 动手�?
+## 动手�?
 
-### 步骤 1：生成示例数�?
+### 步骤 1：生成示例数�?
 
 ```python
 import random
@@ -168,12 +168,12 @@ N_SAMPLES = 100
 X = [random.uniform(0, 10) for _ in range(N_SAMPLES)]
 y = [TRUE_W * x + TRUE_B + random.gauss(0, 2.0) for x in X]
 
-print(f"������ {N_SAMPLES} ������")
-print(f"��ʵ��ϵ��y = {TRUE_W}x + {TRUE_B}��+ ������")
-print(f"ǰ 5 ���㣺{[(round(X[i], 2), round(y[i], 2)) for i in range(5)]}")
+print(f"������ {N_SAMPLES} ������")
+print(f"��ʵ��ϵ��y = {TRUE_W}x + {TRUE_B}��+ ������")
+print(f"ǰ 5 ���㣺{[(round(X[i], 2), round(y[i], 2)) for i in range(5)]}")
 ```
 
-### 步骤 2：用梯度下降从头实现线性回�?
+### 步骤 2：用梯度下降从头实现线性回�?
 
 ```python
 class LinearRegression:
@@ -218,7 +218,7 @@ class LinearRegression:
         return 1 - (ss_res / ss_tot)
 
 
-print("=== 训练线性回归（梯度下降�?===")
+print("=== 训练线性回归（梯度下降�?===")
 model = LinearRegression(learning_rate=0.005)
 model.fit(X, y, epochs=1000, print_every=200)
 print(f"\nLearned: y = {model.w:.4f}x + {model.b:.4f}")
@@ -226,7 +226,7 @@ print(f"True:    y = {TRUE_W}x + {TRUE_B}")
 print(f"R-squared: {model.r_squared(X, y):.4f}")
 ```
 
-### 步骤 3：用正规方程（闭式解�?
+### 步骤 3：用正规方程（闭式解�?
 
 ```python
 class LinearRegressionNormal:
@@ -255,14 +255,14 @@ class LinearRegressionNormal:
         return 1 - (ss_res / ss_tot)
 
 
-print("\n=== 正规方程（闭式解�?===")
+print("\n=== 正规方程（闭式解�?===")
 model_normal = LinearRegressionNormal()
 model_normal.fit(X, y)
 print(f"Learned: y = {model_normal.w:.4f}x + {model_normal.b:.4f}")
 print(f"R-squared: {model_normal.r_squared(X, y):.4f}")
 ```
 
-### 步骤 4：多元线性回�?
+### 步骤 4：多元线性回�?
 
 ```python
 class MultipleLinearRegression:
@@ -415,8 +415,8 @@ poly5 = PolynomialRegression(degree=5, learning_rate=0.1)
 poly5.fit(X_poly_norm, y_poly_norm, epochs=2000, print_every=500)
 print(f"  R-squared: {poly5.r_squared(X_poly_norm, y_poly_norm):.4f}")
 
-print("\n2 次多项式对真实曲线拟合得很好�? 次多项式对训练数据略好一�?)
-print("但在新数据上更容易过拟合�?)
+print("\n2 次多项式对真实曲线拟合得很好�? 次多项式对训练数据略好一�?)
+print("但在新数据上更容易过拟合�?)
 ```
 
 ### 步骤 6：岭回归（L2 正则化）
@@ -456,17 +456,17 @@ class RidgeRegression:
 
 
 print("\n=== Ridge Regression (L2 Regularization) ===")
-print("���Ԫ�ع���ͬ�����ݣ��� alpha=0.1")
+print("���Ԫ�ع���ͬ�����ݣ��� alpha=0.1")
 ridge = RidgeRegression(n_features=3, learning_rate=0.01, alpha=0.1)
 ridge.fit(X_scaled, y_scaled, epochs=1000, print_every=200)
 print(f"\nRidge weights: {[round(w, 4) for w in ridge.weights]}")
 print(f"Plain weights: {[round(w, 4) for w in multi_model.weights]}")
-print("���� L2 �ͷ���Ridge Ȩ�ػ��С���� 0 ��������")
+print("���� L2 �ͷ���Ridge Ȩ�ػ��С���� 0 ��������")
 ```
 
 ## 应用
 
-现在我们再看一遍用 scikit-learn 来做实际工程里常用的方式�?
+现在我们再看一遍用 scikit-learn 来做实际工程里常用的方式�?
 
 ```python
 from sklearn.linear_model import LinearRegression as SklearnLR
@@ -510,39 +510,40 @@ print(f"Ridge R-squared: {r2_score(y_test, ridge.predict(X_test_scaled)):.4f}")
 print(f"Ridge coefficient: {ridge.coef_[0]:.4f}")
 ```
 
-从头实现�?scikit-learn 的输出应当一致。不同的是，scikit-learn 会处理更多边界条件、数值稳定性和性能优化问题。工程里用库，理解原理时用从头实现�?
+从头实现�?scikit-learn 的输出应当一致。不同的是，scikit-learn 会处理更多边界条件、数值稳定性和性能优化问题。工程里用库，理解原理时用从头实现�?
 
 ## 输出
 
-本节产出�?
+本节产出�?
 - `outputs/skill-regression.md`：一份用于选择合适回归方法的 skill
 
 ## 练习
 
-1. 实现批量梯度下降、随机梯度下降（SGD）和小批量梯度下降，并在同一数据集上比较收敛速度。谁最快？谁最平滑�?
-2. 生成三次函数数据（y = ax^3 + bx^2 + cx + d + noise）。分别拟�?1�?�?0 次多项式，比较训练集和测试集上的 R^2。过拟合从几阶开始明显？
-3. 实现 Lasso 回归（L1 正则化：penalty = alpha * sum(|w_i|)）。在同一多特征房价数据上训练，比较哪些权重会变为 0。为什�?L1 会产生稀疏解，�?L2 不会�?
+1. 实现批量梯度下降、随机梯度下降（SGD）和小批量梯度下降，并在同一数据集上比较收敛速度。谁最快？谁最平滑�?
+2. 生成三次函数数据（y = ax^3 + bx^2 + cx + d + noise）。分别拟�?1�?�?0 次多项式，比较训练集和测试集上的 R^2。过拟合从几阶开始明显？
+3. 实现 Lasso 回归（L1 正则化：penalty = alpha * sum(|w_i|)）。在同一多特征房价数据上训练，比较哪些权重会变为 0。为什�?L1 会产生稀疏解，�?L2 不会�?
 
-## 关键�?
+## 关键�?
 
 | 术语 | 常见表述 | 实际含义 |
 |------|---------|---------|
-| Linear regression（线性回归） | “画一条线穿过数据�?| 找到权重 w 与偏�?b，使 wx+b 与真�?y 的平方误差和最�?|
-| Cost function（代价函数） | “模型有多坏�?| 把参数映射为一个标量，表示预测误差，优化时要最小化 |
-| Mean squared error（均方误差） | “误差平方的平均值�?| (1/n) * sum((predicted - actual)^2)，对大误差惩罚更�?|
-| Gradient descent（梯度下降） | “往下坡走�?| 利用偏导数沿着减小代价的方向迭代更新参�?|
-| Learning rate（学习率�?| “步长�?| 每次梯度更新中参数变化的比例 |
-| Normal equation（正规方程） | “直接算出来�?| 闭式�?w = (X^T X)^-1 X^T y，无需迭代 |
-| R-squared（决定系数） | “拟合多好�?| 模型解释的方差占比，范围从负无穷�?1.0 |
-| Feature scaling（特征缩放） | “把特征放在同一量级�?| 把特征变换到相近范围（如零均值、单位方差）加速收�?|
-| Regularization（正则化�?| “惩罚模型复杂度�?| 在代价函数中加入惩罚项，压缩权重，降低过拟合 |
-| Ridge regression（岭回归�?| “L2 正则化�?| �?MSE 增加 lambda * sum(w_i^2) 的线性回�?|
-| Polynomial regression（多项式回归�?| “用线性回归拟合曲线�?| �?(x, x^2, x^3, ...) 等多项式特征进行线性回�?|
-| Overfitting（过拟合�?| “记住训练集�?| 模型太复杂，把训练噪声也学进去了，泛化变�?|
+| Linear regression（线性回归） | “画一条线穿过数据�?| 找到权重 w 与偏�?b，使 wx+b 与真�?y 的平方误差和最�?|
+| Cost function（代价函数） | “模型有多坏�?| 把参数映射为一个标量，表示预测误差，优化时要最小化 |
+| Mean squared error（均方误差） | “误差平方的平均值�?| (1/n) * sum((predicted - actual)^2)，对大误差惩罚更�?|
+| Gradient descent（梯度下降） | “往下坡走�?| 利用偏导数沿着减小代价的方向迭代更新参�?|
+| Learning rate（学习率�?| “步长�?| 每次梯度更新中参数变化的比例 |
+| Normal equation（正规方程） | “直接算出来�?| 闭式�?w = (X^T X)^-1 X^T y，无需迭代 |
+| R-squared（决定系数） | “拟合多好�?| 模型解释的方差占比，范围从负无穷�?1.0 |
+| Feature scaling（特征缩放） | “把特征放在同一量级�?| 把特征变换到相近范围（如零均值、单位方差）加速收�?|
+| Regularization（正则化�?| “惩罚模型复杂度�?| 在代价函数中加入惩罚项，压缩权重，降低过拟合 |
+| Ridge regression（岭回归�?| “L2 正则化�?| �?MSE 增加 lambda * sum(w_i^2) 的线性回�?|
+| Polynomial regression（多项式回归�?| “用线性回归拟合曲线�?| �?(x, x^2, x^3, ...) 等多项式特征进行线性回�?|
+| Overfitting（过拟合�?| “记住训练集�?| 模型太复杂，把训练噪声也学进去了，泛化变�?|
 
 ## 延伸阅读
 
-- [An Introduction to Statistical Learning (ISLR)](https://www.statlearning.com/) -- 免费 PDF，第三章和第六章覆盖线性回归与正则化（�?R 示例�?
+- [An Introduction to Statistical Learning (ISLR)](https://www.statlearning.com/) -- 免费 PDF，第三章和第六章覆盖线性回归与正则化（�?R 示例�?
 - [The Elements of Statistical Learning (ESL)](https://hastie.su.domains/ElemStatLearn/) -- 免费 PDF，是 ISLR 的数学化扩展，深入讲岭回归与 Lasso
-- [Stanford CS229 Lecture Notes on Linear Regression](https://cs229.stanford.edu/main_notes.pdf) -- Andrew Ng 的讲义，推导正规方程和梯度下�?
-- [scikit-learn LinearRegression documentation](https://scikit-learn.org/stable/modules/linear_model.html) -- LinearRegression、Ridge、Lasso、ElasticNet 的实战参�?
+- [Stanford CS229 Lecture Notes on Linear Regression](https://cs229.stanford.edu/main_notes.pdf) -- Andrew Ng 的讲义，推导正规方程和梯度下�?
+- [scikit-learn LinearRegression documentation](https://scikit-learn.org/stable/modules/linear_model.html) -- LinearRegression、Ridge、Lasso、ElasticNet 的实战参�?
+
