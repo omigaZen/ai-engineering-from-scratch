@@ -58,9 +58,9 @@ c = jnp.dot(a, b)
 
 一个关键的区别是：JAX 数组是不可变的。没有 `grad`。相反：`jit`。这让我感觉很尴尬一周，然后就明白了——不变性使得 `vmap`、`.grad` 和 `jax.grad` 这样的转换可以组合。
 
-### jax.grad：功能自动差异
+### jax.grad：函数自动微分
 
-PyTorch 将梯度附加到张量 (`.backward()`)。 JAX 将渐变附加到函数上。
+PyTorch 将梯度附加到张量 (`.backward()`)。 JAX 将梯度附加到函数上。
 
 ```python
 import jax
