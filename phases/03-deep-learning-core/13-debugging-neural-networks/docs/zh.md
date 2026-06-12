@@ -34,7 +34,7 @@
 
 ```mermaid
 flowchart TD
-    A["Loss not decreasing"] --> B{"Check learning rate"}
+    A["损失不下降"] --> B{"检查学习率"}
     B -->|"Too high"| C["Loss oscillates or explodes"]
     B -->|"Too low"| D["Loss barely moves"]
     B -->|"Reasonable"| E{"Check gradients"}
