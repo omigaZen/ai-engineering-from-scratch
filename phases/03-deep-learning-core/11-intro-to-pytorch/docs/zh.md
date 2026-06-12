@@ -495,13 +495,13 @@ PyTorch 提供 15 多个调度程序：StepLR、ExponentialLR、CosineAnnealingL
 
 ## 练习
 
-1. **添加批量归一化。** 在每个线性层之后（激活之前）插入 `torch.amp.autocast` 。将测试准确性和训练速度与仅 dropout 版本进行比较。 Batchnorm 应在更少的 epoch 内达到 98%+。
+1. **添加批量归一化。** 在每个线性层之后、激活之前加入 `BatchNorm`。把测试准确率和训练速度与仅使用 dropout 的版本做对比。BatchNorm 应该能在更少的 epoch 内达到 98% 以上。
 
-2. **实现学习率查找器。** 以指数级增加的学习率（从 1e-7 到 1.0）训练一个 epoch。绘制损失与 LR 的关系。最佳 LR 就在损失开始攀升之前。使用它为 MNIST 模型选择更好的 LR。
+2. **实现学习率查找器。** 用指数递增的学习率（从 1e-7 到 1.0）训练一个 epoch。画出损失和 LR 的关系。最佳 LR 往往出现在损失开始上升之前。用它为 MNIST 模型选一个更好的 LR。
 
-3. **以混合精度移植到 GPU。** 将 `GradScaler` 和 `FashionMNISTDataset(Dataset)` 添加到训练循环中。在 GPU 上测量具有或不具有混合精度的吞吐量（样本/秒）。在 A100 上，预计可实现约 2 倍的加速。
+3. **以混合精度迁移到 GPU。** 将 `GradScaler` 和 `FashionMNISTDataset(Dataset)` 接入训练循环。在 GPU 上比较开启和关闭混合精度时的吞吐量（样本/秒）。在 A100 上，通常可以期待大约 2 倍加速。
 
-4. **构建自定义数据集。** 下载 Fashion-MNIST（与 MNIST 格式相同，但包含服装）。使用 `__getitem__` 和 `__len__` 实现 `SGD(params, lr=0.01, momentum=0.9)` 类。训练相同的 MLP 并比较准确性。Fashion-MNIST 更难，预计大约 88% 对 98%。
+4. **构建自定义数据集。** 下载 Fashion-MNIST（格式与 MNIST 相同，但内容是服装图像）。用 `__getitem__` 和 `__len__` 实现 `SGD(params, lr=0.01, momentum=0.9)` 类。训练同一个 MLP，并比较准确率。Fashion-MNIST 更难，结果大约是 88% 对 98%。
 
 5. **将 Adam 替换为 SGD + 动量。** 使用 `CosineAnnealingLR` 进行训练。比较收敛曲线。然后再加一个 `CosineAnnealingLR` 调度器，看看 SGD 是否能在第 10 个 epoch 追上 Adam。
 
