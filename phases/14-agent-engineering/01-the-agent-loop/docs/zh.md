@@ -44,9 +44,9 @@ Reasoning trace 做了三件 action-only prompting 做不到的事：诱导出�
 
 ### 2026 年转向：原生推理
 
-基于 prompt 的 `Thought:` tokens 是 2022 年的权宜之计。2025-2026 年的 Responses API 体系改用原生 reasoning：模型会在单独的 channel 上输出 reasoning content，而且这个 channel 会跨 turn 传递，生产环境里跨 provider 时通常还会加密。Letta V1（`letta_v1_agent`）也弃用了旧的 `send_message` + heartbeat pattern 和显式 thought-token scheme，转而采用这种方式。
+基于 prompt 的 `Thought:` tokens 是 2022 年的权宜之计。到了 2025-2026 年，Responses API 体系改用原生 reasoning：模型会在独立 channel 中输出 reasoning content，而且这个 channel 会跨 turn 传递，生产环境里跨 provider 时通常还会加密。Letta V1（`letta_v1_agent`）也弃用了旧的 `send_message` + heartbeat pattern 和显式 thought-token scheme，转而采用这种方式。
 
-不变的是 loop 本身。Observe -> think -> act -> observe -> think -> act -> stop。无论 thought tokens 是直接打印在 transcript 里，还是放在单独字段里传递，控制流都一样。
+不变的是 loop 本身。Observe -> think -> act -> observe -> think -> act -> stop。无论 thought tokens 是直接打印在 transcript 里，还是放在单独字段里传递，控制流都不会变。
 
 ### 五个组成部分
 
