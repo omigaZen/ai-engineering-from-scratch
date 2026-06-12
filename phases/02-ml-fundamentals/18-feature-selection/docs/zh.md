@@ -195,7 +195,7 @@ flowchart LR
 ## 落地
 
 建议产出：
-- 一个可复现的 feature-selection pipeline（从生成到评估）
+- 一个可复现的特征选择流水线（从生成到评估）
 
 ## 练习
 
