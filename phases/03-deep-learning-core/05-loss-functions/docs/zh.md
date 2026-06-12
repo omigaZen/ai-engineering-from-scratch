@@ -80,18 +80,18 @@ CCE = -sum(y_i * log(p_i))
 
 ```mermaid
 graph TD
-    subgraph "MSE on Classification"
-        P1["Predict 0.5 for class 1<br/>MSE = 0.25"]
-        P2["Predict 0.9 for class 1<br/>MSE = 0.01"]
-        P3["Predict 0.1 for class 1<br/>MSE = 0.81"]
+    subgraph "分类任务中的 MSE"
+        P1["把类别 1 预测成 0.5<br/>MSE = 0.25"]
+        P2["把类别 1 预测成 0.9<br/>MSE = 0.01"]
+        P3["把类别 1 预测成 0.1<br/>MSE = 0.81"]
     end
-    subgraph "Cross-Entropy on Classification"
-        C1["Predict 0.5 for class 1<br/>CE = 0.693"]
-        C2["Predict 0.9 for class 1<br/>CE = 0.105"]
-        C3["Predict 0.1 for class 1<br/>CE = 2.303"]
+    subgraph "分类任务中的交叉熵"
+        C1["把类别 1 预测成 0.5<br/>CE = 0.693"]
+        C2["把类别 1 预测成 0.9<br/>CE = 0.105"]
+        C3["把类别 1 预测成 0.1<br/>CE = 2.303"]
     end
-    P3 -->|"MSE gradient<br/>flattens near<br/>saturation"| Slow["Slow correction"]
-    C3 -->|"CE gradient<br/>explodes near<br/>wrong answer"| Fast["Fast correction"]
+    P3 -->|"MSE 梯度<br/>在饱和区附近<br/>变平"| Slow["修正很慢"]
+    C3 -->|"CE 梯度<br/>在错误答案附近<br/>更强"| Fast["修正很快"]
 ```
 
 当预测接近 0 或 1 时，MSE 梯度变平（由于 sigmoid 饱和）。交叉熵梯度对此进行了补偿——-log 取消了 sigmoid 的平坦区域，在最需要的地方提供了强梯度。
