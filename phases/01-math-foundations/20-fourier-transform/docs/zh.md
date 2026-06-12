@@ -256,7 +256,7 @@ STFT procedure:
 若信号含有高于 \(f_s/2\) 的频率，用采样率 \(f_s\) 采样会发生混叠。比如 90Hz 在 100Hz 采样下看起来和 10Hz 一样：
 
 ```
-Example:
+示例：
   True signal: 90 Hz sine wave
   Sampling rate: 100 Hz
   Apparent frequency: 100 - 90 = 10 Hz
