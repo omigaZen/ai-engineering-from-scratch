@@ -27,10 +27,10 @@ Agent 用一个模式解决这个问题：一个循环，让模型可以先暂�
 Yao 等人在 ICLR 2023 论文（arXiv:2210.03629）中提出了 `Reason + Act`。每一轮都会发出这样的内容：
 
 ```text
-Thought: I need to look up the capital of France.
+Thought: 我需要查一下法国的首都。
 Action: search("capital of France")
-Observation: Paris is the capital of France.
-Thought: The answer is Paris.
+Observation: 巴黎是法国的首都。
+Thought: 答案是巴黎。
 Action: finish("Paris")
 ```
 
