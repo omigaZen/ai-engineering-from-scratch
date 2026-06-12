@@ -51,7 +51,7 @@ P(A|B) 是在事件 B 发生时 A 的概率。
 ```
 P(A|B) = P(A and B) / P(B)
 
-Example: deck of cards
+示例：一副扑克牌
   P(King | Face card) = P(King and Face card) / P(Face card)
                       = (4/52) / (12/52)
                       = 4/12 = 1/3
@@ -109,7 +109,7 @@ Mean = p,  Variance = p(1-p)
 
 ```
 P(X = i) = p_i,  where sum of p_i = 1
-Example: P(cat) = 0.7,  P(dog) = 0.2,  P(bird) = 0.1
+示例：P(cat) = 0.7，P(dog) = 0.2，P(bird) = 0.1
 ```
 
 **均匀分布：** 所有结果等可能，常用于随机初始化。
