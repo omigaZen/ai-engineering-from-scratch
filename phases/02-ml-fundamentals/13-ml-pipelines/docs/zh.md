@@ -250,7 +250,7 @@ class PipelineFromScratch:
 
 ## 推荐阅读
 
-- [scikit-learn Pipeline docs](https://scikit-learn.org/stable/modules/compose.html)
-- [MLflow documentation](https://mlflow.org/docs/latest/index.html)
-- [DVC documentation](https://dvc.org/doc)
+- [scikit-learn Pipeline 文档](https://scikit-learn.org/stable/modules/compose.html)
+- [MLflow 文档](https://mlflow.org/docs/latest/index.html)
+- [DVC 文档](https://dvc.org/doc)
 - [Sculley et al., Hidden Technical Debt in ML Systems (2015)](https://papers.nips.cc/paper/2015/hash/86df7dcfd896fcaf2674f757a2463eba-Abstract.html)
