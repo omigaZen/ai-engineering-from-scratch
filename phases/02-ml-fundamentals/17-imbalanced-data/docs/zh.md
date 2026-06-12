@@ -1,4 +1,4 @@
-# 不平衡数据处理
+﻿# 不平衡数据处理
 
 > 当 99% 样本都在“正常类”，准确率很可能是在蒙你。
 
@@ -159,13 +159,13 @@ scikit-learn 生态下，可结合 `imblearn` 的 `SMOTE`，以及 `precision_re
 ## 落地
 
 本课产出：
-- 一套可复用的 imbalance pipeline（训练-验证-阈值-上线）
+- 一套可复用的类别不平衡流程（训练-验证-阈值-上线）
 
 ## 练习
 
 1. 改变 `class_sep` 和样本比例，观察决策边界变化。
 2. 在同一数据上分别比较 F1 与 F2 的最优阈值。
-3. 在不同 FN/F P 成本下画出最优阈值-代价曲线。
+3. 在不同 FN/FP 成本下画出最优阈值-代价曲线。
 4. 对合成和真实数据分别评估 `SMOTE + threshold` 与仅 `class_weight`。
 
 ## 关键术语
@@ -183,3 +183,4 @@ scikit-learn 生态下，可结合 `imblearn` 的 `SMOTE`，以及 `precision_re
 - [Precision-Recall 曲线 - scikit-learn](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.precision_recall_curve.html)
 - [Imbalanced-learn 文档](https://imbalanced-learn.org)
 - [He and Garcia, Learning from imbalanced data (2015)](https://ieeexplore.ieee.org/document/7358046)
+
