@@ -218,7 +218,7 @@ class LinearRegression:
         return 1 - (ss_res / ss_tot)
 
 
-print("=== Training Linear Regression (Gradient Descent) ===")
+print("=== 训练线性回归（梯度下降） ===")
 model = LinearRegression(learning_rate=0.005)
 model.fit(X, y, epochs=1000, print_every=200)
 print(f"\nLearned: y = {model.w:.4f}x + {model.b:.4f}")
