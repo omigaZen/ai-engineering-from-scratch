@@ -97,7 +97,7 @@ Phase 14 的每个框架都建立在这个 loop 之上。掌握它以后，选�
 
 - Claude Agent SDK（Lesson 17）：内置工具、子代理、生命周期钩子。
 - OpenAI Agents SDK（Lesson 16）：Handoffs、Guardrails、Session、Tracing（接管、护栏、会话、链路追踪）。
-- LangGraph（Lesson 13）：由 node 组成的有状态图（stateful graph），每一步之后会写 checkpoint。
+- LangGraph（Lesson 13）：由节点组成的有状态图（stateful graph），每一步之后会写检查点。
 - AutoGen v0.4（Lesson 14）：异步消息驱动的 actor。
 - CrewAI（Lesson 15）：角色（role）+ 目标（goal）+ 背景（backstory）模板化，支持 Crew 与 Flow 的编排。
 
@@ -118,13 +118,13 @@ Phase 14 的每个框架都建立在这个 loop 之上。掌握它以后，选�
 | 术语 | 大家常说 | 实际含义 |
 |------|----------|----------|
 | Agent | “Autonomous AI” | 一个 loop：LLM 思考、选择工具、结果反馈，重复直到停止 |
-| ReAct | “Reasoning and Acting” | Yao et al. 2022，把 Thought、Action、Observation 交错放在同一条 stream 中 |
-| Tool call | “Function calling” | runtime 分派给可执行函数的结构化输出 |
+| ReAct | “Reasoning and Acting” | Yao 等人 2022 年提出，把 Thought、Action、Observation 交错放在同一条流中 |
+| Tool call | “Function calling” | 运行时分派给可执行函数的结构化输出 |
 | Observation | “Tool result” | 反馈到下一次 prompt 的工具输出字符串表示 |
-| Reasoning channel | “Thinking tokens” | 单独 stream 上的原生 reasoning 输出，会跨 turn 传递 |
-| Stop condition | “Exit clause” | 显式 `finish`、没有发出 tool calls、max turns、max tokens 或 guardrail trip |
-| Turn budget | “Max steps” | 对 loop iteration 的硬上限。2026 年 Agent 每个任务会跑 40-400 步 |
-| Trace | “Transcript” | 一次运行中 thought、action、observation tuples 的完整记录 |
+| Reasoning channel | “Thinking tokens” | 单独流上的原生 reasoning 输出，会跨 turn 传递 |
+| Stop condition | “Exit clause” | 显式 `finish`、没有发出 tool calls、max turns、max tokens 或护栏触发 |
+| Turn budget | “Max steps” | 对 loop 迭代的硬上限。2026 年 Agent 每个任务会跑 40-400 步 |
+| Trace | “Transcript” | 一次运行中 thought、action、observation 元组的完整记录 |
 
 ## 延伸阅读
 
