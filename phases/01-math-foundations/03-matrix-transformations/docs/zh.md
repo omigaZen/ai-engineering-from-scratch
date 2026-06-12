@@ -182,7 +182,7 @@ A @ v = lambda * v
 v is the eigenvector (direction that survives)
 lambda is the eigenvalue (how much it stretches)
 
-Example: A = | 2  1 |
+示例：A = | 2  1 |
              | 1  2 |
 
 Eigenvector [1, 1] with eigenvalue 3:
