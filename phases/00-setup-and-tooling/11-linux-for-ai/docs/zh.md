@@ -2,10 +2,10 @@
 
 > 大多数 AI 运行在 Linux 上。你只要够用就不容易卡住。
 
-**Type:** Learn
-**Languages:** --
-**Prerequisites:** Phase 0, Lesson 01
-**Time:** ~30 minutes
+**类型:** Learn
+**语言:** --
+**先修:** 第 0 阶段第 01 课
+**时长:** ~30 分钟
 
 ## 学习目标
 
