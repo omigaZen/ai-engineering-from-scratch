@@ -402,8 +402,8 @@ y_test_3 = y_3class[split_3:]
 print("\n=== Multi-class Softmax Regression (3 classes) ===")
 softmax_model = SoftmaxRegression(n_features=2, n_classes=3, learning_rate=0.1)
 softmax_model.fit(X_train_3, y_train_3, epochs=1000, print_every=200)
-print(f"\nTrain accuracy: {softmax_model.accuracy(X_train_3, y_train_3):.4f}")
-print(f"Test accuracy:  {softmax_model.accuracy(X_test_3, y_test_3):.4f}")
+print(f"\n训练准确率：{softmax_model.accuracy(X_train_3, y_train_3):.4f}")
+print(f"测试准确率：  {softmax_model.accuracy(X_test_3, y_test_3):.4f}")
 
 print("\n样本预测：")
 for i in range(5):
@@ -414,7 +414,7 @@ for i in range(5):
 
 ### 姝ラ 6锛氶槇鍊艰皟浼?
 ```python
-print("\n=== Threshold Tuning ===")
+print("\n=== 阈值调节 ===")
 print("默认阈值：0.5。调整阈值会在精确率和召回率之间做取舍。\n")
 
 thresholds = [0.3, 0.4, 0.5, 0.6, 0.7]
