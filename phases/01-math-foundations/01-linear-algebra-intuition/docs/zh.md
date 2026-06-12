@@ -280,7 +280,7 @@ input_vector = Vector([1.0, 0.5, -0.3])
 output = weights @ input_vector
 print(f"Input (3D): {input_vector}")
 print(f"Output (2D): {output}")
-print("This is what a neural network layer does -- matrix multiplication.")
+print("这就是神经网络层的工作方式——矩阵乘法。")
 ```
 
 ### 第 4 步：Julia 实现
