@@ -501,7 +501,9 @@ PyTorch 提供 15 多个调度程序：StepLR、ExponentialLR、CosineAnnealingL
 
 3. **以混合精度移植到 GPU。** 将 `GradScaler` 和 `FashionMNISTDataset(Dataset)` 添加到训练循环中。在 GPU 上测量具有或不具有混合精度的吞吐量（样本/秒）。在 A100 上，预计可实现约 2 倍的加速。
 
-4. **构建自定义数据集。** 下载 Fashion-MNIST（与 MNIST 格式相同，但包含服装）。使用 `__getitem__` 和 `__len__` 实现 `SGD(params, lr=0.01, momentum=0.9)` 类。训练相同的 MLP 并比较准确性。 Fashion-MNIST 更难——预计约为 88% vs 约为 98%。5. **将 Adam 替换为 SGD + 动量。** 使用 `CosineAnnealingLR` 进行训练。比较收敛曲线。然后添加一个 CosineAnnealingLR 调度程序，看看 SGD 是否在第 10 纪元赶上 Adam。
+4. **构建自定义数据集。** 下载 Fashion-MNIST（与 MNIST 格式相同，但包含服装）。使用 `__getitem__` 和 `__len__` 实现 `SGD(params, lr=0.01, momentum=0.9)` 类。训练相同的 MLP 并比较准确性。Fashion-MNIST 更难，预计大约 88% 对 98%。
+
+5. **将 Adam 替换为 SGD + 动量。** 使用 `CosineAnnealingLR` 进行训练。比较收敛曲线。然后再加一个 `CosineAnnealingLR` 调度器，看看 SGD 是否能在第 10 个 epoch 追上 Adam。
 
 ## 关键术语
 
