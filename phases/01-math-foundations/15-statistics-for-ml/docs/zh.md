@@ -40,7 +40,7 @@ Median: middle value when sorted
         but the median is 3.
 
 Mode:   most frequent value
-        Useful for categorical data. For continuous data, rarely informative.
+        适合类别数据；对连续数据来说，通常信息量不大。
 ```
 
 均值是“平衡点”，中位数是“中间点”。二者偏离说明分布偏斜。比如收入分布常见均值远大于中位数（高收入尾部拉高均值）；训练损失分布可能均值小于中位数（易样本导致左偏）。
