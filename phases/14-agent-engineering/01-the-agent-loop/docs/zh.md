@@ -16,9 +16,9 @@
 
 ## 问题
 
-单独的 LLM 本质上只是自动补全器。你问一个问题，它返回一段字符串。它不能读取文件、运行查询、打开浏览器，也不能验证一个说法。如果模型掌握的信息过期或本身错误，它会自信地给出错误答案，然后停在那里。
+单独的 LLM 本质上只是一个自动补全器。你问它一个问题，它只会返回一段字符串。它不能读取文件、运行查询、打开浏览器，也不能验证一个说法。如果模型掌握的信息已经过期，或者它本身判断错误，它会自信地给出错答案，然后就停在原地。
 
-Agent 用一个模式解决这个问题：一个 loop，让模型可以决定先暂停、调用工具、读取结果，再继续思考。这就是完整的核心思想。Phase 14 的所有额外能力，包括 memory、planning、subagents、debate、evals，都是围绕这个 loop 搭起来的脚手架。
+Agent 用一个模式解决这个问题：一个循环，让模型可以先暂停、调用工具、读取结果，再继续思考。这就是完整的核心思想。Phase 14 的所有额外能力，包括 memory、planning、subagents、debate、evals，都是围绕这个循环搭起来的脚手架。
 
 ## 概念
 
@@ -50,13 +50,13 @@ Reasoning trace 做了三件 action-only prompting 做不到的事：诱导出�
 
 ### 五个组成部分
 
-每个 Agent loop 都正好需要五样东西。缺任何一个，你得到的都是 chat bot，而不是 Agent。
+每个 Agent 循环都正好需要五样东西。缺任何一个，你得到的都只是聊天机器人，而不是 Agent。
 
-1. 一个不断增长的 **message buffer**：user turn、assistant turn、tool turn、assistant turn、tool turn、assistant turn、final。
-2. 一个模型可以按名称调用的 **tool registry**：schema 进来，执行工具，result string 出去。
-3. 一个 **stop condition**：模型说 `finish`，或 assistant turn 不再包含 tool calls，或达到 max turns，或达到 max tokens，或触发 guardrail。
-4. 一个 **turn budget**，用于防止无限循环。Anthropic 的 computer use announcement 提到，一个任务跑几十到几百步是正常的；cap 要匹配任务类型，而不是套一个通用数字。
-5. 一个 **observation formatter**，把工具输出转换成模型能读的内容。你 stack 里的每个 400 error 都应该变成 observation string，而不是 crash。
+1. 一个不断增长的**消息缓冲区**：user turn、assistant turn、tool turn、assistant turn、tool turn、assistant turn、final。
+2. 一个模型可以按名称调用的**工具注册表**：schema 进来，执行工具，result string 出去。
+3. 一个**停止条件**：模型说 `finish`，或 assistant turn 不再包含 tool calls，或达到 max turns，或达到 max tokens，或触发 guardrail。
+4. 一个**轮次预算**，用于防止无限循环。Anthropic 的 computer use announcement 提到，一个任务跑几十到几百步是正常的；上限要匹配任务类型，而不是套一个通用数字。
+5. 一个**观察结果格式化器**，把工具输出转换成模型能读的内容。你 stack 里的每个 400 error 都应该变成 observation string，而不是让程序崩掉。
 
 ### 为什么这个 loop 到处都是
 
