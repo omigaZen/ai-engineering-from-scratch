@@ -71,7 +71,7 @@ step(z) = 1  if z >= 0
 感知机更新规则很直接：
 
 ```
-For each training example (x, y_true):
+对每个训练样本 `(x, y_true)`：
     y_pred = predict(x)
     error = y_true - y_pred
 
