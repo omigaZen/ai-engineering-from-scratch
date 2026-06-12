@@ -248,7 +248,7 @@ T = 1.0：标准 softmax（原始分布）
 T -> 0：argmax（确定性，总是选最高的 logit）
 T -> inf：均匀分布（所有 token 等概率）
 T < 1.0：让分布更尖锐（更自信，更多样性更少）
-T > 1.0: flattens the distribution (less confident, more diverse)
+T > 1.0：让分布更平坦（更不自信，更多样性）
 ```
 
 T<1 会放大 logit 差异（例如 2 与 1 在 T=0.5 时变成 4 与 2），最高 token 概率增加。  
