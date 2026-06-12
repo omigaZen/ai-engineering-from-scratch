@@ -56,7 +56,7 @@ graph TD
 ### AI 常见容器形�?
 
 ```
-Dev Container
+��������
 ��������
   ������ȫ��֧�ֱ༭����Jupyter �͵��Թ��ߡ��ʺϿ�����ʵ�顣
 ѵ������
@@ -359,3 +359,4 @@ docker images
 | Volume mount | “共享文件夹�?| 宿主目录映射进容器，容器停止后数据仍保留 |
 | Base image | “起始镜像�?| Dockerfile �?`runtime`，决定了预装组件与基础环境 |
  `--gpus` `FROM`
+
