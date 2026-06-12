@@ -1,30 +1,30 @@
 # PyTorch 简介
 
-> 您用活塞和曲轴制造了发动机。现在来了解一下每个人实际驾驶的那一款。
+> 你已经自己造过发动机了，现在来看看大家真正开上路的是哪一款。
 
 **类型：** 构建
 **语言：** Python
-**先决条件：** 第 03.10 课（构建您自己的迷你框架）
+**先决条件：** 第 03.10 课（构建你自己的迷你框架）
 **时间：** ~75 分钟
 
 ## 学习目标
 
 - 使用 PyTorch 的 nn.Module、nn.Sequential 和 autograd 构建和训练神经网络
 - 使用 PyTorch 张量、GPU 加速和标准训练循环（zero_grad、forward、loss、backward、step）
-- 将您从头开始的迷你框架组件转换为 PyTorch 等效组件
+- 将你从头实现的迷你框架组件对应到 PyTorch 里的等价组件
 - 分析并比较纯 Python 框架和 PyTorch 在同一任务上的训练速度
 
 ## 问题
 
-你有一个可以工作的迷你框架。线性层、ReLU、dropout、batchnorm、Adam、DataLoader、训练循环。它在纯 Python 中针对圆形分类问题训练 4 层网络。
+你已经有一个能跑的迷你框架了。线性层、ReLU、dropout、batchnorm、Adam、DataLoader、训练循环，全都齐了。它能在纯 Python 里训练一个 4 层网络来做圆形分类。
 
-在同样的问题上，它也比 PyTorch 慢 500 倍。
+但在同一个任务上，它会比 PyTorch 慢 500 倍。
 
-您的迷你框架使用嵌套的 Python 循环一次处理一个样本。 PyTorch 将相同的操作分派给在 GPU 上运行的优化 C++/CUDA 内核。在单个 NVIDIA A100 上，PyTorch 在 ImageNet（128 万张图像）上训练 ResNet-50（2560 万个参数）大约需要 6 小时。如果不是先耗尽内存，您的框架将花费大约 3,000 小时来完成同一任务。
+你的迷你框架用嵌套的 Python 循环一次处理一个样本。PyTorch 则把同样的操作交给 GPU 上的优化 C++/CUDA 内核。在单个 NVIDIA A100 上，PyTorch 在 ImageNet（128 万张图像）上训练 ResNet-50（2560 万个参数）大约需要 6 小时；如果你的框架不中途先耗尽内存，完成同一任务大概要花 3,000 小时。
 
-速度并不是唯一的差距。您的框架不支持 GPU。没有自动微分——你为每个模块手工编写backward()。没有序列化。没有分布式训练。无混合精度。如果没有 print 语句，就无法调试梯度流。
+速度并不是唯一的差距。你的框架不支持 GPU，没有自动微分，你得为每个模块手写 `backward()`；它也没有序列化、分布式训练或混合精度。没有 `print`，你甚至很难看懂梯度是怎么流动的。
 
-PyTorch 填补了所有这些空白。它这样做的同时保持与您已经构建的完全相同的心理模型：Module、forward()、parameters()、backward()、optimizer.step()。概念一对一地转移。语法几乎相同。不同之处在于，PyTorch 在您从头开始设计的同一界面背后包含了十年的系统工程。
+PyTorch 把这些缺口都补上了，而且保留了你已经熟悉的那套心智模型：Module、forward()、parameters()、backward()、optimizer.step()。概念几乎是一一对应地迁移过去的，语法也很接近。不同的是，PyTorch 在你从零设计的同一套接口背后，塞进了十年的系统工程。
 
 ## 概念
 
