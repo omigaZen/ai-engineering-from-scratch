@@ -1,4 +1,4 @@
-# PyTorch 简介
+﻿# PyTorch 简介
 
 > 你已经自己造过发动机了，现在来看看大家真正开上路的是哪一款。
 
@@ -28,13 +28,13 @@ PyTorch 把这些缺口都补上了，而且保留了你已经熟悉的那套心
 
 ## 概念
 
-### 为什么 PyTorch 获胜2015 年，TensorFlow 要求您在运行任何内容之前定义一个静态计算图。您构建了图表，对其进行了编译，然后通过它提供了数据。调试意味着盯着图形可视化。改变架构意味着从头开始重建图表。
+### 为什么 PyTorch 获胜`r`n`r`n2015 年，TensorFlow 要求你在运行任何内容之前定义一个静态计算图。你构建图表，编译它，然后把数据喂进去。调试意味着盯着图形可视化看，改架构则意味着从头重建整张图。
 
-PyTorch 于 2017 年推出，具有不同的理念：急于执行。你写Python。它立即运行。 `y = model(x)` 实际上现在计算 y，而不是“将一个节点添加到稍后将计算 y 的图中”。这意味着标准的 Python 调试工具可以工作。 print() 有效。 pdb 工作了。 if/else 在你的前向传播中有效。
+PyTorch 于 2017 年推出，思路完全不同：急切执行。你写 Python，它立刻就跑起来。`y = model(x)` 现在算出来的就是 `y`，而不是“先往图里加一个以后再算 `y` 的节点”。这也意味着标准的 Python 调试工具都能直接用。`print()` 有用，`pdb` 能用，`if/else` 在前向传播里也能正常工作。
 
-到了2020年，市场已经说话了。 PyTorch 在 ML 研究论文中的份额从 7% (2017 年) 上升到 75% 以上 (2022 年)。 Meta、Google DeepMind、OpenAI、Anthropic 和 Hugging Face 都使用 PyTorch 作为其主要框架。作为回应，TensorFlow 2.x 采用了 eagerexecution——默认 PyTorch 的设计是正确的。
+到了 2020 年，市场已经给出答案了。PyTorch 在 ML 研究论文中的占比从 7%（2017 年）涨到 75% 以上（2022 年）。Meta、Google DeepMind、OpenAI、Anthropic 和 Hugging Face 都把 PyTorch 当作主框架。作为回应，TensorFlow 2.x 也改成了 eager execution，这等于承认了 PyTorch 的设计方向是对的。
 
-教训：开发人员的经验是复合的。速度慢 10% 但调试速度快 50% 的框架每次都会获胜。
+结论很简单：开发体验是会叠加的。一个只慢 10%，但调试快 50% 的框架，往往最后会赢。
 
 ### 张量
 
@@ -96,7 +96,7 @@ graph LR
     mul --> |"grad"| w
 ```
 
-与您的框架的主要区别：PyTorch 使用基于磁带的自动差异。在前向传递过程中，每个操作都会附加到一个“磁带”。调用 `.backward()` 会反向重播磁带。
+和你自己的框架相比，PyTorch 的关键差别是它使用基于“磁带”的自动微分。前向传播时，每个操作都会被记录到这条“磁带”上；调用 `.backward()` 时，再沿着相反方向把它重放一遍。
 
 ```python
 x = torch.randn(3, requires_grad=True)
@@ -109,12 +109,12 @@ print(x.grad)  # dz/dx = 2x + 3
 autograd 的三个规则：
 
 1. 只有具有 `requires_grad=True` 的叶子张量才会累积梯度
-2.默认情况下梯度累积——在每次向后传递之前调用`optimizer.zero_grad()`
-3. `torch.no_grad()` 禁用梯度跟踪（评估期间使用）
+2. 默认情况下梯度会累积，所以每次反向传播前都要调用 `optimizer.zero_grad()`
+3. `torch.no_grad()` 会关闭梯度跟踪，评估时就用它
 
 ### nn.模块
 
-`nn.Module` 是 PyTorch 中每个神经网络组件的基类。您已经在第 10 课中构建了这个抽象。PyTorch 的版本添加了自动参数注册、递归模块发现、设备管理和状态字典序列化。
+`nn.Module` 是 PyTorch 里所有神经网络组件的基类。你在第 10 课里已经自己搭过这个抽象了；PyTorch 的版本则补上了自动参数注册、递归模块发现、设备管理和 `state_dict` 序列化。
 
 ```python
 import torch.nn as nn
@@ -133,7 +133,7 @@ class MLP(nn.Module):
         return x
 ```
 
-当您将 `nn.Module` 或 `nn.Parameter` 分配为 `__init__` 中的属性时，PyTorch 会自动注册它。 `model.parameters()` 递归地收集每个注册的参数。这就是为什么您不必像在迷你框架中那样手动收集权重。
+当你把 `nn.Module` 或 `nn.Parameter` 作为 `__init__` 里的属性保存下来时，PyTorch 会自动把它注册进去。`model.parameters()` 会递归收集所有已注册的参数，所以你不用像在迷你框架里那样手动收权重。
 
 关键构建模块：
 
@@ -393,7 +393,7 @@ def evaluate(model, loader, criterion, device):
     return total_loss / total, correct / total
 ```
 
-评估期间请注意 `torch.no_grad()`。这会禁用自动分级，减少内存使用并加快推理速度。没有它，PyTorch 会构建一个您永远不会使用的计算图。
+评估时要注意用 `torch.no_grad()`。它会关闭自动微分，减少内存占用并加快推理速度。没有它，PyTorch 还会继续构建一张你根本不会用到的计算图。
 
 ### 第 4 步：将所有内容连接在一起
 
@@ -471,7 +471,7 @@ model.load_state_dict(torch.load("model.pt", weights_only=True))
 model.eval()
 ```
 
-始终保存 `outputs/prompt-pytorch-debugger.md` （参数字典），而不是模型对象。保存模型对象使用 pickle，当您重构代码时，它会中断。国家命令是可移植的。
+始终保存 `outputs/prompt-pytorch-debugger.md` 里的参数字典，而不是模型对象。直接用 pickle 存模型对象，在你重构代码时很容易坏掉。`state_dict` 才是更可移植的做法。
 
 ### 学习率调度
 
@@ -525,3 +525,4 @@ PyTorch 提供 15 多个调度程序：StepLR、ExponentialLR、CosineAnnealingL
 - Paszke 等人，“PyTorch：一种命令式的高性能深度学习库”（2019 年）——解释 PyTorch 设计权衡的原始论文
 - PyTorch 教程：“通过示例学习 PyTorch”(https://pytorch.org/tutorials/beginner/pytorch_with_examples.html)——从张量到 nn.Module 的官方路径- PyTorch 性能调优指南 (https://pytorch.org/tutorials/recipes/recipes/tuning_guide.html) -- 混合精度、DataLoader 工作线程、固定内存和其他生产优化
 - Horace He，“让深度学习变得Brrrrr”(https://horace.io/brrr_intro.html) - 为什么 GPU 训练速度很快，并且具有 PyTorch 特定的优化策略
+
