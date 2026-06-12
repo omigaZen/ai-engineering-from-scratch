@@ -274,7 +274,7 @@ split = int(0.8 * N)
 X_train, X_test = X[:split], X[split:]
 y_train, y_test = y[:split], y[split:]
 
-print("\n=== Training Logistic Regression ===")
+print("\n=== 训练逻辑回归 ===")
 model = LogisticRegression(n_features=2, learning_rate=0.1)
 model.fit(X_train, y_train, epochs=1000, print_every=200)
 
