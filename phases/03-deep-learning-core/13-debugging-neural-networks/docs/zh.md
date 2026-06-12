@@ -327,8 +327,8 @@ class NetworkDebugger:
 def overfit_one_batch(model, x_batch, y_batch, criterion, lr=0.01, steps=200):
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     model.train()
-    print("\n=== OVERFIT ONE BATCH TEST ===")
-    print(f"Batch size: {x_batch.shape[0]}, Steps: {steps}")
+    print("\n=== 过拟合单批次测试 ===")
+    print(f"批大小：{x_batch.shape[0]}，步数：{steps}")
 
     for step in range(steps):
         optimizer.zero_grad()
@@ -342,13 +342,13 @@ def overfit_one_batch(model, x_batch, y_batch, criterion, lr=0.01, steps=200):
                 preds = (output > 0).float() if output.shape[-1] == 1 else output.argmax(dim=1)
                 targets = y_batch if y_batch.dim() == 1 else y_batch.squeeze()
                 acc = (preds.squeeze() == targets).float().mean().item()
-            print(f"  Step {step:3d} | Loss: {loss.item():.6f} | Accuracy: {acc:.1%}")
+            print(f"  步骤 {step:3d} | 损失：{loss.item():.6f} | 准确率：{acc:.1%}")
 
     final_loss = loss.item()
     if final_loss > 0.1:
-        print(f"\n  FAIL: Loss did not converge ({final_loss:.4f}). Model or training loop is broken.")
+        print(f"\n  失败：损失没有收敛（{final_loss:.4f}）。模型或训练循环有问题。")
         return False
-    print(f"\n  PASS: Loss converged to {final_loss:.6f}")
+    print(f"\n  通过：损失已收敛到 {final_loss:.6f}")
     return True
 ```
 
@@ -487,7 +487,7 @@ def demo_broken_networks():
     y = (x[:, 0] > 0).long()
 
     print("\n" + "=" * 60)
-    print("BUG 1: Learning rate too high (lr=10)")
+    print("BUG 1：学习率过高（lr=10）")
     print("=" * 60)
     model1 = nn.Sequential(nn.Linear(10, 32), nn.ReLU(), nn.Linear(32, 2))
     debugger1 = NetworkDebugger(model1)
@@ -504,7 +504,7 @@ def demo_broken_networks():
     debugger1.remove_hooks()
 
     print("\n" + "=" * 60)
-    print("BUG 2: Dead ReLUs from bad initialization")
+    print("BUG 2：错误初始化导致 ReLU 死亡")
     print("=" * 60)
     model2 = nn.Sequential(nn.Linear(10, 32), nn.ReLU(), nn.Linear(32, 32), nn.ReLU(), nn.Linear(32, 2))
     with torch.no_grad():
@@ -525,7 +525,7 @@ def demo_broken_networks():
     debugger2.remove_hooks()
 
     print("\n" + "=" * 60)
-    print("BUG 3: Missing zero_grad (gradients accumulate)")
+    print("BUG 3：缺少 zero_grad（梯度累积）")
     print("=" * 60)
     model3 = nn.Sequential(nn.Linear(10, 32), nn.ReLU(), nn.Linear(32, 2))
     debugger3 = NetworkDebugger(model3)
@@ -540,7 +540,7 @@ def demo_broken_networks():
     debugger3.remove_hooks()
 
     print("\n" + "=" * 60)
-    print("HEALTHY NETWORK: Correct setup for comparison")
+    print("健康网络：用于对比的正确配置")
     print("=" * 60)
     model_good = nn.Sequential(nn.Linear(10, 32), nn.ReLU(), nn.Linear(32, 2))
     debugger_good = NetworkDebugger(model_good)
@@ -556,19 +556,19 @@ def demo_broken_networks():
     debugger_good.remove_hooks()
 
     print("\n" + "=" * 60)
-    print("OVERFIT-ONE-BATCH TEST (healthy model)")
+    print("过拟合单批次测试（健康模型）")
     print("=" * 60)
     model_test = nn.Sequential(nn.Linear(10, 32), nn.ReLU(), nn.Linear(32, 2))
     overfit_one_batch(model_test, x[:8], y[:8], criterion)
 
     print("\n" + "=" * 60)
-    print("LEARNING RATE FINDER")
+    print("学习率查找器")
     print("=" * 60)
     model_lr = nn.Sequential(nn.Linear(10, 32), nn.ReLU(), nn.Linear(32, 2))
     find_learning_rate(model_lr, x, y, criterion)
 
     print("\n" + "=" * 60)
-    print("GRADIENT CHECK")
+    print("梯度检查")
     print("=" * 60)
     model_grad = nn.Sequential(nn.Linear(10, 8), nn.ReLU(), nn.Linear(8, 2))
     gradient_check(model_grad, x[:4], y[:4], criterion)
