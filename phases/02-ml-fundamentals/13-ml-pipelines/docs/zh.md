@@ -1,6 +1,6 @@
-﻿# 机器学习流水线
+# 机器学习流水线
 
-> 模型不是交付物，流水线才是：从原始数据到可复现的生产预测都应一体化。
+> 模型不是交付物，流水线才是：从原始数据到可复现的线上预测要打通全链路。
 
 **类型:** Build  
 **语言:** Python  
@@ -9,92 +9,54 @@
 
 ## 学习目标
 
-- 从零实现可复现的 ML Pipeline，串联缺失值处理、标准化、编码与训练。
-- 理解 ColumnTransformer、交叉验证和网格搜索在流水线中的协作方式。
-- 避免数据泄漏：区分训练、验证、测试中的拟合与变换边界。
-- 用工程角度管理模型版本、参数、输出与部署前检查。
+- 从零实现可复现的 ML Pipeline：缺失值处理、标准化、编码与训练整合为一个对象
+- 理解 `ColumnTransformer`、交叉验证和网格搜索在流水线中的协作
+- 用数据泄漏视角解释为什么必须只在训练集上拟合变换器
+- 完成模型与输出、版本、部署检查的一体化管理
 
+## 问题
 
-下方保留英文原文作为对照。
+你可能在 notebook 里完成了：
 
----
-# ML Pipelines
+1. 读数据  
+2. 中位数填补缺失  
+3. 标准化特征  
+4. 训练模型  
+5. 打印准确率
 
-> A model is not a product. A pipeline is. The pipeline is everything from raw data to deployed prediction, and every step must be reproducible.
+它可能当下能跑，但下个月别人复现时结果不同。因为：
 
-**Type:** Build
-**Language:** Python
-**Prerequisites:** Phase 2, Lesson 12 (Hyperparameter Tuning)
-**Time:** ~120 minutes
+- 归一化统计量用了全量数据（包括测试）；
+- 标准化参数未持久化；
+- 特征工程代码在训练与服务端复制粘贴后发生偏差；
+- 分类特征中出现新类别时，线上编码器报错。
 
-## Learning Objectives
+这正是流水线要解决的问题：把所有步骤打包成一个可复现对象。
 
-- Build an ML pipeline from scratch that chains imputation, scaling, encoding, and model training into a single reproducible object
-- Identify data leakage scenarios and explain how pipelines prevent them by fitting transformers only on training data
-- Construct a ColumnTransformer that applies different preprocessing to numeric and categorical features
-- Implement pipeline serialization and demonstrate that the same fitted pipeline produces identical results in training and production
+## 核心概念
 
-## The Problem
+### 什么是流水线
 
-You have a notebook that loads data, fills missing values with the median, scales features, trains a model, and prints accuracy. It works. You ship it.
-
-A month later, someone retrains the model and gets different results. The median was computed on the full dataset including test data (data leakage). The scaling parameters were not saved, so inference uses different statistics. The feature engineering code was copy-pasted between training and serving, and the copies diverged. A categorical column gained a new value in production that the encoder has never seen.
-
-These are not hypothetical. They are the most common reasons ML systems fail in production. Pipelines solve all of them by packaging every transformation step into a single, ordered, reproducible object.
-
-## The Concept
-
-### What a Pipeline Is
-
-A pipeline is an ordered sequence of data transformations followed by a model. Each step takes the output of the previous step as input. The entire pipeline is fitted once on training data. At inference time, the same fitted pipeline transforms new data and produces predictions.
+流水线是“变换序列 + 模型”的有序链条。每一步消费上一步输出，最终形成预测。
 
 ```mermaid
 flowchart LR
-    A[Raw Data] --> B[Impute Missing Values]
-    B --> C[Scale Numeric Features]
-    C --> D[Encode Categoricals]
-    D --> E[Train Model]
-    E --> F[Prediction]
+    A[原始数据] --> B[缺失值填补]
+    B --> C[数值标准化]
+    C --> D[分类特征编码]
+    D --> E[训练模型]
+    E --> F[预测]
 ```
 
-The pipeline guarantees:
-- Transformations are fitted only on training data (no leakage)
-- The same transformations are applied at inference time
-- The entire object can be serialized and deployed as one artifact
-- Cross-validation applies the pipeline per fold, preventing subtle leakage
+### 数据泄漏：最常见、最隐蔽的坑
 
-### Data Leakage: The Silent Killer
-
-Data leakage happens when information from the test set or future data contaminates training. Pipelines prevent the most common forms.
-
-**Leaky (wrong):**
-```python
-X = df.drop("target", axis=1)
-y = df["target"]
-
-scaler = StandardScaler()
-X_scaled = scaler.fit_transform(X)
-
-X_train, X_test = X_scaled[:800], X_scaled[800:]
-y_train, y_test = y[:800], y[800:]
-```
-
-The scaler saw test data. The mean and standard deviation include test samples. This inflates accuracy estimates.
-
-**Correct:**
-```python
-X_train, X_test = X[:800], X[800:]
-
-scaler = StandardScaler()
-X_train_scaled = scaler.fit_transform(X_train)
-X_test_scaled = scaler.transform(X_test)
-```
-
-With a pipeline, you do not need to think about this. The pipeline handles it automatically.
+泄漏是模型提前看见了未来/测试信息。流水线确保：
+- 变换器只在训练分割上拟合
+- 推理时只做 `transform`
+- 全流程可序列化为一个 artifact
+- CV 中每折都重新拟合变换器，避免跨折泄漏
 
 ### sklearn Pipeline
-
-sklearn's `Pipeline` chains transformers and an estimator. It exposes `.fit()`, `.predict()`, and `.score()` that apply all steps in order.
 
 ```python
 from sklearn.pipeline import Pipeline
@@ -107,22 +69,12 @@ pipe = Pipeline([
 ])
 
 pipe.fit(X_train, y_train)
-predictions = pipe.predict(X_test)
+preds = pipe.predict(X_test)
 ```
 
-When you call `pipe.fit(X_train, y_train)`:
-1. Scaler calls `fit_transform` on X_train
-2. Model calls `fit` on the scaled X_train
+`fit` 时，scaler 用训练集 `fit_transform`；`predict` 时只 `transform`。
 
-When you call `pipe.predict(X_test)`:
-1. Scaler calls `transform` (not fit_transform) on X_test
-2. Model calls `predict` on the scaled X_test
-
-The scaler never sees test data during fitting. This is the whole point.
-
-### ColumnTransformer: Different Pipelines for Different Columns
-
-Real datasets have numeric and categorical columns that need different preprocessing. `ColumnTransformer` handles this.
+### ColumnTransformer：分类型处理
 
 ```python
 from sklearn.compose import ColumnTransformer
@@ -150,13 +102,15 @@ full_pipeline = Pipeline([
 ])
 ```
 
-The `handle_unknown="ignore"` in OneHotEncoder is critical for production. When a new category appears (a city the model has never seen), it produces a zero vector instead of crashing.
+`handle_unknown="ignore"` 是线上稳健关键：新类别可映射为零向量而不报错。
 
-### Experiment Tracking
+### 实验追踪
 
-A pipeline makes training reproducible, but you also need to track what happened across experiments: which hyperparameters were used, which dataset version, what the metrics were, which code was running.
+可复现性还需要把训练上下文记录下来：超参、数据版本、指标、代码版本。  
+常见工具：
 
-**MLflow** is the most common open-source solution:
+- **MLflow**：记录参数/指标/模型，支持模型注册中心
+- **Weights & Biases**：云端可视化看板
 
 ```python
 import mlflow
@@ -165,68 +119,23 @@ with mlflow.start_run():
     mlflow.log_param("max_depth", 5)
     mlflow.log_param("n_estimators", 100)
     mlflow.log_param("learning_rate", 0.1)
-
     pipe.fit(X_train, y_train)
     accuracy = pipe.score(X_test, y_test)
-
     mlflow.log_metric("accuracy", accuracy)
     mlflow.sklearn.log_model(pipe, "model")
 ```
 
-Every run is recorded with parameters, metrics, artifacts, and the full model. You can compare runs, reproduce any experiment, and deploy any model version.
+### 模型版本与数据版本
 
-**Weights & Biases (wandb)** provides the same functionality with a hosted dashboard:
+- 模型版本：stage（Staging / Production / Archived）与审批流程，支持回滚
+- 数据版本：代码用 git，数据可用 DVC 管理大文件，git 只记录 `.dvc` 指纹文件
 
-```python
-import wandb
+### 可复现实验
 
-wandb.init(project="my-pipeline")
-wandb.config.update({"max_depth": 5, "n_estimators": 100})
-
-pipe.fit(X_train, y_train)
-accuracy = pipe.score(X_test, y_test)
-
-wandb.log({"accuracy": accuracy})
-```
-
-### Model Versioning
-
-After experiment tracking, you need to manage model versions. Which model is in production? Which is staging? Which was last week's?
-
-MLflow's Model Registry provides:
-- **Version tracking:** Every saved model gets a version number
-- **Stage transitions:** "Staging", "Production", "Archived"
-- **Approval workflow:** Models must be explicitly promoted to production
-- **Rollback:** Switch back to a previous version instantly
-
-### Data Versioning with DVC
-
-Code is versioned with git. Data should be versioned too, but git cannot handle large files. DVC (Data Version Control) solves this.
-
-```
-dvc init
-dvc add data/training.csv
-git add data/training.csv.dvc data/.gitignore
-git commit -m "Track training data"
-dvc push
-```
-
-DVC stores the actual data in remote storage (S3, GCS, Azure) and keeps a small `.dvc` file in git that records the hash. When you checkout a git commit, `dvc checkout` restores the exact data that was used.
-
-This means every git commit pins both the code and the data. Full reproducibility.
-
-### Reproducible Experiments
-
-A reproducible experiment requires four things:
-
-1. **Fixed random seeds:** Set seeds for numpy, random, and the framework (torch, sklearn)
-2. **Pinned dependencies:** requirements.txt or poetry.lock with exact versions
-3. **Versioned data:** DVC or similar
-4. **Config files:** All hyperparameters in a config, not hardcoded
+固定随机种子、固定依赖、固定数据版本和配置文件，这是最小闭环。
 
 ```python
-import numpy as np
-import random
+import numpy as np, random
 
 def set_seed(seed=42):
     random.seed(seed)
@@ -236,53 +145,26 @@ def set_seed(seed=42):
         torch.manual_seed(seed)
         torch.cuda.manual_seed_all(seed)
         torch.backends.cudnn.deterministic = True
-    except ImportError:
+    except Exception:
         pass
 ```
 
-### From Notebook to Production Pipeline
+### 从 notebook 到生产
 
-```mermaid
-flowchart TD
-    A[Jupyter Notebook] --> B[Extract functions]
-    B --> C[Build Pipeline object]
-    C --> D[Add config file for hyperparameters]
-    D --> E[Add experiment tracking]
-    E --> F[Add data validation]
-    F --> G[Add tests]
-    G --> H[Package for deployment]
+1. Notebook 探索  
+2. 抽取函数（特征、训练、评估）  
+3. 构建 pipeline  
+4. 用配置文件管理超参  
+5. 加入实验追踪  
+6. 增加数据校验  
+7. 加测试（单元 + 集成）  
+8. 打包成 API 并容器化
 
-    style A fill:#fdd,stroke:#333
-    style H fill:#dfd,stroke:#333
-```
+## 动手实现
 
-The typical progression:
+`code/pipeline.py` 包含从零实现的变换器和简单 pipeline：
 
-1. **Notebook exploration:** Quick experiments, visualizations, feature ideas
-2. **Extract functions:** Move preprocessing, feature engineering, evaluation into modules
-3. **Build Pipeline:** Chain transformations into a sklearn Pipeline or custom class
-4. **Config management:** Move all hyperparameters into a YAML/JSON config
-5. **Experiment tracking:** Add MLflow or wandb logging
-6. **Data validation:** Check schema, distributions, and missing value patterns before training
-7. **Tests:** Unit tests for transformers, integration tests for the full pipeline
-8. **Deployment:** Serialize the pipeline, wrap in an API (FastAPI, Flask), containerize
-
-### Common Pipeline Mistakes
-
-| Mistake | Why it is bad | Fix |
-|---------|-------------|-----|
-| Fitting on full data before splitting | Data leakage | Use Pipeline with cross_val_score |
-| Feature engineering outside pipeline | Different transforms at train vs serve | Put all transforms in the Pipeline |
-| Not handling unknown categories | Production crash on new values | OneHotEncoder(handle_unknown="ignore") |
-| Hardcoded column names | Breaks when schema changes | Use column name lists from config |
-| No data validation | Silently wrong predictions on bad data | Add schema checks before prediction |
-| Training/serving skew | Model sees different features in prod | One Pipeline object for both |
-
-## Build It
-
-The code in `code/pipeline.py` builds a complete ML pipeline from scratch:
-
-### Step 1: Custom Transformer
+### 步骤 1：自定义变换器
 
 ```python
 class CustomTransformer:
@@ -303,7 +185,7 @@ class CustomTransformer:
         return self.fit(X).transform(X)
 ```
 
-### Step 2: Pipeline from Scratch
+### 步骤 2：从零流水线
 
 ```python
 class PipelineFromScratch:
@@ -326,51 +208,50 @@ class PipelineFromScratch:
         return model.predict(X_current)
 ```
 
-### Step 3: Cross-Validation with Pipeline
+### 步骤 3：带有 pipeline 的交叉验证
 
-The code demonstrates how cross-validation with a pipeline prevents data leakage: the scaler is fit separately on each fold's training data.
+展示了标准化器在每折都只基于该折训练集拟合，避免泄漏。
 
-### Step 4: Full Production Pipeline with sklearn
+### 步骤 4：生产级流水线
 
-A complete pipeline with `ColumnTransformer`, multiple preprocessing paths, and a model, trained with proper cross-validation and experiment logging.
+结合 `ColumnTransformer` 与 `sklearn` 全流程 estimator，形成可直接导出的训练脚本。
 
-## Ship It
+## 使用方法
 
-This lesson produces:
-- `outputs/prompt-ml-pipeline.md` -- a skill for building and debugging ML pipelines
-- `code/pipeline.py` -- a complete pipeline from scratch through sklearn
+### 常见误区
 
-## Exercises
+| 常见错误 | 为什么有问题 | 如何改 |
+|---------|-------------|-------|
+| 全量拟合再切分 | 引入泄漏 | 用 `Pipeline` + `cross_val_score` |
+| 特征工程与训练逻辑分散 | 部署与训练行为不一致 | 统一到 pipeline |
+| 忽略未知类别 | 上线爆掉 | `handle_unknown="ignore"` |
+| 配置写死列名 | 架构演进易坏 | 用配置文件统一列名 |
+| 没有数据校验 | 坏数据导致静默误报 | 上线前加 schema 检查 |
+| 训练/服务特征不一致 | 线上输入与训练不同 | 服务与训练共用同一 pipeline |
 
-1. Build a pipeline that handles a dataset with 3 numeric columns and 2 categorical columns. Use `ColumnTransformer` to apply median imputation + scaling to numerics and most-frequent imputation + one-hot encoding to categoricals. Train with 5-fold cross-validation.
+## 练习
 
-2. Deliberately introduce data leakage: fit the scaler on the full dataset before splitting. Compare the cross-validation score (leaky) to the pipeline cross-validation score (clean). How large is the difference?
+1. 对含 3 个数值列、2 个类别列的数据写 pipeline，并做 5 折 CV。
+2. 人为制造泄漏版本（全量标准化后切分），比较交叉验证差异。
+3. 用 `joblib.dump` 保存与加载 pipeline，验证两次预测一致性。
+4. 在 pipeline 中加入二次多项式特征（2 列最重要的数值特征），讨论放置位置。
+5. 配置 `mlflow` 记录 5 个超参实验，并用 UI 比较选择最佳模型。
 
-3. Serialize your pipeline with `joblib.dump`. Load it in a separate script and run predictions. Verify the predictions are identical.
+## 关键术语
 
-4. Add a custom transformer to the pipeline that creates polynomial features (degree 2) for the two most important numeric columns. Where should it go in the pipeline?
+| 术语 | 常见说法 | 实际含义 |
+|------|----------|----------|
+| Pipeline | “变换 + 模型” | 一组按序拟合/预测的对象 |
+| 数据泄漏 | “测试信息进训练” | 训练时看到不该见的信息 |
+| ColumnTransformer | “按列不同处理” | 对数值/类别列施加不同变换后拼接 |
+| 实验追踪 | “记录每次训练” | 记录参数、指标、模型和环境 |
+| MLflow | “模型跟踪平台” | 提供实验管理和模型注册 |
+| DVC | “数据版本控制” | 大文件版本管理，不进 git 大对象 |
+| 可复现 | “同条件同结果” | 固定种子/依赖/配置下结果稳定 |
 
-5. Set up MLflow tracking for the pipeline. Run 5 experiments with different hyperparameters. Use the MLflow UI (`mlflow ui`) to compare runs and pick the best model.
+## 推荐阅读
 
-## Key Terms
-
-| Term | What people say | What it actually means |
-|------|----------------|----------------------|
-| Pipeline | "Chain of transforms + model" | An ordered sequence of fitted transformers and a model, applied as one unit to prevent leakage |
-| Data leakage | "Test info leaked into training" | Using information from outside the training set to build the model, inflating performance estimates |
-| ColumnTransformer | "Different preprocessing per column" | Applies different pipelines to different subsets of columns, combining results |
-| Experiment tracking | "Logging your runs" | Recording parameters, metrics, artifacts, and code versions for every training run |
-| MLflow | "Track and deploy models" | Open-source platform for experiment tracking, model registry, and deployment |
-| DVC | "Git for data" | Version control system for large data files, storing hashes in git and data in remote storage |
-| Model registry | "Model version catalog" | A system that tracks model versions with stage labels (staging, production, archived) |
-| Training/serving skew | "It worked in the notebook" | Differences between how data is processed during training versus inference, causing silent errors |
-| Reproducibility | "Same code, same result" | The ability to get identical results from the same code, data, and configuration |
-
-## Further Reading
-
-- [scikit-learn Pipeline docs](https://scikit-learn.org/stable/modules/compose.html) -- the official pipeline reference
-- [MLflow documentation](https://mlflow.org/docs/latest/index.html) -- experiment tracking and model registry
-- [DVC documentation](https://dvc.org/doc) -- data versioning
-- [Sculley et al., Hidden Technical Debt in Machine Learning Systems (2015)](https://papers.nips.cc/paper/2015/hash/86df7dcfd896fcaf2674f757a2463eba-Abstract.html) -- the seminal paper on ML systems complexity
-- [Google ML Best Practices: Rules of ML](https://developers.google.com/machine-learning/guides/rules-of-ml) -- practical production ML advice
-
+- [scikit-learn Pipeline docs](https://scikit-learn.org/stable/modules/compose.html)
+- [MLflow documentation](https://mlflow.org/docs/latest/index.html)
+- [DVC documentation](https://dvc.org/doc)
+- [Sculley et al., Hidden Technical Debt in ML Systems (2015)](https://papers.nips.cc/paper/2015/hash/86df7dcfd896fcaf2674f757a2463eba-Abstract.html)
