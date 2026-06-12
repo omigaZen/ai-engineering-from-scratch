@@ -337,8 +337,8 @@ Primal: find w, b that maximize the margin 2/||w|| subject to
 Dual:   maximize sum(alpha_i) - 0.5 * sum_ij(alpha_i * alpha_j * y_i * y_j * x_i^T x_j)
         subject to alpha_i >= 0 and sum(alpha_i * y_i) = 0
 
-The dual only involves dot products x_i^T x_j.
-Replace x_i^T x_j with K(x_i, x_j) to get the kernel trick.
+对偶形式只涉及点积 `x_i^T x_j`。
+把 `x_i^T x_j` 换成 `K(x_i, x_j)`，就得到了核技巧。
 ```
 
 ### 为什么深度学习仍能在非凸中工作
