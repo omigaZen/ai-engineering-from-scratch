@@ -106,21 +106,21 @@ Pearson å‡è®¾å…³ç³»è¿‘ä¼¼çº¿æ€§ä¸”å˜é‡è¿‘ä¼¼æ­£æ€ï¼›å¯¹å¼‚å¸¸å€¼æ•æ„Ÿã€‚ä¸€
 1. Replace each value with its rank (1, 2, 3, ...)
 2. Compute Pearson correlation on the ranks
 
-Spearman catches any monotonic relationship, not just linear.
-If y = x^3, Pearson gives r < 1 but Spearman gives rho = 1.
+Spearman ÄÜ²¶×½ÈÎÒâµ¥µ÷¹ØÏµ£¬²»Ö»ÊÇÏßÐÔ¹ØÏµ¡£
+Èç¹û y = x^3£¬Pearson µÄ r »áÐ¡ÓÚ 1£¬µ« Spearman µÄ rho »áµÈÓÚ 1¡£
 ```
 
 **ä½•æ—¶ç”¨ï¼š**
 
 ```
-Pearson:    Both variables are continuous and roughly normal.
-            You care about the linear relationship specifically.
-            No extreme outliers.
+Pearson£ºÁ½¸ö±äÁ¿¶¼ÊÇÁ¬ÐøÐÍ£¬ÇÒ·Ö²¼´óÖÂÕýÌ¬¡£
+            Äã¹Ø×¢µÄÊÇÏßÐÔ¹ØÏµ¡£
+            Ã»ÓÐ¼«¶ËÀëÈºÖµ¡£
 
-Spearman:   Ordinal data (rankings, ratings).
-            Data is not normally distributed.
-            You suspect a monotonic but not linear relationship.
-            Outliers are present.
+Spearman£ºÓÐÐòÊý¾Ý£¨ÅÅÃû¡¢ÆÀ·Ö£©¡£
+            Êý¾Ý²»ÊÇÕýÌ¬·Ö²¼¡£
+            Äã»³ÒÉËüÊÇµ¥µ÷µ«·ÇÏßÐÔµÄ¹ØÏµ¡£
+            ´æÔÚÀëÈºÖµ¡£
 ```
 
 é‡‘ç§‘çŽ‰å¾‹ï¼šç›¸å…³ä¸ä»£è¡¨å› æžœã€‚å†°æ·‡æ·‹é”€é‡å’Œæººæ°´äººæ•°ç›¸å…³æ˜¯å› ä¸ºéƒ½éšå­£èŠ‚ä¸Šå‡ï¼›æ¨¡åž‹å‡†ç¡®çŽ‡å’Œå‚æ•°é‡ç›¸å…³ä¸è¡¨ç¤ºå‚æ•°è¶Šå¤šå°±è¶Šå¥½ï¼ˆè§è¿‡æ‹Ÿåˆåä¾‹ï¼‰ã€?
@@ -205,8 +205,8 @@ degrees of freedom = n - 1
 ```
 t = (x_bar_1 - x_bar_2) / sqrt(s1^2/n1 + s2^2/n2)
 
-This is Welch's t-test, which does not assume equal variances.
-Always use Welch's unless you have a specific reason for equal variances.
+Õâ¾ÍÊÇ Welch t ¼ìÑé£¬Ëü²»ÒªÇó·½²îÏàµÈ¡£
+³ý·ÇÄãÓÐÃ÷È·ÀíÓÉÈÏÎª·½²îÏàµÈ£¬·ñÔò×ÜÊÇÓÅÏÈÓÃ Welch ¼ìÑé¡£
 ```
 
 **é…å¯¹ t æ£€éªŒï¼š** æ ·æœ¬æˆå¯¹å‡ºçŽ°ï¼ˆåŒä¸€æ¨¡åž‹åœ¨åŒä¸€æ•°æ®åˆ‡åˆ†ä¸Šçš„è¯„åˆ†ï¼‰ï¼š
@@ -277,9 +277,9 @@ ML çš?A/B å’Œç½‘é¡µå®žéªŒä¸åŒï¼Œæ¨¡åž‹å¯¹æ¯”æœ‰ä¸“æœ‰æŒ‘æˆ˜ï¼š
   n = 1,000,000 test samples
   p-value = 0.001
 
-Statistically significant? Yes.
-Practically significant? A 0.03% improvement is not worth the
-engineering cost of deploying a new model.
+Í³¼ÆÉÏÏÔÖøÂð£¿ÊÇ¡£
+Êµ¼ÊÒâÒåÏÔÖøÂð£¿0.03% µÄÌáÉý²»ÖµµÃ
+ÎªÁË²¿ÊðÐÂÄ£ÐÍ¶ø¸¶³öµÄ¹¤³Ì³É±¾¡£
 ```
 
 **æ•ˆåº”é‡?*è¡¡é‡å·®å¼‚æœ‰å¤šå¤§ï¼Œç‹¬ç«‹äºŽæ ·æœ¬é‡ï¼?
@@ -492,4 +492,5 @@ For highly skewed distributions, you might need n >= 100.
 | ä¸­å¿ƒæžé™å®šç† | æ ·æœ¬å‡å€¼éšç€æ ·æœ¬é‡å¢žé•¿è¶‹å‘æ­£æ€ã€?|
 | å‚æ•°æ£€éª?| å‡è®¾ç‰¹å®šåˆ†å¸ƒï¼ˆé€šå¸¸æ­£æ€ï¼‰å½¢å¼ã€?|
 | éžå‚æ•°æ£€éª?| ä¸ä¾èµ–åˆ†å¸ƒå‡è®¾ï¼Œå¸¸åŸºäºŽç§©æˆ–ç¬¦å·ã€?|
+
 
