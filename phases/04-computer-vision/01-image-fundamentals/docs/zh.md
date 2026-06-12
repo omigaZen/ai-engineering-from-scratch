@@ -157,12 +157,10 @@ RGB 是采集格式，但不总是模型最优输入。
  G green           S saturation (0-1)        Cb chroma blue-yellow
  B blue            V value/brightness (0-1)  Cr chroma red-green
 
- Linear to         Separates color from      Separates brightness from
- sensor output     brightness. Useful for    color. JPEG and most video
-                   color thresholding, UI    codecs compress the chroma
-                   sliders, simple filters   channels harder because the
-                                             human eye is less sensitive
-                                             to chroma detail than to Y.
+ 与传感器输出     将颜色与亮度分离。适合    将亮度与颜色分离。JPEG 和大多数
+ 线性对应         颜色阈值、UI 滑块、简单   视频编解码器会对色度通道压缩得更
+                  滤波器等场景。           厉害，因为人眼对色度细节没有对 Y
+                                           分量那么敏感。
 ```
 
 现代 CNN 里大部分直接喂 RGB；其余常见场景包括：
