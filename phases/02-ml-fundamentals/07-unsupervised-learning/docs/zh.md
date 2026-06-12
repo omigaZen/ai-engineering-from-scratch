@@ -191,7 +191,7 @@ def compute_inertia(data, assignments, centroids):
 
 
 def silhouette_score(data, assignments):
-    # 与英文原理一致：计算单点轮廓并平均
+    # 按轮廓系数定义：先算每个点的轮廓，再取平均
     n = len(data)
     if n < 2:
         return 0.0
