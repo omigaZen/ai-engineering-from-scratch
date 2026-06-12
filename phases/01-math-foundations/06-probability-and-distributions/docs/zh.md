@@ -184,7 +184,7 @@ Roll 1 die:  uniform distribution (flat)
 Average of 2 dice:  triangular (peaked)
 Average of 30 dice: nearly perfect bell curve
 
-This works for ANY starting distribution.
+这对任何初始分布都成立。
 ```
 
 这解释了：
