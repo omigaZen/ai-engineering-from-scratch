@@ -114,7 +114,7 @@ fast_step = jax.jit(train_step)
 
 ### vmap：自动矢量化
 
-您编写一个函数来处理一个示例：
+你编写一个函数来处理单个样本：
 
 ```python
 def predict(params, x):
@@ -185,7 +185,7 @@ def predict(params, x):
     return jnp.dot(x, params['w']) + params['b']
 ```
 
-参数已传入。不存储任何内容。一切都没有变异。这使得每个函数都可测试、可组合和可编译。这也意味着您可以自己管理参数——或者使用 Flax 或 Equinox 等库。
+参数已经传入，不会存储任何内容，也不会发生变异。这让每个函数都可测试、可组合、可编译。这也意味着你可以自己管理参数，或者使用 Flax、Equinox 之类的库。
 
 ### JAX 生态系统
 
@@ -221,7 +221,7 @@ optimizer = optax.chain(
 |生产推断| TensorFlow 服务、Vertex AI | TorchServe、Triton、ONNX |
 |谁使用它 | DeepMind（双子座）、Anthropic（克劳德）| Meta (Llama)、OpenAI (GPT)、稳定性 AI |
 
-诚实的答案：使用 PyTorch，除非您有特定原因使用 JAX。这些原因是——TPU 访问、每个示例梯度的需要、大规模的多设备训练，或者在 Google/DeepMind/Anthropic 工作。
+诚实的答案是：除非你有非常明确的理由，否则就用 PyTorch。所谓明确理由包括 TPU 访问、需要逐样本梯度、大规模多设备训练，或者你刚好在 Google、DeepMind、Anthropic 这类团队工作。
 
 ### JAX 中的随机数
 
@@ -474,7 +474,7 @@ restored = checkpointer.restore('/tmp/model')
 
 3. 使用适用于任意层数的通用 `@jax.jit` 替换手动转发函数。使用 `optax.chain(optax.clip_by_global_norm(1.0), optax.adam(1e-3))` 自动确定深度。
 
-4. 对使用和不使用 @jax.jit 的训练步骤进行基准测试。每步计时 100 步。您的硬件加速有多大？第一次调用的编译开销是多少？
+4. 对使用和不使用 `@jax.jit` 的训练步骤做基准测试，每种情况都跑 100 步。你的硬件加速有多大？第一次调用的编译开销是多少？
 
 5. 通过编写optax.chain(optax.clip_by_global_norm(1.0), optax.adam(1e-3))来实现梯度裁剪。有和没有剪辑的训练。绘制训练过程中的梯度范数以查看效果。
 
