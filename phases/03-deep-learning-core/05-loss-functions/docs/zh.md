@@ -175,14 +175,14 @@ flowchart TD
 
 ```mermaid
 graph LR
-    subgraph "Loss Surface Shape"
-        MSE_S["MSE<br/>Smooth parabola<br/>Single minimum<br/>Easy to optimize"]
-        CE_S["Cross-Entropy<br/>Steep near wrong answers<br/>Flat near correct answers<br/>Strong gradients where needed"]
-        CL_S["Contrastive<br/>Many local minima<br/>Depends on batch composition<br/>Temperature controls sharpness"]
+    subgraph "损失面形状"
+        MSE_S["MSE<br/>平滑抛物线<br/>单一最小值<br/>容易优化"]
+        CE_S["交叉熵<br/>在错误答案附近很陡<br/>在正确答案附近很平<br/>在需要的地方梯度强"]
+        CL_S["对比损失<br/>多个局部最小值<br/>取决于批次组成<br/>温度控制尖锐程度"]
     end
-    MSE_S -->|"Best for"| Reg2["Regression"]
-    CE_S -->|"Best for"| Cls2["Classification"]
-    CL_S -->|"Best for"| Emb2["Representation learning"]
+    MSE_S -->|"最适合"| Reg2["回归"]
+    CE_S -->|"最适合"| Cls2["分类"]
+    CL_S -->|"最适合"| Emb2["表征学习"]
 ```
 
 ```figure
