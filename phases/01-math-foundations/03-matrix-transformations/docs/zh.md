@@ -205,7 +205,7 @@ V = matrix whose columns are eigenvectors
 D = diagonal matrix of eigenvalues
 V^(-1) = inverse of V
 
-This says: rotate into eigenvector coordinates, scale along each axis, rotate back.
+这表示：先旋转到特征向量坐标系，再沿每个轴缩放，最后旋转回去。
 ```
 
 ### 为什么特征值这么重要
