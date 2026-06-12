@@ -112,17 +112,17 @@ w = w - lr * m_hat / (sqrt(v_hat) + epsilon) - lr * lambda * w
 
 ```mermaid
 graph TD
-    LR["Learning Rate"] --> TooHigh["Too high (lr > 0.01)"]
-    LR --> JustRight["Just right"]
-    LR --> TooLow["Too low (lr < 0.00001)"]
+    LR["学习率"] --> TooHigh["太高（lr > 0.01）"]
+    LR --> JustRight["刚刚好"]
+    LR --> TooLow["太低（lr < 0.00001）"]
 
-    TooHigh --> Diverge["Loss explodes<br/>NaN weights<br/>Training crashes"]
-    JustRight --> Converge["Loss decreases steadily<br/>Reaches good minimum<br/>Generalizes well"]
-    TooLow --> Stall["Loss decreases slowly<br/>Gets stuck in suboptimal minimum<br/>Wastes compute"]
+    TooHigh --> Diverge["损失爆炸<br/>权重变成 NaN<br/>训练崩掉"]
+    JustRight --> Converge["损失稳定下降<br/>达到较好的最小值<br/>泛化良好"]
+    TooLow --> Stall["损失下降很慢<br/>卡在次优最小值<br/>浪费算力"]
 
-    JustRight --> Schedule["Usually needs scheduling"]
-    Schedule --> Warmup["Warmup: ramp from 0 to max<br/>First 1-10% of training"]
-    Schedule --> Decay["Decay: reduce over time<br/>Cosine or linear"]
+    JustRight --> Schedule["通常需要调度"]
+    Schedule --> Warmup["预热：从 0 逐步升到最大值<br/>训练前 1-10%"]
+    Schedule --> Decay["衰减：随时间减小<br/>余弦或线性"]
 ```
 
 如果调整一个超参数，请调整学习率。学习率 10 倍的变化比您做出的任何架构决策都更重要。常见默认值：
@@ -137,7 +137,7 @@ graph TD
 ```mermaid
 flowchart LR
     subgraph "Optimization Path"
-        SGD_P["SGD<br/>Oscillates across valley<br/>Slow but finds flat minima"]
+        SGD_P["SGD<br/>在谷底来回振荡<br/>慢，但能找到平坦极小值"]
         Mom_P["SGD + Momentum<br/>Smoother path<br/>3x faster than SGD"]
         Adam_P["Adam<br/>Adapts per-parameter<br/>Fast convergence"]
         AdamW_P["AdamW<br/>Adam + proper decay<br/>Best generalization"]
