@@ -58,11 +58,10 @@ where:
   Sigma is m x n, diagonal (singular values on the diagonal)
   V     is n x n, orthogonal (V^T V = I)
 
-The singular values sigma_1 >= sigma_2 >= ... >= sigma_r > 0
-where r = rank(A)
+ÆæÒìÖµÂú×ã sigma_1 >= sigma_2 >= ... >= sigma_r > 0£¬ÆäÖÐ r = rank(A)
 ```
 
-U çš„åˆ—å‘é‡ç§°ä¸ºå·¦å¥‡å¼‚å‘é‡ï¼›V çš„åˆ—å‘é‡ç§°ä¸ºå³å¥‡å¼‚å‘é‡ï¼›Sigma å¯¹è§’çº¿ä¸Šçš„æ•°ç§°ä¸ºå¥‡å¼‚å€¼ã€‚å¥‡å¼‚å€¼å§‹ç»ˆéžè´Ÿï¼Œé€šå¸¸æŒ‰é™åºæŽ’åºã€?
+U µÄÁÐÏòÁ¿³ÆÎª×óÆæÒìÏòÁ¿£»V µÄÁÐÏòÁ¿³ÆÎªÓÒÆæÒìÏòÁ¿£»Sigma ¶Ô½ÇÏßÉÏµÄÊý³ÆÎªÆæÒìÖµ¡£ÆæÒìÖµ×ÜÊÇ·Ç¸ºµÄ£¬Í¨³£°´½µÐòÅÅÁÐ¡£?
 
 ### å·¦å¥‡å¼‚å‘é‡ã€å¥‡å¼‚å€¼ã€å³å¥‡å¼‚å‘é‡
 
@@ -79,11 +78,10 @@ SVD çš„ä¸‰ç»„åˆ†é‡å„è‡ªæœ‰æ¸…æ™°çš„å‡ ä½•å«ä¹‰ã€?
 ```
 A * v_i = sigma_i * u_i
 
-The matrix A takes the i-th right singular vector v_i,
-scales it by sigma_i, and maps it to the i-th left singular vector u_i.
+¾ØÕó A »á°ÑµÚ i ¸öÓÒÆæÒìÏòÁ¿ v_i ³ËÉÏ sigma_i£¬ÔÙÓ³Éäµ½µÚ i ¸ö×óÆæÒìÏòÁ¿ u_i¡£
 ```
 
-è¿™æ ·å°±èƒ½æŒ‰åæ ‡å¯¹åº”ç†è§£ä»»ä½•çŸ©é˜µåœ¨åšä»€ä¹ˆã€?
+ÕâÑù¾ÍÄÜ°´×ø±êÖ±¹ÛÀí½âÈÎÒâ¾ØÕóÔÚ×öÊ²Ã´¡£?
 
 ### å¤–ç§¯å½¢å¼
 
@@ -351,7 +349,7 @@ PCA finds eigenvectors of C. But:
   C = (1/(n-1)) * V * Sigma^2 * V^T
 
 ËùÒÔÖ÷³É·Ö¾ÍÊÇÓÒÆæÒìÏòÁ¿ V¡£
-The explained variance for each component is sigma_i^2 / (n-1).
+Ã¿¸öÖ÷³É·ÖµÄ½âÊÍ·½²îÎª sigma_i^2 / (n-1)¡£
 
 ÔÚ sklearn ÖÐ£¬PCA ÊÇÓÃ SVD ÊµÏÖµÄ£¬¶ø²»ÊÇÓÃÌØÕ÷·Ö½â¡£
 ÕâÑù¸ü¿ì£¬Ò²¸üÊýÖµÎÈ¶¨¡£
@@ -547,4 +545,5 @@ julia svd.jl
 - [Netflix Prize and Matrix Factorization](https://sifter.org/~simon/journal/20061211.html) - Simon Funk å…³äºŽæŽ¨èç³»ç»Ÿ SVD çš„å¼€åˆ›æ€§åšæ–? 
 - [Latent Semantic Analysis](https://en.wikipedia.org/wiki/Latent_semantic_analysis) - NLP ä¸?SVD çš„ç»å…¸åº”ç”? 
 - [Numerical Linear Algebra by Trefethen and Bau](https://people.maths.ox.ac.uk/trefethen/text.html) - ç†è§£ SVD ç®—æ³•ä¸Žæ•°å€¼æ€§è´¨çš„æ ‡å‡†æ•™æ?
+
 
