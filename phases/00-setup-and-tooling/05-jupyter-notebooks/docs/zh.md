@@ -1,11 +1,11 @@
-# Jupyter Notebooks
+# Jupyter 笔记本
 
 > Notebook 是 AI 工程的实验台。你先在这里快速验证，再把可落地的内容迁移到生产代码。
 
-**Type:** Build
-**Languages:** Python
-**Prerequisites:** Phase 0, Lesson 01
-**Time:** ~30 minutes
+**类型:** Build
+**语言:** Python
+**先修:** 第 0 阶段第 01 课
+**时长:** ~30 分钟
 
 ## 学习目标
 
