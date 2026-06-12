@@ -64,7 +64,7 @@ P(X_{t+1} = j | X_t = i, X_{t-1} = ...) = P(X_{t+1} = j | X_t = i)
 用转移矩阵 \(P\) 表示：
 
 ```
-P[i][j] = probability of going from state i to state j
+P[i][j] = 从状态 i 转移到状态 j 的概率
 ```
 
 每行和为 1。
