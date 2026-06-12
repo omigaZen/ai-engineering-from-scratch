@@ -28,8 +28,8 @@
 
 ```mermaid
 graph LR
-    Under["Underfitting<br/>Train: 60%<br/>Test: 58%<br/>Model too simple"] --> Good["Good Fit<br/>Train: 95%<br/>Test: 92%<br/>Generalizes well"]
-    Good --> Over["Overfitting<br/>Train: 99.9%<br/>Test: 65%<br/>Memorized noise"]
+    Under["欠拟合<br/>训练：60%<br/>测试：58%<br/>模型太简单"] --> Good["拟合良好<br/>训练：95%<br/>测试：92%<br/>泛化良好"]
+    Good --> Over["过拟合<br/>训练：99.9%<br/>测试：65%<br/>记住了噪声"]
 
     Dropout["Dropout"] -->|"Pushes left"| Over
     WD["Weight Decay"] -->|"Pushes left"| Over
