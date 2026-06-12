@@ -512,7 +512,7 @@ from sklearn.svm import SVC
 
 svm = SVC(kernel='rbf', C=1.0)
 svm.fit(X_train, y_train)
-print(f"Support vectors: {svm.n_support_}")
+print(f"支持向量：{svm.n_support_}")
 ```
 
 ## 练习
@@ -550,3 +550,4 @@ print(f"Support vectors: {svm.n_support_}")
 - [Bottou, Curtis, Nocedal: Optimization Methods for Large-Scale Machine Learning (2018)](https://arxiv.org/abs/1606.04838) - 连接凸优化理论与深度学习实践
 - [Choromanska et al.: The Loss Surfaces of Multilayer Networks (2015)](https://arxiv.org/abs/1412.0233) - 为什么非凸神经网络地形没有想象中那么糟
 - [Nocedal & Wright: Numerical Optimization](https://link.springer.com/book/10.1007/978-0-387-40065-5) - Newton、L-BFGS 与约束优化的系统参考
+
