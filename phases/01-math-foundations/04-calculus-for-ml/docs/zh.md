@@ -167,8 +167,8 @@ f(x) = x^2    f'(x) = 2x
 ```
 f(w) = 3w + 1    f'(w) = 3
 
-The derivative with respect to w is just x.
-If x is big, a small change in w causes a big change in output.
+w 对应的导数其实就是 x。
+如果 x 很大，那么 w 的一点点变化就会让输出发生很大变化。
 ```
 
 ### 閾惧紡娉曞垯
@@ -634,3 +634,4 @@ print(f"Learned: y = {w:.2f}x + {b:.2f}")
 
 - [3Blue1Brown: Essence of Calculus](https://www.3blue1brown.com/topics/calculus) - 瑙嗚鍖栧湴鐞嗚В瀵兼暟銆佺Н鍒嗕笌閾惧紡娉曞垯
 - [Stanford CS231n: Backpropagation](https://cs231n.github.io/optimization-2/) - 鐞嗚В姊害濡備綍鍦ㄧ缁忕綉缁滃眰涓紶閫?
+
