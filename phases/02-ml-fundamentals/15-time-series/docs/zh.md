@@ -36,7 +36,7 @@
 
 ```mermaid
 flowchart LR
-    subgraph IID[标准 ML（i.i.d.）]
+    subgraph IID[标准机器学习（i.i.d.）]
         direction TB
         S1[样本1] ~~~ S2[样本2]
         S2 ~~~ S3[样本3]
