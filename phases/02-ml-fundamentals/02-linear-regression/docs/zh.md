@@ -415,8 +415,8 @@ poly5 = PolynomialRegression(degree=5, learning_rate=0.1)
 poly5.fit(X_poly_norm, y_poly_norm, epochs=2000, print_every=500)
 print(f"  R-squared: {poly5.r_squared(X_poly_norm, y_poly_norm):.4f}")
 
-print("\nDegree 2 fits the true curve well. Degree 5 fits training data slightly better")
-print("but risks overfitting on new data.")
+print("\n2 次多项式对真实曲线拟合得很好。5 次多项式对训练数据略好一些")
+print("但在新数据上更容易过拟合。")
 ```
 
 ### 步骤 6：岭回归（L2 正则化）
