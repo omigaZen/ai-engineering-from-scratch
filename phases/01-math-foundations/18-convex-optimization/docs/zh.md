@@ -284,7 +284,7 @@ L1 和 L2 正则化不是拍脑袋的技巧，而是“伪装”的约束优化�
 ```
 minimize  Loss(w)  subject to  ||w||^2 <= t
 
-Equivalent unconstrained form:
+等价的无约束形式：
 minimize  Loss(w) + lambda * ||w||^2
 ```
 
@@ -295,7 +295,7 @@ minimize  Loss(w) + lambda * ||w||^2
 ```
 minimize  Loss(w)  subject to  ||w||_1 <= t
 
-Equivalent unconstrained form:
+等价的无约束形式：
 minimize  Loss(w) + lambda * ||w||_1
 ```
 
@@ -317,10 +317,10 @@ minimize  Loss(w) + lambda * ||w||_1
 拉格朗日对偶函数：
 
 ```
-Primal: minimize f(x) subject to g(x) <= 0
-Lagrangian: L(x, lambda) = f(x) + lambda * g(x)
-Dual function: d(lambda) = min_x L(x, lambda)
-Dual problem: maximize d(lambda) subject to lambda >= 0
+原问题：最小化 `f(x)`，约束 `g(x) <= 0`
+拉格朗日函数：`L(x, lambda) = f(x) + lambda * g(x)`
+对偶函数：`d(lambda) = min_x L(x, lambda)`
+对偶问题：在 `lambda >= 0` 的条件下最大化 `d(lambda)`
 ```
 
 为什么对偶有用：
@@ -331,11 +331,11 @@ Dual problem: maximize d(lambda) subject to lambda >= 0
 以 SVM 为例：
 
 ```
-Primal: find w, b that maximize the margin 2/||w|| subject to
-        y_i(w^T x_i + b) >= 1 for all i
+原问题：寻找 `w, b`，在满足
+        `y_i(w^T x_i + b) >= 1`（对所有 `i`）的条件下最大化间隔 `2/||w||`
 
 Dual:   maximize sum(alpha_i) - 0.5 * sum_ij(alpha_i * alpha_j * y_i * y_j * x_i^T x_j)
-        subject to alpha_i >= 0 and sum(alpha_i * y_i) = 0
+        约束为 `alpha_i >= 0` 且 `sum(alpha_i * y_i) = 0`
 
 对偶形式只涉及点积 `x_i^T x_j`。
 把 `x_i^T x_j` 换成 `K(x_i, x_j)`，就得到了核技巧。
