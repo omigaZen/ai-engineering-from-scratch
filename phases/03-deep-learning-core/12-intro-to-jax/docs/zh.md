@@ -10,7 +10,7 @@
 ## 学习目标
 
 - 使用 JAX 的函数式 API（jax.numpy、jax.grad、jax.jit、jax.vmap）编写纯函数神经网络代码
-- 解释PyTorch的eagermutation和JAX的函数式编译模型之间的关键设计差异
+- 解释 PyTorch 的急切执行（eager execution）和 JAX 的函数式编译模型之间的关键设计差异
 - 与原生 Python 相比，应用 jit 编译和 vmap 矢量化来加速训练循环
 - 在 JAX 中训练一个简单的网络，并将显式状态管理与 PyTorch 的面向对象方法进行对比
 
@@ -30,13 +30,15 @@ JAX 是具有三个超能力的 NumPy：自动微分、JIT 编译到 XLA 以及�
 
 JAX 是一个功能性框架。没有类，没有可变状态，没有 `.backward()` 方法。相反：
 
-| PyTorch |贾克斯|
+| PyTorch | JAX |
 |---------|-----|
-| `nn.Module` 具有状态的类 |纯函数：`f(params, x) -> y` |
-| `loss.backward()` | `jax.grad(loss_fn)(params, x, y)` | `for x in batch:` | `jax.vmap(f)`|急切的执行力|通过 XLA 进行 JIT 编译 |
+| `nn.Module` 具有状态的类 | 纯函数：`f(params, x) -> y` |
+| `loss.backward()` | `jax.grad(loss_fn)(params, x, y)` |
+| `for x in batch:` | `jax.vmap(f)` |
+| 急切执行 | 通过 XLA 进行 JIT 编译 |
 | `DataParallel` 手动循环 | `FSDP` 自动矢量化 |
 | `jax.pmap(f)` / `model.parameters()` | `a[0] = 5` 自动并行 |
-|可变 `a = a.at[0].set(5)` |数组的不可变 pytree |
+| 可变 `a = a.at[0].set(5)` | 数组的不可变 pytree |
 
 这不是风格偏好。这是一个编译器约束。 JIT 编译需要纯函数——相同的输入总是产生相同的输出，没有副作用。这一限制使得 100 倍的加速成为可能。
 
