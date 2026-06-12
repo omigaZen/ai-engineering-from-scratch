@@ -212,8 +212,8 @@ Colab 是云端免费的 Jupyter 环境，提供 GPU、预装库和 Google Drive
 一个常见工作流：
 1. 用 Notebook 探索数据
 2. 在 Notebook 中搭建模型原型
-3. 工作正常后移到 `from google.colab import drive; drive.mount('/content/drive')` 文件
-4. 需要继续实验时把 `if __name__` 重新导入 Notebook
+3. 工作正常后，把代码整理到 `.py` 文件，并在 `from google.colab import drive; drive.mount('/content/drive')` 的前置里挂载云盘
+4. 继续做实验时，把 `if __name__ == "__main__"` 的脚本逻辑重新放回 Notebook 执行
 
 ## 常见坑
 
