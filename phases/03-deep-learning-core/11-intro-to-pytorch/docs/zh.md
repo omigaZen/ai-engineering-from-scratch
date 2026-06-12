@@ -81,7 +81,9 @@ x.unsqueeze(0)     # add dimension: (1, 2, 3, 4)
 x.squeeze()        # remove size-1 dimensions
 ```
 
-### 自动毕业你的迷你框架要求你为每个模块实现backward()。 PyTorch 没有。它将张量上的每个操作记录到有向无环图（计算图）中，然后反向遍历该图以自动计算梯度。
+### 自动微分
+
+你的迷你框架要求你为每个模块实现 `backward()`。PyTorch 不需要这样做。它会把张量上的每个操作记录到有向无环图（计算图）里，然后反向遍历这张图，自动算出梯度。
 
 ```mermaid
 graph LR
@@ -150,7 +152,7 @@ class MLP(nn.Module):
 
 ### 损失函数和优化器
 
-PyTorch 提供您构建的所有内容的生产就绪版本。
+PyTorch 提供了你自己构建过的所有东西的生产级版本。
 
 **损失函数**（来自 `torch.nn`）：
 
@@ -265,11 +267,12 @@ for inputs, targets in loader:
 
 ### 比较：Mini Framework、PyTorch、JAX
 
-|特色 |迷你框架（L10）| PyTorch |贾克斯|
-|--------|---------------------|---------|-----||自动差分 |手动向后() |基于磁带的 autograd |功能转变|
-|执行 | Eager（Python 循环）| Eager（C++ 内核）|追踪 + JIT 编译 |
-| GPU 支持 |没有 |是（CUDA、ROCm、MPS）|是（CUDA、TPU）|
-|速度（MNIST MLP）| ~300 秒/纪元 | ~0.5 秒/纪元 | ~0.3 秒/纪元 |
+| 特性 | 迷你框架（L10） | PyTorch | JAX |
+|--------|---------------------|---------|-----|
+| 自动微分 | 手动 `backward()` | 基于“磁带”的 autograd | 函数式变换 |
+| 执行方式 | Eager（Python 循环） | Eager（C++ 内核） | 追踪 + JIT 编译 |
+| GPU 支持 | 没有 | 有（CUDA、ROCm、MPS） | 有（CUDA、TPU） |
+| 速度（MNIST MLP） | ~300 秒/纪元 | ~0.5 秒/纪元 | ~0.3 秒/纪元 |
 |模块系统|自定义模块类 | nn.模块|无状态函数（Flax/Equinox）|
 |调试|打印() |打印（），pdb，断点（）|更难（JIT 跟踪中断打印）|
 |生态系统|无 |拥抱脸，闪电，蒂姆|亚麻、Optax、Orbax |
@@ -449,7 +452,9 @@ def main():
 
 ## 使用它
 
-### 快速比较：Mini Framework 与 PyTorch|迷你框架（第 10 课）| PyTorch |
+### 快速比较：Mini Framework 与 PyTorch
+
+| 迷你框架（第 10 课） | PyTorch |
 |----------------------------|---------|
 | `model = Sequential(Linear(784, 256), ReLU(), ...)` | `model = nn.Sequential(nn.Linear(784, 256), nn.ReLU(), ...)` |
 | `pred = model.forward(x)` | `pred = model(x)` |
