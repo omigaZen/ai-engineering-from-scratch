@@ -2,10 +2,10 @@
 
 > 数据是燃料。你如何管理它，决定了学习和落地速度。
 
-**Type:** Build
-**Language:** Python
-**Prerequisites:** Phase 0, Lesson 01
-**Time:** ~45 minutes
+**类型:** Build
+**语言:** Python
+**先修:** 第 0 阶段第 01 课
+**时长:** ~45 分钟
 
 ## 学习目标
 
