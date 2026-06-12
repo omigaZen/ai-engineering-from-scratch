@@ -237,7 +237,7 @@ A^T A = | 4  10 |    A^T b = | 22 |
 
 Solve: x = [1.5, 1.7]
 
-This is linear regression. x[0] is the intercept, x[1] is the slope.
+��������Իع顣x[0] �ǽؾ࣬x[1] ��б�ʡ�
 ```
 
 推导来自 ||Ax-b||^2 = x^T A^T A x - 2x^T A^T b + b^T b，对 x 求梯度为零�?
@@ -555,4 +555,5 @@ print(f"Ridge weights (sklearn): {ridge_sk.coef_}")
 - [Numerical Linear Algebra](https://people.maths.ox.ac.uk/trefethen/text.html) -- Trefethen & Bau：数值稳定性与条件数基础参�? 
 - [Matrix Computations](https://www.cs.cornell.edu/cv/GolubVanLoan4/golubandvanloan.htm) -- Golub & Van Loan：矩阵算法百科全�? 
 - [3Blue1Brown: Inverse Matrices](https://www.3blue1brown.com/lessons/inverse-matrices) -- 直观理解 Ax=b 的几�?
+
 
