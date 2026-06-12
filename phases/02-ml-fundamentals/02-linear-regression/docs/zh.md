@@ -255,7 +255,7 @@ class LinearRegressionNormal:
         return 1 - (ss_res / ss_tot)
 
 
-print("\n=== Normal Equation (Closed-Form) ===")
+print("\n=== 正规方程（闭式解） ===")
 model_normal = LinearRegressionNormal()
 model_normal.fit(X, y)
 print(f"Learned: y = {model_normal.w:.4f}x + {model_normal.b:.4f}")
