@@ -91,7 +91,7 @@ graph TD
 **前向模式** 从输入开始把导数向前推。它先算 `x`，再穿过每个操作。输入少、输出多时更合适。
 
 ```
-Forward mode: seed dx/dx = 1, propagate forward
+前向模式：令 `dx/dx = 1` 作为种子，向前传播
 
   x = 2       (dx/dx = 1)
   a = x^2     (da/dx = 2x = 4)
@@ -101,7 +101,7 @@ Forward mode: seed dx/dx = 1, propagate forward
 **反向模式** 从输出开始把梯度向后拉。它先算 `y = sin(x^2)`，再反向通过每个操作传播。输入多、输出少时更合适。
 
 ```
-Reverse mode: seed dy/dy = 1, propagate backward
+反向模式：令 `dy/dy = 1` 作为种子，向后传播
 
   y = sin(a)  (dy/dy = 1)
   a = x^2     (dy/da = cos(a) = cos(4) = -0.654)
