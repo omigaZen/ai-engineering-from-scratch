@@ -2,10 +2,10 @@
 
 > AI 工程师的大部分时间都在终端里。先把这块打磨好。  
 
-**Type:** Learn
-**Languages:** --
-**Prerequisites:** Phase 0, Lesson 01
-**Time:** ~35 minutes
+**类型:** Learn
+**语言:** --
+**先修:** 第 0 阶段第 01 课
+**时长:** ~35 分钟
 
 ## 学习目标
 
