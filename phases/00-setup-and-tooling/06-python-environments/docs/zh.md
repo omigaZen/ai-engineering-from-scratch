@@ -2,10 +2,10 @@
 
 > 依赖地狱是存在的，而虚拟环境是对症药。
 
-**Type:** Build
-**Languages:** Shell
-**Prerequisites:** Phase 0, Lesson 01
-**Time:** ~30 minutes
+**类型:** Build
+**语言:** Shell
+**先修:** 第 0 阶段第 01 课
+**时长:** ~30 分钟
 
 ## 学习目标
 
