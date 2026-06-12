@@ -451,12 +451,12 @@ configs = [
 
 results = {}
 for name, act_fn, act_d_fn in configs:
-    print(f"\n=== Training with {name} ===")
+    print(f"\n=== 使用 {name} 训练 ===")
     net = ActivationNetwork(act_fn, act_d_fn, hidden_size=8, lr=0.1)
     losses = net.train(data, epochs=200)
     results[name] = losses
 
-print("\n=== Final Loss Comparison ===")
+print("\n=== 最终损失对比 ===")
 for name, losses in results.items():
     print(f"  {name:10s}: start={losses[0]:.4f} -> end={losses[-1]:.4f} (improvement: {(1 - losses[-1]/losses[0])*100:.1f}%)")
 ```
