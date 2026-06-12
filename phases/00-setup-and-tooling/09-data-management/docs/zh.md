@@ -26,7 +26,7 @@ graph TD
     C --> D["Local Cache<br/>~/.cache/huggingface/"]
     B --> E["Format Conversion<br/>CSV, JSON, Parquet, Arrow"]
     E --> F["Data Splits<br/>train / val / test"]
-    F --> G["Your Training Pipeline"]
+    F --> G["你的训练流水线"]
 ```
 
 Hugging Face 的 `datasets` 是 AI 中常用数据加载方案，内置下载、缓存、格式转换和流式读取。
