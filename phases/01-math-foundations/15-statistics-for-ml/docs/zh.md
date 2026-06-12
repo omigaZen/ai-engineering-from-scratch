@@ -233,7 +233,7 @@ Negative        80        100
 chi^2 = (120-100)^2/100 + (80-100)^2/100 = 4 + 4 = 8
 
 With 1 degree of freedom, chi^2 = 8 gives p < 0.005.
-The difference is significant.
+�������ͳ�������ԡ�
 ```
 
 ### ML 模型�?A/B 测试
@@ -363,7 +363,7 @@ Sort the B bootstrap statistics
    c. Store diff = metric_B - metric_A
 3. 95% CI for the difference:
    [2.5th percentile of diffs, 97.5th percentile of diffs]
-4. If the CI does not contain 0, the difference is significant
+4. ����������䲻���� 0������������������
 ```
 
 相比配对 t 检验，bootstrap 更稳健，因为它不依赖分布假设�?
@@ -492,5 +492,6 @@ For highly skewed distributions, you might need n >= 100.
 | 中心极限定理 | 样本均值随着样本量增长趋向正态�?|
 | 参数检�?| 假设特定分布（通常正态）形式�?|
 | 非参数检�?| 不依赖分布假设，常基于秩或符号�?|
+
 
 
