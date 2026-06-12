@@ -1,27 +1,26 @@
 # AI 使用 Docker
 
-> 容器让“只在我电脑上能运行”不再是常态。
+> 容器让“只在我电脑上能运行”不再是常态�?
 
 **类型:** 构建 **语言:** Docker
-**先修:** 第 0 阶段第 01、03 课
-**时长:** ~60 分钟
+**先修:** �?0 阶段�?01�?3 �?**时长:** ~60 分钟
 
 ## 学习目标
 
-- 使用 Dockerfile 构建带 CUDA、PyTorch 和常用 AI 库的 GPU 镜像
-- 用 volume 映射主机目录，持久化模型、数据集和代码，避免重建后丢失
+- 使用 Dockerfile 构建�?CUDA、PyTorch 和常�?AI 库的 GPU 镜像
+- �?volume 映射主机目录，持久化模型、数据集和代码，避免重建后丢�?
 - 配置 NVIDIA Container Toolkit，让容器内可访问 GPU
-- 用 Docker Compose 编排推理服务与向量数据库等多服务 AI 应用
+- �?Docker Compose 编排推理服务与向量数据库等多服务 AI 应用
 
 ## 问题
 
-你在笔记本上用 PyTorch 2.3 + CUDA 12.4 + Python 3.12 训练了模型，同事环境是 PyTorch 2.1 + CUDA 11.8 + Python 3.10，模型就挂了；但你的 Dockerfile 在两边都能跑。
+你在笔记本上�?PyTorch 2.3 + CUDA 12.4 + Python 3.12 训练了模型，同事环境�?PyTorch 2.1 + CUDA 11.8 + Python 3.10，模型就挂了；但你的 Dockerfile 在两边都能跑�?
 
-AI 项目依赖栈复杂：Python、PyTorch、CUDA 驱动、cuDNN、系统级 C 库以及如 flash-attn 等依赖固定编译器版本的包。Docker 把这些打进镜像，做到各处行为一致。
+AI 项目依赖栈复杂：Python、PyTorch、CUDA 驱动、cuDNN、系统级 C 库以及如 flash-attn 等依赖固定编译器版本的包。Docker 把这些打进镜像，做到各处行为一致�?
 
 ## 概念
 
-Docker 把代码、运行时、库和系统工具打包为隔离单元 container。它像轻量虚拟机，但复用宿主内核，因此启动速度快很多。
+Docker 把代码、运行时、库和系统工具打包为隔离单元 container。它像轻量虚拟机，但复用宿主内核，因此启动速度快很多�?
 
 ```mermaid
 graph TD
@@ -31,48 +30,42 @@ graph TD
         A3["Server<br/>Python 3.11<br/>CUDA 12.1<br/>PyTorch 2.2"] -->|crashes| X3["???"]
     end
 
-    subgraph with_docker["With Docker — Same image everywhere"]
+    subgraph with_docker["With Docker �?Same image everywhere"]
         B1["Your machine<br/>Python 3.12 | CUDA 12.4<br/>PyTorch 2.3 | Your code"]
         B2["Their machine<br/>Python 3.12 | CUDA 12.4<br/>PyTorch 2.3 | Your code"]
         B3["Server<br/>Python 3.12 | CUDA 12.4<br/>PyTorch 2.3 | Your code"]
     end
 ```
 
-### 为什么 AI 更依赖 Docker
+### 为什�?AI 更依�?Docker
 
-1. **GPU 驱动脆弱**。CUDA 12.4 代码通常无法在 11.8 上直接跑通。NVIDIA Container Toolkit 允许容器共享宿主 GPU 驱动，CUDA toolkit 由容器内管理。
-2. **模型文件很大**。7B 模型 fp16 下约 14GB，不希望每次重建容器都重新下载。挂载卷可将模型目录固定在主机。
-3. **多服务模式常见**。真实 AI 应用不只是脚本，还包括推理服务、向量库、前端。Docker Compose 可以一条命令启动所有服务。
+1. **GPU 驱动脆弱**。CUDA 12.4 代码通常无法�?11.8 上直接跑通。NVIDIA Container Toolkit 允许容器共享宿主 GPU 驱动，CUDA toolkit 由容器内管理�?
+2. **模型文件很大**�?B 模型 fp16 下约 14GB，不希望每次重建容器都重新下载。挂载卷可将模型目录固定在主机�?
+3. **多服务模式常�?*。真�?AI 应用不只是脚本，还包括推理服务、向量库、前端。Docker Compose 可以一条命令启动所有服务�?
 
-### 关键词
+### 关键�?
 
 | 术语 | 含义 |
 |------|---------------|
 | Image | 只读模板。它是构建镜像的“食谱”，来自 Dockerfile |
-| Container | image 的运行实例，类似一次“厨房运行环境” |
+| Container | image 的运行实例，类似一次“厨房运行环境�?|
 | Dockerfile | 定义镜像构建步骤的指令文件，按层(layer)执行 |
 | Volume | 容器重启后仍保留的持久化存储 |
-| docker-compose | 用 YAML 定义多容器应用的工具 |
+| docker-compose | �?YAML 定义多容器应用的工具 |
 
-### AI 常见容器形态
+### AI 常见容器形�?
 
 ```
 Dev Container
-  工具齐全。支持编辑器、Jupyter 和调试工具。
-  用于开发和实验。
-
-Training Container
-  极简。只有训练脚本和依赖。
-  运行在 GPU 集群上。没有编辑器，也没有 Jupyter。
-
-Inference Container
-  针对推理服务优化。镜像小，冷启动快。
-  生产环境中运行在负载均衡器后面。
-```
-
+��������
+  ������ȫ��֧�ֱ༭����Jupyter �͵��Թ��ߡ��ʺϿ�����ʵ�顣
+ѵ������
+  ����ֻ����ѵ���ű��������������� GPU ��Ⱥ�ϣ������༭����Ҳ���� Jupyter��
+��������
+  ����������������Ż��������С�����������죬ͨ���������������������߷ַ������档```
 ## 动手
 
-### 步骤 1：安装 Docker
+### 步骤 1：安�?Docker
 
 ```bash
 # macOS
@@ -85,16 +78,16 @@ sudo usermod -aG docker $USER
 # Log out and back in for group change to take effect
 ```
 
-验证：
+验证�?
 
 ```bash
 docker --version
 docker run hello-world
 ```
 
-### 步骤 2：安装 NVIDIA Container Toolkit（Linux + NVIDIA GPU）
+### 步骤 2：安�?NVIDIA Container Toolkit（Linux + NVIDIA GPU�?
 
-该步骤用于让 Docker 访问 GPU。macOS 与 Windows（WSL2）可跳过，Docker Desktop 会用不同方式处理 GPU passthrough。
+该步骤用于让 Docker 访问 GPU。macOS �?Windows（WSL2）可跳过，Docker Desktop 会用不同方式处理 GPU passthrough�?
 
 ```bash
 distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
@@ -109,13 +102,13 @@ sudo nvidia-ctk runtime configure --runtime=docker
 sudo systemctl restart docker
 ```
 
-测试容器内 GPU：
+测试容器�?GPU�?
 
 ```bash
 docker run --rm --gpus all nvidia/cuda:12.4.1-base-ubuntu22.04 nvidia-smi
 ```
 
-如果看到 GPU 信息，说明 toolkit 生效。
+如果看到 GPU 信息，说�?toolkit 生效�?
 
 ### 步骤 3：理解基础镜像选择
 
@@ -141,9 +134,9 @@ python:3.12-slim
   Size: ~150 MB
 ```
 
-### 步骤 4：编写 AI 开发 Dockerfile
+### 步骤 4：编�?AI 开�?Dockerfile
 
-查看 `code/Dockerfile`：
+查看 `code/Dockerfile`�?
 
 ```dockerfile
 FROM nvidia/cuda:12.4.1-devel-ubuntu22.04
@@ -191,15 +184,15 @@ EXPOSE 8888
 CMD ["python"]
 ```
 
-构建：
+构建�?
 
 ```bash
 docker build -t ai-dev -f phases/00-setup-and-tooling/07-docker-for-ai/code/Dockerfile .
 ```
 
-首次构建会较慢（下载 CUDA 镜像 + PyTorch），后续可复用缓存层。
+首次构建会较慢（下载 CUDA 镜像 + PyTorch），后续可复用缓存层�?
 
-运行：
+运行�?
 
 ```bash
 docker run --rm -it --gpus all \
@@ -208,7 +201,7 @@ docker run --rm -it --gpus all \
     ai-dev python -c "import torch; print(f'PyTorch {torch.__version__}, CUDA: {torch.cuda.is_available()}')"
 ```
 
-在容器内启动 Jupyter：
+在容器内启动 Jupyter�?
 
 ```bash
 docker run --rm -it --gpus all \
@@ -218,9 +211,9 @@ docker run --rm -it --gpus all \
     ai-dev jupyter notebook --ip=0.0.0.0 --port=8888 --no-browser --allow-root
 ```
 
-### 步骤 5：挂载卷用于数据和模型
+### 步骤 5：挂载卷用于数据和模�?
 
-AI 项目离不开持久化。没挂载卷，容器重启时大量下载会丢失。
+AI 项目离不开持久化。没挂载卷，容器重启时大量下载会丢失�?
 
 ```bash
 # Mount your code
@@ -241,13 +234,13 @@ from transformers import AutoModel
 model = AutoModel.from_pretrained("/models/llama-7b")
 ```
 
-模型保存在主机文件系统，随便重建容器都不用反复下载。
+模型保存在主机文件系统，随便重建容器都不用反复下载�?
 
-### 步骤 6：Docker Compose 编排多服务 AI 应用
+### 步骤 6：Docker Compose 编排多服�?AI 应用
 
-真实 RAG 场景通常有推理服务和向量数据库。Compose 一条命令起多个服务。
+真实 RAG 场景通常有推理服务和向量数据库。Compose 一条命令起多个服务�?
 
-见 `code/docker-compose.yml`：
+�?`code/docker-compose.yml`�?
 
 ```yaml
 services:
@@ -284,16 +277,16 @@ volumes:
   qdrant_data:
 ```
 
-启动：
+启动�?
 
 ```bash
 cd phases/00-setup-and-tooling/07-docker-for-ai/code
 docker compose up -d
 ```
 
-ai-dev 容器可以通过服务名访问 qdrant：http://qdrant:6333。Compose 会自动创建共享网络。
+ai-dev 容器可以通过服务名访�?qdrant：http://qdrant:6333。Compose 会自动创建共享网络�?
 
-在 AI 容器内测试连接：
+�?AI 容器内测试连接：
 
 ```python
 from qdrant_client import QdrantClient
@@ -302,13 +295,13 @@ client = QdrantClient(host="qdrant", port=6333)
 print(client.get_collections())
 ```
 
-停止：
+停止�?
 
 ```bash
 docker compose down
 ```
 
-加 `http://qdrant:6333` 会连同 qdrant 数据卷一起清理：
+�?`http://qdrant:6333` 会连�?qdrant 数据卷一起清理：
 
 ```bash
 docker compose down -v
@@ -324,45 +317,45 @@ docker ps
 docker images
 
 # Remove unused images (reclaim disk space)
-docker system prune -a
+# �г��������е�����
 
 # Check GPU usage inside a running container
-docker exec -it <container_id> nvidia-smi
+# �г����о������С
 
 # Copy a file from container to host
-docker cp <container_id>:/workspace/results.csv ./results.csv
+# ɾ��δʹ�õľ����ͷŴ��̿ռ䣩
 
 # View container logs
-docker logs -f <container_id>
+# �鿴�����������ڵ� GPU ʹ�����
 ```
 
-## 应用
+# ���ļ����������Ƶ�����
 
-你现在有了可复现的 AI 开发环境。课程后续可：
-
-- 用 `-v` 一键启动开发容器和向量库
+你现在有了可复现�?AI 开发环境。课程后续可�?
+# �鿴������־
+- �?`-v` 一键启动开发容器和向量�?
 - 挂载代码、模型、数据，避免重建丢失
-- 新课新增依赖时，先改 Dockerfile 再重建镜像
-- 与同伴共享 Dockerfile，直接获得一致环境
+- 新课新增依赖时，先改 Dockerfile 再重建镜�?
+- 与同伴共�?Dockerfile，直接获得一致环�?
 
-### 没有 GPU 时
+### 没有 GPU �?
 
-移除 `docker compose up` 和 NVIDIA deploy 块，容器依然可用于 CPU 课程。PyTorch 会自动回退到 CPU。
+移除 `docker compose up` �?NVIDIA deploy 块，容器依然可用�?CPU 课程。PyTorch 会自动回退�?CPU�?
 
 ## 练习
 
 1. 构建 Dockerfile，并在容器内运行 `--gpus all`
 2. 启动 docker-compose，并确认 Qdrant 可在 AI 容器内通过 `python -c "import torch; print(torch.__version__)"` 访问
-3. 在 Dockerfile 中加入 `http://qdrant:6333/collections` 后重建，并在 5000 端口映射测试一个简单 API
-4. 用 `flask` 查看镜像大小，试着将基镜像从 `-p 5000:5000` 改为 `docker images` 对比大小
+3. �?Dockerfile 中加�?`http://qdrant:6333/collections` 后重建，并在 5000 端口映射测试一个简�?API
+4. �?`flask` 查看镜像大小，试着将基镜像�?`-p 5000:5000` 改为 `docker images` 对比大小
 
-## 关键词
+## 关键�?
 
 | 术语 | 口语说法 | 实际含义 |
 |------|----------------|----------------------|
-| Container | “轻量 VM” | 使用主机内核、拥有独立文件系统与网络空间的隔离进程 |
-| Image layer | “缓存步骤” | Dockerfile 每条指令形成一层，未改动的层会被缓存，加速重建 |
-| NVIDIA Container Toolkit | “Docker 内的 GPU” | 通过 `devel` 让容器访问宿主 GPU 的运行时能力 |
-| Volume mount | “共享文件夹” | 宿主目录映射进容器，容器停止后数据仍保留 |
-| Base image | “起始镜像” | Dockerfile 的 `runtime`，决定了预装组件与基础环境 |
+| Container | “轻�?VM�?| 使用主机内核、拥有独立文件系统与网络空间的隔离进�?|
+| Image layer | “缓存步骤�?| Dockerfile 每条指令形成一层，未改动的层会被缓存，加速重�?|
+| NVIDIA Container Toolkit | “Docker 内的 GPU�?| 通过 `devel` 让容器访问宿�?GPU 的运行时能力 |
+| Volume mount | “共享文件夹�?| 宿主目录映射进容器，容器停止后数据仍保留 |
+| Base image | “起始镜像�?| Dockerfile �?`runtime`，决定了预装组件与基础环境 |
  `--gpus` `FROM`
