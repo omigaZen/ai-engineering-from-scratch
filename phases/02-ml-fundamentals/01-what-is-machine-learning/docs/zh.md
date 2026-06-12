@@ -158,14 +158,14 @@ flowchart LR
 flowchart LR
     subgraph Dataset["完整数据集（100%）"]
         direction LR
-        TR["Training Set (70%)"]
-        VA["Validation Set (15%)"]
-        TE["Test Set (15%)"]
+        TR["训练集（70%）"]
+        VA["验证集（15%）"]
+        TE["测试集（15%）"]
     end
 
-    TR -->|Train model| M[Model]
-    M -->|Tune hyperparameters| VA
-    VA -->|Final evaluation| TE
+    TR -->|训练模型| M[模型]
+    M -->|调整超参数| VA
+    VA -->|最终评估| TE
 ```
 
 | 划分 | 目的 | 使用时机 | 常见比例 |
