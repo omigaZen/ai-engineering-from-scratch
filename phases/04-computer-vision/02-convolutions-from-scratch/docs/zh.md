@@ -59,13 +59,13 @@ Input X (5 x 5):                Kernel W (3 x 3):
   1  0  2  1  3
   2  1  1  0  1
 
-The kernel slides across every valid 3 x 3 window. Output Y is 3 x 3:
+卷积核会滑过每一个有效的 3 x 3 窗口。输出 Y 是 3 x 3：
 
  Y[0,0] = sum( W * X[0:3, 0:3] )
  Y[0,1] = sum( W * X[0:3, 1:4] )
  Y[0,2] = sum( W * X[0:3, 2:5] )
  Y[1,0] = sum( W * X[1:4, 0:3] )
- ... and so on
+ ……依此类推
 ```
 
 这一公式——**共享权重、局部性、滑动窗口**——就是整件事的核心，剩下都只是账务处理。
