@@ -166,8 +166,8 @@ graph TD
 
 随机森林天然给出特征重要性。常见做法有两种：
 
-**MDI（Mean Decrease in Impurity）**  
-对每个特征，统计该特征在所有树所有节点上带来的 impurity 下降总量：
+**MDI（Mean Decrease in Impurity，平均不纯度下降）**  
+对每个特征，统计该特征在所有树节点上带来的不纯度（impurity）下降总量：
 
 ```text
 importance(feature_j) = sum over all nodes where feature_j is used:
