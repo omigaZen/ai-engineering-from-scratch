@@ -333,13 +333,13 @@ for epoch in range(1000):
         p.data -= learning_rate * p.grad
 
     if epoch % 100 == 0:
-        print(f"Epoch {epoch:4d} | Loss: {total_loss.data:.6f}")
+        print(f"第 {epoch:4d} 轮 | 损失: {total_loss.data:.6f}")
 
-print("\nXOR Results:")
+print("\\nXOR 结果：")
 for inputs, target in xor_data:
     x = [Value(i) for i in inputs]
     pred = net(x)
-    print(f"  {inputs} -> {pred.data:.4f} (expected {target})")
+    print(f"  {inputs} -> {pred.data:.4f}（期望 {target}）")
 ```
 
 观察损失下降：随机输出逐步变成了正确的 XOR 输出。这一切完全由反向传播提供梯度，再按梯度方向微调权重实现。
@@ -421,11 +421,11 @@ for epoch in range(1000):
     loss.backward()
     optimizer.step()
 
-print("PyTorch XOR Results:")
+print("PyTorch XOR 结果：")
 with torch.no_grad():
     for i in range(4):
         pred = model(X[i])
-        print(f"  {X[i].tolist()} -> {pred.item():.4f} (expected {y[i].item()})")
+        print(f"  {X[i].tolist()} -> {pred.item():.4f}（期望 {y[i].item()}）")
 ```
 
 `loss.backward()` 就是你自己的 `total_loss.backward()`。`optimizer.step()` 就是手写的 `p.data -= lr * p.grad`。`optimizer.zero_grad()` 就是 `net.zero_grad()`。算法同一套，封装更完善。PyTorch 还处理了 GPU 加速、混合精度、梯度检查点，甚至上百种层类型。但反向传播的链式回传链条本质一致。
@@ -468,4 +468,5 @@ with torch.no_grad():
 
 - Rumelhart, Hinton 与 Williams，"Learning representations by back-propagating errors"（1986）——反向传播主流化并开启多层网络可训练时代的论文
 - 3Blue1Brown，"Neural Networks" 系列（https://www.youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi）——讲得最清楚、最形象的一套反向传播与梯度流视频
+
 
