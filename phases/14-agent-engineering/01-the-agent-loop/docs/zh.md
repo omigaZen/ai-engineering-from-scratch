@@ -1,4 +1,4 @@
-# Agent Loop：观察、思考、行动
+﻿# Agent Loop：观察、思考、行动
 
 > 2026 年的每个 Agent，Claude Code、Cursor、Devin、Operator，本质上都是 2022 年 ReAct loop 的一个变体。推理 token 会与工具调用和观察结果交替出现，直到触发停止条件。先把这个 loop 理清楚，再去碰任何框架。
 
@@ -91,15 +91,15 @@ python3 code/main.py
 
 ## 使用它
 
-Phase 14 的每个框架都建立在这个 loop 之上。掌握它以后，选择框架主要是在选 ergonomics 和 operational shape（durable state、actor model、role templates、voice transport），而不是不同的控制流。
+Phase 14 的每个框架都建立在这个 loop 之上。掌握它以后，选择框架主要是在比较工程体验和运行形态（持久状态、actor 模型、角色模板、消息通道），而不是盯着不同的控制流。
 
 学习这些框架时可以参考它们的文档：
 
-- Claude Agent SDK（Lesson 17）：内置工具、subagents、lifecycle hooks。
-- OpenAI Agents SDK（Lesson 16）：Handoffs、Guardrails、Sessions、Tracing。
-- LangGraph（Lesson 13）：由 nodes 组成的 stateful graph，每一步之后 checkpoint。
-- AutoGen v0.4（Lesson 14）：asynchronous message-passing actors。
-- CrewAI（Lesson 15）：role + goal + backstory templating，Crews vs Flows。
+- Claude Agent SDK（Lesson 17）：内置工具、子代理、生命周期钩子。
+- OpenAI Agents SDK（Lesson 16）：Handoffs、Guardrails、Session、Tracing（接管、护栏、会话、链路追踪）。
+- LangGraph（Lesson 13）：由 node 组成的有状态图（stateful graph），每一步之后会写 checkpoint。
+- AutoGen v0.4（Lesson 14）：异步消息驱动的 actor。
+- CrewAI（Lesson 15）：角色（role）+ 目标（goal）+ 背景（backstory）模板化，支持 Crew 与 Flow 的编排。
 
 ## 交付成果
 
@@ -110,8 +110,8 @@ Phase 14 的每个框架都建立在这个 loop 之上。掌握它以后，选�
 1. 添加一个 `max_tool_calls_per_turn` cap。如果模型发出三个调用，但你只执行前两个，会坏在哪里？
 2. 实现一条 `no_tool_calls → done` stop path。和把 `finish` 作为显式工具相比，哪一种更能避免 early-termination bugs？
 3. 扩展 `ToyLLM`，让它有时返回参数 dict 格式错误的 `Action`。让 loop 通过反馈 error observation 来恢复。这就是 2026 年 CRITIC-style correction（Lesson 5）的形态。
-4. 用真实 Responses API call 替换 `ToyLLM`。把 thought trace 从 inline strings 移到 reasoning channel。transcript 会发生什么变化？
-5. 添加一个类似 Anthropic schema 的 `tool_use_id` correlator，让 parallel tool calls 可以乱序返回。为什么 Anthropic、OpenAI 和 Bedrock 都要求它？
+4. 用真实 Responses API 调用替换 `ToyLLM`。把 thought trace 从内联字符串移到 reasoning channel。执行日志（transcript）会有什么变化？
+5. 添加一个类似 Anthropic schema 的 `tool_use_id` 关联器，让并行 tool calls 可以乱序返回。为什么 Anthropic、OpenAI 和 Bedrock 都要求它？
 
 ## 关键术语
 
@@ -128,8 +128,9 @@ Phase 14 的每个框架都建立在这个 loop 之上。掌握它以后，选�
 
 ## 延伸阅读
 
-- [Yao et al., ReAct: Synergizing Reasoning and Acting in Language Models (arXiv:2210.03629)](https://arxiv.org/abs/2210.03629) — canonical paper
-- [Anthropic, Building Effective Agents (Dec 2024)](https://www.anthropic.com/research/building-effective-agents) — 什么时候用 agent loop，什么时候用 workflow
-- [Letta, Rearchitecting the Agent Loop](https://www.letta.com/blog/letta-v1-agent) — MemGPT loop 的 native-reasoning rewrite
-- [Claude Agent SDK overview](https://platform.claude.com/docs/en/agent-sdk/overview) — 2026 harness shape
-- [OpenAI Agents SDK docs](https://openai.github.io/openai-agents-python/) — Handoffs、Guardrails、Sessions、Tracing
+- [Yao et al., ReAct: Synergizing Reasoning and Acting in Language Models (arXiv:2210.03629)](https://arxiv.org/abs/2210.03629) — ReAct 原始论文
+- [Anthropic, Building Effective Agents (Dec 2024)](https://www.anthropic.com/research/building-effective-agents) — 何时用 agent loop，何时用 workflow
+- [Letta, Rearchitecting the Agent Loop](https://www.letta.com/blog/letta-v1-agent) — MemGPT loop 的原生推理重写版
+- [Claude Agent SDK overview](https://platform.claude.com/docs/en/agent-sdk/overview) — 接入方式与运行形态说明
+- [OpenAI Agents SDK 文档](https://openai.github.io/openai-agents-python/) — Handoffs、Guardrails、Sessions、Tracing
+
