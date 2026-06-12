@@ -437,7 +437,7 @@ class ActivationNetwork:
             accuracy = correct / len(data) * 100
             losses.append(avg_loss)
             if epoch % 50 == 0 or epoch == epochs - 1:
-                print(f"    Epoch {epoch:3d}: loss={avg_loss:.4f}, accuracy={accuracy:.1f}%")
+                print(f"    Epoch {epoch:3d}£ºloss={avg_loss:.4f}£¬accuracy={accuracy:.1f}%")
         return losses
 
 
