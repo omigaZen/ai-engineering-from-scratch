@@ -93,7 +93,7 @@ SVD 还可写成若干�?矩阵之和�?
 A = sigma_1 * u_1 * v_1^T + sigma_2 * u_2 * v_2^T + ... + sigma_r * u_r * v_r^T
 
 Each term sigma_i * u_i * v_i^T is a rank-1 matrix (an outer product).
-The full matrix is the sum of r such matrices, where r is the rank.
+������������� r ������ĺͣ����� r ���ȡ�
 ```
 
 这也是低秩近似的基础。每加一项就增加一层结构：第一项抓住最主要模式，第二项抓住次要模式，以此类推。截断该和式可在给定秩下获得最佳近似�?
@@ -350,11 +350,11 @@ PCA finds eigenvectors of C. But:
 
   C = (1/(n-1)) * V * Sigma^2 * V^T
 
-So the principal components are exactly the right singular vectors V.
+�������ɷ־������������� V��
 The explained variance for each component is sigma_i^2 / (n-1).
 
-In sklearn, PCA is implemented using SVD, not eigendecomposition.
-It is faster and more numerically stable.
+�� sklearn �У�PCA ���� SVD ʵ�ֵģ��������������ֽ⡣
+�������죬Ҳ����ֵ�ȶ���
 ```
 
 这意味着�?0课的降维本质上就是在更底层用 SVD 实现的；PCA 是机器学习中最常见�?SVD 应用之一�?
@@ -547,3 +547,4 @@ julia svd.jl
 - [Netflix Prize and Matrix Factorization](https://sifter.org/~simon/journal/20061211.html) - Simon Funk 关于推荐系统 SVD 的开创性博�? 
 - [Latent Semantic Analysis](https://en.wikipedia.org/wiki/Latent_semantic_analysis) - NLP �?SVD 的经典应�? 
 - [Numerical Linear Algebra by Trefethen and Bau](https://people.maths.ox.ac.uk/trefethen/text.html) - 理解 SVD 算法与数值性质的标准教�?
+
