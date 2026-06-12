@@ -2,10 +2,10 @@
 
 > 编辑器是你的副驾驶。把它配置好，它会减少干扰并提升工作效率。
 
-**Type:** Build
-**Languages:** --
-**Prerequisites:** Phase 0, Lesson 01
-**Time:** ~20 minutes
+**类型:** Build
+**语言:** --
+**先修:** 第 0 阶段第 01 课
+**时长:** ~20 分钟
 
 ## 学习目标
 
