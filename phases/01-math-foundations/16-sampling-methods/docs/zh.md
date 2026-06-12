@@ -244,10 +244,10 @@ Algorithm:
 ```
 p_i = exp(z_i / T) / sum(exp(z_j / T))
 
-T = 1.0: standard softmax (original distribution)
-T -> 0:  argmax (deterministic, always picks highest logit)
-T -> inf: uniform (all tokens equally likely)
-T < 1.0: sharpens the distribution (more confident, less diverse)
+T = 1.0：标准 softmax（原始分布）
+T -> 0：argmax（确定性，总是选最高的 logit）
+T -> inf：均匀分布（所有 token 等概率）
+T < 1.0：让分布更尖锐（更自信，更多样性更少）
 T > 1.0: flattens the distribution (less confident, more diverse)
 ```
 
