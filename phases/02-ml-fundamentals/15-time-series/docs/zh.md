@@ -1,70 +1,48 @@
 ﻿# 时间序列基础
 
-> 过去通常对未来有参考价值，但先检查平稳性，别误判趋势。
+> 过去确实常为未来提供参考，但先检验平稳性，不要把趋势和季节性混为误差。
 
-**类型:** Build  
-**语言:** Python  
-**先修:** 第 2 期第 1-9 课  
+**类型:** Build
+**语言:** Python
+**先修:** 第 2 期第 01-09 课
 **时长:** ~90 分钟
 
 ## 学习目标
 
-- 从零实现时间序列的分解：趋势、季节项、残差。
-- 掌握平稳性检验并理解为何非平稳序列会误导模型。
-- 实现差分与滞后特征，把时间序列转为监督学习问题。
-- 对比滚动验证与随机交叉验证，建立面向时序场景的评估逻辑。
+- 从零拆解时间序列：趋势、季节性和残差
+- 掌握平稳性检验与为什么非平稳会误导模型
+- 实现滞后特征和滑动统计，将时序转为监督学习问题
+- 对比滚动验证与随机拆分，建立面向时间场景的评估逻辑
 
+## 问题
 
-下方保留英文原文作为对照。
+时间序列数据天然有顺序：日销售、小时温度、CPU 使用率、周度股价。你想预测下一刻、下一周、下一季度。
 
----
-# Time Series Fundamentals
+传统机器学习流程（随机划分、独立同分布假设、随机 CV）在这里会失效。时间上相邻样本强相关，随机切分会把未来信息泄露到训练阶段。看似很好的回测，落地后常常塌掉。
 
-> Past performance does predict future results -- if you check for stationarity first.
+一个随机 CV 下 95% 的准确率，在时间切分下可能只有 55%。这不是技术细节，而是线上可用与否的分水岭。
 
-**Type:** Build
-**Language:** Python
-**Prerequisites:** Phase 2, Lessons 01-09
-**Time:** ~90 minutes
+本课讲三件事：时序为何不同、如何诚实评估、如何把时序转成普通模型可用的特征。
 
-## Learning Objectives
+## 核心概念
 
-- Decompose a time series into trend, seasonality, and residual components and test for stationarity
-- Implement lag features and rolling statistics to convert a time series into a supervised learning problem
-- Build a walk-forward validation framework that prevents future data from leaking into training
-- Explain why random train/test splits are invalid for time series and demonstrate the performance gap versus proper temporal splits
+### 时间序列有何不同
 
-## The Problem
+标准 ML 假设 i.i.d.：各样本独立同分布。时序通常不满足：
 
-You have data ordered by time. Daily sales, hourly temperature, per-minute CPU usage, weekly stock prices. You want to predict the next value, the next week, the next quarter.
+- **不独立。** 今天股价依赖昨天，周销售与前周相关。
+- **分布漂移。** 冬春销售分布不同。
 
-You reach for your standard ML toolkit: random train/test split, cross-validation, feature matrix in, prediction out. Every step is wrong.
-
-Time series breaks the assumptions that standard ML relies on. Samples are not independent -- today's temperature depends on yesterday's. Random splits leak future information into the past. Features that look great in backtest fail in production because they rely on patterns that shift over time.
-
-A model that gets 95% accuracy with random cross-validation might get 55% with proper time-based evaluation. The difference is not a technicality. It is the difference between a model that works on paper and one that works in production.
-
-This lesson covers the fundamentals: what makes time data different, how to evaluate models honestly, and how to turn a time series into features that standard ML models can consume.
-
-## The Concept
-
-### What Makes Time Series Different
-
-Standard ML assumes i.i.d. -- independent and identically distributed. Each sample is drawn from the same distribution, independently of other samples. Time series violates both:
-
-- **Not independent.** Today's stock price depends on yesterday's. This week's sales correlate with last week's.
-- **Not identically distributed.** The distribution shifts over time. Sales in December look different from sales in March.
-
-These violations are not minor. They change how you build features, how you evaluate models, and which algorithms work.
+这会影响特征构造、评估方式和模型选择。
 
 ```mermaid
 flowchart LR
-    subgraph IID["Standard ML (i.i.d.)"]
+    subgraph IID[标准 ML（i.i.d.）]
         direction TB
-        S1[Sample 1] ~~~ S2[Sample 2]
-        S2 ~~~ S3[Sample 3]
+        S1[样本1] ~~~ S2[样本2]
+        S2 ~~~ S3[样本3]
     end
-    subgraph TS["Time Series (not i.i.d.)"]
+    subgraph TS[时序（非 i.i.d.）]
         direction LR
         T1[t=1] --> T2[t=2]
         T2 --> T3[t=3]
@@ -80,401 +58,213 @@ flowchart LR
     style T4 fill:#ffd
 ```
 
-In standard ML, samples are interchangeable. Shuffling them changes nothing. In time series, order is everything. Shuffling destroys the signal.
+### 时间序列组成
 
-### Components of a Time Series
+一条序列常可分为：
 
-Every time series is a combination of:
+- **趋势（Trend）**：长期上升/下降方向
+- **季节性（Seasonality）**：周期波动（每天、每周、每年）
+- **残差（Residual）**：无法被趋势和季节性解释的部分
 
-```mermaid
-flowchart TD
-    A[Observed Time Series] --> B[Trend]
-    A --> C[Seasonality]
-    A --> D[Residual/Noise]
+在没有明显趋势、季节性不显著时，更适合直接回归/树模型；若结构明显，先拆分再建模更稳。
 
-    B --> E[Long-term direction: up, down, flat]
-    C --> F[Repeating patterns: daily, weekly, yearly]
-    D --> G[Random variation after removing trend and seasonality]
+常见做法：
+
+```text
+y_t = Trend_t + Seasonality_t + Residual_t
 ```
 
-- **Trend**: The long-term direction. Revenue growing 10% per year. Global temperature rising.
-- **Seasonality**: Repeating patterns at fixed intervals. Retail sales spike in December. Air conditioning usage peaks in July.
-- **Residual**: Whatever is left after removing trend and seasonality. If the residual looks like white noise, the decomposition captured the signal.
+### 平稳性
 
-### Stationarity
+平稳序列是统计特征（均值、方差、协方差）随时间稳定的序列。训练/预测时，非平稳数据会让模型把漂移误解成可学习模式。
 
-A time series is stationary if its statistical properties (mean, variance, autocorrelation) do not change over time. Most forecasting methods assume stationarity.
+平稳检验指标：
 
-**Why it matters:** A non-stationary series has a mean that drifts. A model trained on data from January has learned a different mean than what February will show. It will be systematically wrong.
-
-**How to check:** Compute rolling mean and rolling standard deviation over windows. If they drift, the series is non-stationary.
-
-**How to fix:** Differencing. Instead of modeling the raw values, model the change between consecutive values:
-
-```
-diff[t] = value[t] - value[t-1]
-```
-
-If one round of differencing does not make the series stationary, apply it again (second-order differencing). Most real-world series need at most two rounds.
-
-**Example:**
-
-Original series: [100, 102, 106, 112, 120]
-First difference:  [2, 4, 6, 8] (still trending upward)
-Second difference:  [2, 2, 2] (constant -- stationary)
-
-The original series had a quadratic trend. First differencing turned it into a linear trend. Second differencing made it flat. In practice, you rarely need more than two rounds.
-
-**Formal test:** The Augmented Dickey-Fuller (ADF) test is the standard statistical test for stationarity. The null hypothesis is "the series is non-stationary." A p-value below 0.05 means you can reject the null and conclude stationarity. We do not implement ADF from scratch (it requires asymptotic distribution tables), but the rolling statistics approach in our code gives a practical visual check.
-
-### Autocorrelation
-
-Autocorrelation measures how much a value at time t correlates with the value at time t-k (k steps in the past). The autocorrelation function (ACF) plots this correlation for each lag k.
-
-**ACF tells you:**
-- How far back the series remembers. If ACF drops to zero after lag 5, values more than 5 steps ago are irrelevant.
-- Whether seasonality exists. If ACF spikes at lag 12 (monthly data), there is yearly seasonality.
-- How many lag features to create. Use lags up to where ACF becomes negligible.
-
-**PACF (Partial Autocorrelation Function)** removes indirect correlations. If today correlates with 3 days ago only because both correlate with yesterday, PACF at lag 3 will be zero while ACF at lag 3 will not.
-
-### Lag Features: Turning Time Series into Supervised Learning
-
-Standard ML models need a feature matrix X and a target y. Time series gives you a single column of values. The bridge is lag features.
-
-Take the series [10, 12, 14, 13, 15] and create lag-1 and lag-2 features:
-
-| lag_2 | lag_1 | target |
-|-------|-------|--------|
-| 10    | 12    | 14     |
-| 12    | 14    | 13     |
-| 14    | 13    | 15     |
-
-Now you have a standard regression problem. Any ML model (linear regression, random forest, gradient boosting) can predict the target from the lags.
-
-Additional features you can engineer:
-- **Rolling statistics:** mean, std, min, max over the last k values
-- **Calendar features:** day of week, month, is_holiday, is_weekend
-- **Differenced values:** change from previous step
-- **Expanding statistics:** cumulative mean, cumulative sum
-- **Ratio features:** current value / rolling mean (how far from recent average)
-- **Interaction features:** lag_1 * day_of_week (weekday effects on momentum)
-
-**How many lags?** Use the autocorrelation function. If ACF is significant up to lag 10, use at least 10 lags. If there is weekly seasonality, include lag 7 (and possibly 14). More lags give the model more history but also more features to fit, increasing the risk of overfitting.
-
-**The target alignment trap.** When creating lag features, the target must be the value at time t, and all features must use values at time t-1 or earlier. If you accidentally include the value at time t as a feature, you have a perfect predictor -- and a completely useless model. This is the most common bug in time series feature engineering.
-
-### Walk-Forward Validation
-
-This is the most important concept in this lesson. Standard k-fold cross-validation randomly assigns samples to train and test. For time series, this leaks future information.
-
-```mermaid
-flowchart TD
-    subgraph WRONG["Random Split (WRONG)"]
-        direction LR
-        W1[Jan] --> W2[Mar]
-        W2 --> W3[Feb]
-        W3 --> W4[May]
-        W4 --> W5[Apr]
-        style W1 fill:#fdd
-        style W3 fill:#fdd
-        style W5 fill:#fdd
-        style W2 fill:#dfd
-        style W4 fill:#dfd
-    end
-
-    subgraph RIGHT["Walk-Forward (CORRECT)"]
-        direction LR
-        R1["Train: Jan-Mar"] --> R2["Test: Apr"]
-        R3["Train: Jan-Apr"] --> R4["Test: May"]
-        R5["Train: Jan-May"] --> R6["Test: Jun"]
-        style R1 fill:#dfd
-        style R2 fill:#fdd
-        style R3 fill:#dfd
-        style R4 fill:#fdd
-        style R5 fill:#dfd
-        style R6 fill:#fdd
-    end
-```
-
-Walk-forward validation:
-1. Train on data up to time t
-2. Predict at time t+1 (or t+1 to t+k for multi-step)
-3. Slide the window forward
-4. Repeat
-
-Each test fold only contains data that comes after all training data. No future leakage. This gives you an honest estimate of how the model will perform when deployed.
-
-**Expanding window** uses all historical data for training (window grows). **Sliding window** uses a fixed-size training window (window slides). Use expanding when you believe older data is still relevant. Use sliding when the world changes and old data hurts.
-
-### ARIMA Intuition
-
-ARIMA is the classical time series model. It has three components:
-
-- **AR (Autoregressive):** Predict from past values. AR(p) uses the last p values.
-- **I (Integrated):** Differencing to achieve stationarity. I(d) applies d rounds of differencing.
-- **MA (Moving Average):** Predict from past forecast errors. MA(q) uses the last q errors.
-
-ARIMA(p, d, q) combines all three. You choose p, d, q based on ACF/PACF analysis or automated search (auto-ARIMA).
-
-We will not implement ARIMA from scratch -- it requires numerical optimization that is beyond the scope of this lesson. The key insight is understanding what each component does so you can interpret ARIMA results and know when to use it.
-
-### When to Use What
-
-| Approach | Best For | Handles Seasonality | Handles External Features |
-|----------|---------|-------------------|------------------------|
-| Lag features + ML | Tabular with many external features | With calendar features | Yes |
-| ARIMA | Single univariate series, short-term | SARIMA variant | No (ARIMAX for limited) |
-| Exponential smoothing | Simple trend + seasonality | Yes (Holt-Winters) | No |
-| Prophet | Business forecasting, holidays | Yes (Fourier terms) | Limited |
-| Neural networks (LSTM, Transformer) | Long sequences, many series | Learned | Yes |
-
-For most practical problems, lag features + gradient boosting is the strongest starting point. It handles external features naturally, does not require stationarity, and is easy to debug.
-
-### Forecasting Horizons and Strategies
-
-Single-step forecasting predicts one time step ahead. Multi-step forecasting predicts multiple steps. There are three strategies:
-
-**Recursive (iterated):** Predict one step ahead, use the prediction as input for the next step. Simple but errors accumulate -- each prediction uses the previous prediction, so mistakes compound.
-
-**Direct:** Train a separate model for each horizon. Model-1 predicts t+1, Model-5 predicts t+5. No error accumulation, but each model has fewer training samples and they do not share information.
-
-**Multi-output:** Train one model that outputs all horizons simultaneously. Shares information across horizons but requires a model that supports multiple outputs (or a custom loss function).
-
-For most practical problems, start with recursive for short horizons (1-5 steps) and direct for longer horizons.
-
-### Common Mistakes in Time Series
-
-| Mistake | Why it happens | How to fix |
-|---------|---------------|-----------|
-| Random train/test split | Habit from standard ML | Use walk-forward or temporal split |
-| Using future features | Feature at time t included by mistake | Audit every feature for temporal alignment |
-| Overfitting to seasonality | Model memorizes calendar patterns | Hold out a full seasonal cycle in the test set |
-| Ignoring scale changes | Revenue doubles but patterns stay | Model percentage change instead of absolute |
-| Too many lag features | "More history is better" | Use ACF to determine relevant lags |
-| Not differencing | "The model will figure it out" | Tree models handle trends; linear models need stationarity |
-
-## Build It
-
-The code in `code/time_series.py` implements the core building blocks from scratch.
-
-### Lag Feature Creator
+- **单位根检验（ADF）**：p 值显著小于阈值时可认为平稳
+- **KPSS 检验**：与 ADF 互补
 
 ```python
-def make_lag_features(series, n_lags):
-    n = len(series)
-    X = np.full((n, n_lags), np.nan)
-    for lag in range(1, n_lags + 1):
-        X[lag:, lag - 1] = series[:-lag]
-    valid = ~np.isnan(X).any(axis=1)
-    return X[valid], series[valid]
+is_stationary = adf_p < alpha
 ```
 
-This converts a 1D series into a feature matrix where each row has the last `n_lags` values as features, and the current value as the target.
+若不平稳，先做差分：
 
-### Walk-Forward Cross-Validation
+```text
+d_t = y_t - y_{t-1}
+```
+
+### 自相关
+
+自相关表示当前值和滞后值之间的关系。自相关图（ACF）可告诉你模型需要几阶滞后。
+
+```text
+ACF(k) = Corr(y_t, y_{t-k})
+```
+
+若 `ACF(7)` 在周频上高，说明可能有周季节性。
+
+### 滞后特征：将时序转为监督学习
+
+把“时间点”转成“表格”：
+
+- `y_t`：当前值作为标签
+- `y_{t-1}, y_{t-2}, ...`：上一时刻/多阶滞后
+- `rolling_mean_7`：过去 7 个值均值
 
 ```python
-def walk_forward_split(n_samples, n_splits=5, min_train=50):
-    assert min_train < n_samples, "min_train must be less than n_samples"
-    step = max(1, (n_samples - min_train) // n_splits)
-    for i in range(n_splits):
-        train_end = min_train + i * step
-        test_end = min(train_end + step, n_samples)
-        if train_end >= n_samples:
-            break
-        yield slice(0, train_end), slice(train_end, test_end)
+# 一个简单示例
+features = [
+    values[:-1],
+    values[:-2],
+    rolling_mean(values, window=7),
+]
 ```
 
-Each split ensures training data comes strictly before test data. The training window expands with each fold.
+这样就能复用线性回归、随机森林、梯度提升树。
 
-### Simple Autoregressive Model
+### 滚动验证（walk-forward）
 
-A pure AR model is just linear regression on lag features:
+时序不能随机验证，必须按时间顺序切：
+
+1. 用前 `t` 段训练
+2. 在下一段验证
+3. 滑动窗口向前
 
 ```python
-class SimpleAR:
-    def __init__(self, n_lags=5):
-        self.n_lags = n_lags
-        self.weights = None
-        self.bias = None
-
-    def fit(self, series):
-        X, y = make_lag_features(series, self.n_lags)
-        # Solve via normal equations
-        X_b = np.column_stack([np.ones(len(X)), X])
-        theta = np.linalg.lstsq(X_b, y, rcond=None)[0]
-        self.bias = theta[0]
-        self.weights = theta[1:]
-        return self
+for t in range(start, len(data)-horizon):
+    train = values[:t]
+    val = values[t:t+horizon]
 ```
 
-This is conceptually identical to linear regression from Lesson 02, but applied to time-lagged versions of the same variable.
+### ARIMA 直觉
 
-### Stationarity Check
+ARIMA 可用来建模：
+- 自回归（AR）
+- 差分（I）
+- 移动平均（MA）
 
-The code computes rolling statistics to visually and numerically assess stationarity:
+它假设未来可由过去滞后和历史误差线性组合。适合平稳且趋势较弱的单变量问题。
+
+### 何时用什么
+
+- 仅短期、结构稳定：ARIMA/ARMA 能快起步
+- 多变量、非线性、强季节：树模型 + 特征工程
+- 长期复杂依赖：可上更高级时序模型
+
+### 预测视野与策略
+
+要明确预测步长：
+
+- **短期**：1-12 步，强调短期误差
+- **中期**：按业务周期（周、月）平衡
+- **长期**：重视趋势方向、区间覆盖，不只看点估计
+
+### 常见误区
+
+1. **随机划分。** 会泄露未来。
+2. **不做差分就建模。** 容易把趋势当特征。
+3. **过多滞后。** 特征维度爆炸，噪声变大。
+4. **把所有特征同时扩展太多。** 训练过慢且泛化差。
+
+## 实战：从零实现
+
+### 滞后特征生成器
+
+构造 `lag=1..N` 与滚动统计：
 
 ```python
-def check_stationarity(series, window=50):
-    rolling_mean = np.array([
-        series[max(0, i - window):i].mean()
-        for i in range(1, len(series) + 1)
-    ])
-    rolling_std = np.array([
-        series[max(0, i - window):i].std()
-        for i in range(1, len(series) + 1)
-    ])
-    return rolling_mean, rolling_std
+def make_lag_features(values, lags, window):
+    X, y = [], []
+    for i in range(max(lags), len(values)-1):
+        row = []
+        for lag in lags:
+            row.append(values[i-lag])
+        row.append(sum(values[i-window:i]) / window)
+        X.append(row)
+        y.append(values[i+1])
+    return X, y
 ```
 
-If the rolling mean drifts or the rolling std changes, the series is non-stationary. Apply differencing and check again.
+### 滚动交叉验证
 
-The code also checks stationarity by comparing the first half and second half of the series. If the means differ by more than half a standard deviation or the variance ratio exceeds 2x, the series is flagged as non-stationary.
-
-### Autocorrelation
+按折数切时间窗：
 
 ```python
-def autocorrelation(series, max_lag=20):
-    n = len(series)
-    mean = series.mean()
-    var = series.var()
-    acf = np.zeros(max_lag + 1)
-    for k in range(max_lag + 1):
-        cov = np.mean((series[:n-k] - mean) * (series[k:] - mean))
-        acf[k] = cov / var if var > 0 else 0
-    return acf
+folds = []
+for fold in range(k):
+    train_end = (fold + 1) * step
+    val_end = train_end + horizon
+    folds.append((0, train_end, train_end, val_end))
 ```
 
-## Use It
+### 简单自回归模型
 
-With sklearn, you use lag features directly with any regressor:
+AR 类模型本质是线性回归：
 
-```python
-from sklearn.linear_model import Ridge
-from sklearn.ensemble import GradientBoostingRegressor
-
-X, y = make_lag_features(series, n_lags=10)
-
-for train_idx, test_idx in walk_forward_split(len(X)):
-    model = Ridge(alpha=1.0)
-    model.fit(X[train_idx], y[train_idx])
-    predictions = model.predict(X[test_idx])
+```text
+y_t = b + w1*y_{t-1} + w2*y_{t-2} + ... + eps
 ```
 
-For ARIMA, use statsmodels:
+### 平稳性检查
 
-```python
-from statsmodels.tsa.arima.model import ARIMA
+打印 ADF/p 值、滚动均值和滚动方差；若均值/方差随时间漂移，先差分。
 
-model = ARIMA(train_series, order=(5, 1, 2))
-fitted = model.fit()
-forecast = fitted.forecast(steps=30)
-```
+### 自相关图
 
-The code in `time_series.py` demonstrates both approaches and compares them using walk-forward validation.
+ACF/PACF 决定滞后阶和 MA 阶数。
 
-### sklearn TimeSeriesSplit
+## 工程实践
 
-sklearn provides `TimeSeriesSplit` which implements walk-forward validation:
+### sklearn 的 TimeSeriesSplit
 
-```python
-from sklearn.model_selection import TimeSeriesSplit
+`TimeSeriesSplit` 在不打乱数据的前提下切分时间窗，适合快速比较模型。
 
-tscv = TimeSeriesSplit(n_splits=5)
-for train_index, test_index in tscv.split(X):
-    X_train, X_test = X[train_index], X[test_index]
-    y_train, y_test = y[train_index], y[test_index]
-    model.fit(X_train, y_train)
-    score = model.score(X_test, y_test)
-```
+### 评估指标
 
-This is equivalent to our from-scratch `walk_forward_split` but integrated into sklearn's cross-validation framework. You can use it with `cross_val_score`:
+- MAE、RMSE（回归误差）
+- MAPE（相对误差）
+- MASE（与基线比较）
 
-```python
-from sklearn.model_selection import cross_val_score
+### 滚动特征
 
-scores = cross_val_score(model, X, y, cv=TimeSeriesSplit(n_splits=5))
-print(f"Mean score: {scores.mean():.4f} +/- {scores.std():.4f}")
-```
+滚动统计可稳定噪声，但窗口长度过小会更噪，过大会滞后。
 
-### Evaluation Metrics
+## 落地标准
 
-Time series forecasting uses regression metrics, but with time-aware context:
+### 先打赢基线
 
-- **MAE (Mean Absolute Error):** Average of |y_true - y_pred|. Easy to interpret in original units. "On average, predictions are off by 3.2 degrees."
-- **RMSE (Root Mean Squared Error):** Square root of mean squared error. Penalizes large errors more than MAE. Use when big errors are worse than many small errors.
-- **MAPE (Mean Absolute Percentage Error):** Average of |error / true_value| * 100. Scale-independent, useful for comparing across different series. But undefined when true values are zero.
-- **Naive baseline comparison:** Always compare against simple baselines. The seasonal naive baseline predicts the value from one period ago (yesterday, last week). If your model cannot beat naive, something is wrong.
+时序模型至少要胜过：
+- 持续最后值
+- 简单移动平均
+- 同期同周期“同频复用”基线
 
-### Rolling Features
+### 实用建议
 
-The code demonstrates adding rolling statistics (mean, std, min, max over windows of 7 and 14 days) to lag features. These give the model information about recent trends and volatility that lag features alone do not capture.
+- 所有时间切分都按时间戳排序
+- 特征窗口固定，不跨未来泄露
+- 记录训练时间、推理时间、延迟预算
+- 报告预测区间而不只报点估计
 
-For example, if the rolling mean is rising, it suggests an upward trend. If the rolling std is increasing, it suggests growing volatility. These are the kinds of patterns that tree-based models can learn from but linear models cannot.
+## 练习
 
-## Ship It
+1. 对一个月销售序列做 ADF 检验和一次差分，观察平稳性提升。
+2. 构造 1、3、7、14 日滞后和 7 日滚动均值，比较线性回归与随机森林。
+3. 用 `TimeSeriesSplit` 做 4 折对比，并对比随机 CV 的结果差异。
+4. 实现 `walk-forward` 验证并画出真实值和预测值曲线。
+5. 在样本外一周滚动更新模型参数，记录误差是否下降。
 
-This lesson produces:
-- `outputs/prompt-time-series-advisor.md` -- a prompt for framing time series problems
-- `code/time_series.py` -- lag features, walk-forward validation, AR model, stationarity checks
+## 关键术语
 
-### Baselines You Must Beat
+| 术语 | 说明 |
+|---|---|
+| 平稳性 | 均值和方差随时间基本稳定 |
+| 滞后特征 | 使用过去 `t-k` 的值作为当前输入 |
+| 滚动窗口 | 在固定长度窗口上计算统计量 |
+| Walk-forward | 按时间不断扩展训练窗口并评估 |
+| 差分 | 用相邻值差值去除趋势 |
 
-Before building any model, establish baselines:
+## 延伸阅读
 
-1. **Last value (persistence).** Predict that tomorrow will be the same as today. For many series, this is surprisingly hard to beat.
-2. **Seasonal naive.** Predict that today will be the same as the same day last week (or last year). If your model cannot beat this, it has not learned any useful pattern beyond seasonality.
-3. **Moving average.** Predict the average of the last k values. Smooths noise but cannot capture sudden changes.
-
-If your fancy ML model loses to the seasonal naive baseline, you have a bug. Most commonly: future leakage in features, wrong evaluation method, or the series is truly random and unpredictable.
-
-### Practical Tips
-
-1. **Start with plotting.** Before any modeling, plot the raw series. Look for trends, seasonality, outliers, structural breaks (sudden changes in behavior). A 30-second visual inspection often tells you more than an hour of automated analysis.
-
-2. **Difference first, model second.** If the series has a clear trend, difference it before creating lag features. Tree-based models can handle trends, but linear models cannot, and differencing never hurts.
-
-3. **Hold out at least one full seasonal cycle.** If you have weekly seasonality, your test set needs at least one full week. If monthly, at least one full month. Otherwise you cannot evaluate whether the model captured the seasonal pattern.
-
-4. **Monitor in production.** Time series models degrade over time as the world changes. Track prediction errors on a rolling basis. When errors start increasing, retrain the model on recent data.
-
-5. **Beware of regime changes.** A model trained on pre-pandemic data will not predict post-pandemic behavior. Include indicators of known regime changes as features, or use a sliding window that forgets old data.
-
-6. **Log-transform skewed series.** Revenue, prices, and counts are often right-skewed. Taking the log stabilizes variance and makes multiplicative patterns additive, which linear models can handle. Forecast in log space, then exponentiate to get back to original units.
-
-## Exercises
-
-1. **Stationarity experiment.** Generate a series with a linear trend. Check stationarity with rolling statistics. Apply first differencing. Check again. How many rounds of differencing does it take for a quadratic trend?
-
-2. **Lag selection.** Compute ACF on a seasonal series (period=7). Which lags have the highest autocorrelation? Create lag features using only those lags (not consecutive lags). Does accuracy improve compared to using lags 1 through 7?
-
-3. **Walk-forward vs random split.** Train a Ridge regression on lag features. Evaluate with random 80/20 split and with walk-forward validation. How much does the random split overestimate performance?
-
-4. **Feature engineering.** Add rolling mean (window=7), rolling std (window=7), and day-of-week features to the lag features. Compare accuracy with and without these extras using walk-forward validation.
-
-5. **Multi-step forecasting.** Modify the AR model to predict 5 steps ahead instead of 1. Compare two strategies: (a) predict one step, use the prediction as input for the next step (recursive), and (b) train separate models for each horizon (direct). Which is more accurate?
-
-## Key Terms
-
-| Term | What people say | What it actually means |
-|------|----------------|----------------------|
-| Stationarity | "The stats don't change over time" | A series whose mean, variance, and autocorrelation structure are constant over time |
-| Differencing | "Subtract consecutive values" | Computing y[t] - y[t-1] to remove trends and achieve stationarity |
-| Autocorrelation (ACF) | "How a series correlates with itself" | The correlation between a time series and a lagged copy of itself, as a function of the lag |
-| Partial autocorrelation (PACF) | "Direct correlation only" | Autocorrelation at lag k after removing the effect of all shorter lags |
-| Lag features | "Past values as inputs" | Using y[t-1], y[t-2], ..., y[t-k] as features to predict y[t] |
-| Walk-forward validation | "Time-respecting cross-validation" | Evaluation where training data always precedes test data chronologically |
-| ARIMA | "The classic time series model" | AutoRegressive Integrated Moving Average: combines past values (AR), differencing (I), and past errors (MA) |
-| Seasonality | "Repeating calendar patterns" | Regular, predictable cycles in a time series tied to calendar periods (daily, weekly, yearly) |
-| Trend | "The long-term direction" | A persistent increase or decrease in the series level over time |
-| Expanding window | "Use all history" | Walk-forward validation where the training set grows with each fold |
-| Sliding window | "Fixed-size history" | Walk-forward validation where the training set is a fixed-length window that slides forward |
-
-## Further Reading
-
-- [Hyndman and Athanasopoulos, Forecasting: Principles and Practice (3rd ed.)](https://otexts.com/fpp3/) -- the best free textbook on time series forecasting
-- [scikit-learn Time Series Split](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.TimeSeriesSplit.html) -- sklearn's walk-forward splitter
-- [statsmodels ARIMA docs](https://www.statsmodels.org/stable/generated/statsmodels.tsa.arima.model.ARIMA.html) -- ARIMA implementation with diagnostics
-- [Makridakis et al., The M5 Competition (2022)](https://www.sciencedirect.com/science/article/pii/S0169207021001874) -- large-scale forecasting competition showing ML methods vs statistical methods
-
+- [Hyndman, Forecasting: Principles and Practice](https://otexts.com/fpp2/) - 系统的时序建模入门
+- [scikit-learn 时间序列实践文档](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.TimeSeriesSplit.html) - 时间切分工具说明
+- [Statsmodels 诊断与平稳性检验](https://www.statsmodels.org/stable/tsa.html) - ADF、ACF 等常用实现
