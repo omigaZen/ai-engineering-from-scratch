@@ -304,7 +304,7 @@ P(at least one false positive) = 1 - (1 - alpha)^m
 m = 20 tests, alpha = 0.05:
 P(false positive) = 1 - 0.95^20 = 0.64
 
-You have a 64% chance of at least one false positive.
+ÖÁÉÙ³öÏÖÒ»´Î¼ÙÑôÐÔµÄ¸ÅÂÊÊÇ 64%¡£
 ```
 
 **Bonferroni æ ¡æ­£ï¼?* alpha é™¤ä»¥æ£€éªŒæ¬¡æ•°ã€?
@@ -312,11 +312,11 @@ You have a 64% chance of at least one false positive.
 ```
 Adjusted alpha = alpha / m = 0.05 / 20 = 0.0025
 
-Only reject H0 if p-value < 0.0025.
-Conservative but simple. Works when tests are independent.
+Ö»ÓÐµ± p Öµ < 0.0025 Ê±²Å¾Ü¾ø H0¡£
+ÕâÖÖ·½·¨±£ÊØµ«¼òµ¥£¬ÊÊÓÃÓÚ¸÷¸ö¼ìÑé±Ë´Ë¶ÀÁ¢µÄÇé¿ö¡£
 ```
 
-åœ?ML ä¸­ï¼Œæ¯”è¾ƒå¤šä¸ªæŒ‡æ ‡ã€å¤šä¸ªè¶…å‚ç»„åˆæˆ–å¤šä¸ªæ•°æ®é›†æ—¶å¾ˆå¸¸è§ã€?
+åœ?ÔÚ ML Àï£¬ÕâÖÖÐÞÕý³£¼ûÓÚÍ¬Ê±±È½Ï¶à¸öÖ¸±ê¡¢¶à¸ö³¬²ÎÊý×éºÏ»ò¶à¸öÊý¾Ý¼¯µÄ³¡¾°¡£?
 
 ### Bootstrap æ–¹æ³•
 
@@ -373,35 +373,35 @@ Sort the B bootstrap statistics
 **å‚æ•°æ£€éª?*å‡è®¾åˆ†å¸ƒå½¢çŠ¶ï¼ˆé€šå¸¸æ­£æ€ï¼‰ï¼?
 
 ```
-t-test:         assumes normally distributed data (or large n by CLT)
-ANOVA:          assumes normality and equal variances
-Pearson r:      assumes bivariate normality
+t ¼ìÑé£º¼ÙÉèÊý¾Ý·þ´ÓÕýÌ¬·Ö²¼£¨»òÔÚ CLT ×÷ÓÃÏÂ n ×ã¹»´ó£©¡£
+ANOVA£º¼ÙÉèÕýÌ¬ÐÔºÍ·½²îÆëÐÔ¡£
+Pearson r£º¼ÙÉèË«±äÁ¿ÕýÌ¬¡£
 ```
 
 **éžå‚æ•°æ£€éª?*ä¸ä¾èµ–åˆ†å¸ƒå‡è®¾ï¼š
 
 ```
-Mann-Whitney U:     compares two groups (replaces independent t-test)
-Wilcoxon signed-rank: compares paired data (replaces paired t-test)
-Spearman rho:       correlation on ranks (replaces Pearson)
-Kruskal-Wallis:     compares multiple groups (replaces ANOVA)
+Mann-Whitney U£º±È½ÏÁ½×éÊý¾Ý£¨Ìæ´ú¶ÀÁ¢Ñù±¾ t ¼ìÑé£©¡£
+Wilcoxon ·ûºÅÖÈ¼ìÑé£º±È½ÏÅä¶ÔÊý¾Ý£¨Ìæ´úÅä¶Ô t ¼ìÑé£©¡£
+Spearman rho£º¶ÔÖÈ×öÏà¹Ø·ÖÎö£¨Ìæ´ú Pearson£©¡£
+Kruskal-Wallis£º±È½Ï¶à×éÊý¾Ý£¨Ìæ´ú ANOVA£©¡£
 ```
 
 **ä½•æ—¶ç”¨éžå‚æ•°ï¼?*
 
 ```
-- Small sample size (n < 30) and data is clearly non-normal
-- Ordinal data (ratings, rankings)
-- Heavy outliers you cannot remove
-- Skewed distributions
+- Ñù±¾Á¿Ð¡£¨n < 30£©ÇÒÊý¾ÝÃ÷ÏÔ²»·þ´ÓÕýÌ¬·Ö²¼
+- ÓÐÐòÊý¾Ý£¨ÆÀ·Ö¡¢ÅÅÃû£©
+- ´æÔÚÎÞ·¨ÌÞ³ýµÄÇ¿ÀëÈºÖµ
+- Æ«Ì¬·Ö²¼
 ```
 
 **ä½•æ—¶ç”¨å‚æ•°æ£€éªŒï¼š**
 
 ```
-- Large sample size (CLT makes the test statistic approximately normal)
-- Data is roughly symmetric without extreme outliers
-- More statistical power (better at detecting real differences)
+- Ñù±¾Á¿´ó£¨CLT ÈÃ¼ìÑéÍ³¼ÆÁ¿½üËÆÕýÌ¬£©
+- Êý¾Ý´óÖÂ¶Ô³Æ£¬Ã»ÓÐ¼«¶ËÀëÈºÖµ
+- Í³¼Æ¹¦Ð§¸ü¸ß£¨¸üÉÃ³¤·¢ÏÖÕæÊµ²îÒì£©
 ```
 
 åœ?ML å®žéªŒé‡Œï¼Œäº¤å‰éªŒè¯å¸¸åªæœ?5 æˆ?10 æŠ˜ï¼Œå¸¸å¸¸æ›´é€‚åˆ Wilcoxon ç­‰éžå‚æ•°æ£€éªŒã€?
@@ -411,12 +411,12 @@ Kruskal-Wallis:     compares multiple groups (replaces ANOVA)
 ä¸­å¿ƒæžé™å®šç†å‘Šè¯‰æˆ‘ä»¬ï¼šæ— è®ºæ€»ä½“åˆ†å¸ƒå¦‚ä½•ï¼Œåªè¦æ ·æœ¬æ•°è¶³å¤Ÿå¤§ï¼Œæ ·æœ¬å‡å€¼åˆ†å¸ƒè¶‹è¿‘æ­£æ€ã€?
 
 ```
-If X_1, X_2, ..., X_n are iid with mean mu and variance sigma^2:
+Èç¹û X_1, X_2, ..., X_n ÊÇ iid Ñù±¾£¬¾ùÖµÎª mu¡¢·½²îÎª sigma^2£º
 
-    X_bar ~ Normal(mu, sigma^2 / n)    as n -> infinity
+    X_bar ~ Normal(mu, sigma^2 / n)    µ± n -> infinity Ê±
 
-Works for n >= 30 in most cases.
-For highly skewed distributions, you might need n >= 100.
+ÔÚ´ó¶àÊýÇé¿öÏÂ£¬n >= 30 ¾Í¹»ÓÃÁË¡£
+¶ÔÓÚ¸ß¶ÈÆ«Ð±µÄ·Ö²¼£¬Äã¿ÉÄÜÐèÒª n >= 100¡£
 ```
 
 **å¯?ML çš„æ„ä¹‰ï¼š**
@@ -492,6 +492,7 @@ For highly skewed distributions, you might need n >= 100.
 | ä¸­å¿ƒæžé™å®šç† | æ ·æœ¬å‡å€¼éšç€æ ·æœ¬é‡å¢žé•¿è¶‹å‘æ­£æ€ã€?|
 | å‚æ•°æ£€éª?| å‡è®¾ç‰¹å®šåˆ†å¸ƒï¼ˆé€šå¸¸æ­£æ€ï¼‰å½¢å¼ã€?|
 | éžå‚æ•°æ£€éª?| ä¸ä¾èµ–åˆ†å¸ƒå‡è®¾ï¼Œå¸¸åŸºäºŽç§©æˆ–ç¬¦å·ã€?|
+
 
 
 
