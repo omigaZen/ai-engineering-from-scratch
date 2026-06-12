@@ -52,8 +52,8 @@ output = activation(z) * mask    where mask[i] ~ Bernoulli(1 - p)
 实际上，缩放是在训练期间而不是测试期间应用的（反向 dropout）：
 
 ```
-During training:  output = activation(z) * mask / (1 - p)
-During testing:   output = activation(z)   (no change needed)
+训练时：output = activation(z) * mask / (1 - p)
+测试时：output = activation(z)   （无需改动）
 ```
 
 这更干净，因为测试代码根本不需要了解 dropout。默认率：变压器 p = 0.1，MLP p = 0.5，CNN p = 0.2-0.3。更高的 dropout = 更强的正则化 = 更大的欠拟合风险。
