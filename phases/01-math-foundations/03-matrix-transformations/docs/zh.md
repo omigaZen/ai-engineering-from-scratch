@@ -201,7 +201,7 @@ Eigenvector [1, -1] with eigenvalue 1:
 ```
 A = V @ D @ V^(-1)
 
-V = matrix whose columns are eigenvectors
+V = 列向量都是特征向量的矩阵
 D = diagonal matrix of eigenvalues
 V^(-1) = inverse of V
 
