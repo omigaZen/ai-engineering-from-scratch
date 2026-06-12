@@ -2,10 +2,10 @@
 
 > 所有 AI API 的使用方式都一样：发请求，得响应。细节不同，但基本模式不变。
 
-**Type:** Build
-**Languages:** Python, TypeScript
-**Prerequisites:** Phase 0, Lesson 01
-**Time:** ~30 minutes
+**类型:** Build
+**语言:** Python、TypeScript
+**先修:** 第 0 阶段第 01 课
+**时长:** ~30 分钟
 
 ## 学习目标
 
