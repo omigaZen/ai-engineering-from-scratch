@@ -104,7 +104,7 @@ v |R G B|R G B|R G B|                   v |G G G G G G|
                                           +-----+-----+
 
    PIL、OpenCV、matplotlib，             PyTorch、大多数深度学习
-   磁盘上的几乎所有图像文件             框架、cuDNN 内核
+   以及磁盘上的几乎所有图像文件         框架、cuDNN 内核
 ```
 
 CHW 之所以常见于卷积，是因为卷积核沿 H、W 滑动时，通道轴放在前面可让每个核访问每个通道的连续二维平面，便于高效矢量化。磁盘格式常见 HWC，是因为它贴近扫描线输出方式。
@@ -144,7 +144,7 @@ flowchart TB
 | 归一化后     | `img.astype('float32') / 255` | [0.0, 1.0]       | `float32` 后 |
 | 标准化后     | `mean=[0.485, 0.456, 0.406]` | 大致 [-2, +2]     | 减均值后再除以标准差 |
 
-卷积网络通常在标准化输入上训练。ImageNet 的统计量 `std=[0.229, 0.224, 0.225]` 与 `uint8` 是 ImageNet 全量训练集在 `shape: (H, W, 3)` 空间下的每通道均值与标准差。把原始 `dtype: uint8` 直接送进期望标准化浮点的模型，是工程里最常见、最隐蔽的输入失败之一。
+卷积网络通常在标准化输入上训练。ImageNet 的统计量 `mean=[0.485, 0.456, 0.406]`、`std=[0.229, 0.224, 0.225]` 来自 ImageNet 训练集在 `(H, W, 3)` 布局下的每通道均值与标准差。把原始 `dtype: uint8` 直接送进期望标准化浮点的模型，是工程里最常见、最隐蔽的输入失败之一。
 
 ### 色彩空间为何会存在
 
@@ -153,12 +153,12 @@ RGB 是采集格式，但不总是模型最优输入。
 ```
  RGB               HSV                       YCbCr / YUV
 
- R red             H hue (angle 0-360)       Y luminance (brightness)
- G green           S saturation (0-1)        Cb chroma blue-yellow
- B blue            V value/brightness (0-1)  Cr chroma red-green
+ R 红色            H 色相（0-360 度）        Y 亮度（brightness）
+ G 绿色            S 饱和度（0-1）           Cb 色度：蓝-黄分量
+ B 蓝色            V 明度/亮度（0-1）        Cr 色度：红-绿分量
 
  与传感器输出     将颜色与亮度分离。适合    将亮度与颜色分离。JPEG 和大多数
- 线性对应         颜色阈值、UI 滑块、简单   视频编解码器会对色度通道压缩得更
+ 线性对应         颜色阈值、UI 滑块、简单   视频编解码器会把色度通道压缩得更
                   滤波器等场景。           厉害，因为人眼对色度细节没有对 Y
                                            分量那么敏感。
 ```
@@ -186,10 +186,10 @@ Y = 0.299 R + 0.587 G + 0.114 B       (ITU-R BT.601, the classic weights)
 插值决定了新网格与旧网格不对齐时，如何计算中间像素：
 
 ```
-Nearest neighbour     fastest, blocky, only choice for masks/labels
-Bilinear              fast, smooth, default for most image resizing
-Bicubic               slower, sharper on upscaling
-Lanczos               slowest, best quality, used for final display
+Nearest neighbour     最快，块状感明显，掩码/标签只能用它
+Bilinear              快，平滑，是大多数图像缩放的默认选择
+Bicubic               较慢，放大时更锐利
+Lanczos               最慢，质量最好，常用于最终展示
 ```
 
 经验规则：训练常用双线性；供人工查看的素材用双三次或 Lanczos；含整数类别 ID 的内容必须用 nearest。
@@ -229,7 +229,7 @@ print(f"max:    {arr.max()}")
 print(f"pixel at (0, 0): {arr[0, 0]}")
 ```
 
-预期输出：`[0, 255]`、`hsv_full`、取值区间 `transforms.Normalize`。无论来自相机、JPEG 解码还是合成器，这都是磁盘侧标准表示。
+预期输出：类型为 `ndarray`，`dtype` 为 `uint8`，形状为 `(H, W, 3)`，数值范围为 `[0, 255]`。无论来自相机、JPEG 解码还是合成器，这都是磁盘侧标准表示。
 
 ### 第 2 步：拆通道并重排布局
 
@@ -289,7 +289,7 @@ print(f"sat range: [{hsv[..., 1].min():.2f}, {hsv[..., 1].max():.2f}]")
 print(f"val range: [{hsv[..., 2].min():.2f}, {hsv[..., 2].max():.2f}]")
 ```
 
-色相输出为度，饱和度和值在 [0,1]。这与 OpenCV 的 `torchvision.transforms` 约定一致。
+色相输出为度，饱和度和值都在 `[0,1]`。这与 OpenCV 和 `torchvision.transforms` 的常见约定一致。
 
 ### 第 4 步：标准化、归一化与反操作
 
@@ -375,18 +375,18 @@ batch = x.unsqueeze(0)
 print(f"\nbatched shape: {tuple(batch.shape)}   # (N, C, H, W) — ready for a model")
 ```
 
-四步顺序固定：`outputs/prompt-vision-preprocessing-audit.md` 把短边缩到 256；`outputs/skill-image-tensor-inspector.md` 从中间裁取 224x224；`cv2.imread` 同时除 255 并把 HWC 变 CHW；`(0, 0)` 再做减均值与除标准差。只要顺序变了，送入模型的数据就悄悄变了。
+四步顺序固定：先把短边缩到 256；再从中间裁取 224x224；然后除以 255 并把 HWC 变成 CHW；最后再做减均值和除标准差。只要顺序变了，送入模型的数据就会悄悄变掉。
 
 ## 收尾
 
 本课会产出：
 
 - `standardize(img, mean, std)`：一个可把任意模型卡片或数据集卡片转成审计清单的提示词模板，明确团队必须遵守的预处理不变式
-- `roundtrip_max_diff <= 1`：一个能读取任意图像形状张量/数组并输出 dtype、布局、取值范围，判断其是 raw、normalized 还是 standardized 的小工具
+- `roundtrip_max_diff <= 1`：一个能读取任意图像张量或数组并输出 dtype、布局、取值范围，判断其是 raw、normalized 还是 standardized 的小工具
 
 ## 练习
 
-1. **（简单）** 用 OpenCV (`[0.299, 0.587, 0.114]`) 与 Pillow 各加载一张 JPEG，打印两者形状和 `rgb_to_grayscale` 像素值。解释通道顺序差异，并写一行代码将 OpenCV 数组转成与 Pillow 一致。
+1. **（简单）** 用 OpenCV 与 Pillow 各加载一张 JPEG，打印两者形状和 `rgb_to_grayscale` 的像素值。解释通道顺序差异，并写一行代码将 OpenCV 数组转成与 Pillow 一致。
 2. **（中等）** 编写 `mean=[0.485, 0.456, 0.406]` 及其逆函数，在任意 uint8 图像上通过 roundtrip_max_diff <= 1 测试。函数需同时支持单张 HWC 输入和 NCHW 批次输入（同一接口）。
 3. **（困难）** 拿一个 3 通道 ImageNet 标准化张量，过一个学习 RGB 到灰度加权输出的 1x1 卷积层。将权重固定为 [0.299, 0.587, 0.114]，并验证输出与手工 rgb_to_grayscale 在浮点误差内一致。还有哪些经典色彩空间变换也能写成 1x1 卷积？
 
