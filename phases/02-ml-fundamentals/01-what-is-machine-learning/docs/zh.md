@@ -156,7 +156,7 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    subgraph Dataset["Full Dataset (100%)"]
+    subgraph Dataset["完整数据集（100%）"]
         direction LR
         TR["Training Set (70%)"]
         VA["Validation Set (15%)"]
