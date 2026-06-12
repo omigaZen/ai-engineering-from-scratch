@@ -78,7 +78,7 @@ P(w1, w2, ..., wn | class) = P(w1 | class) * P(w2 | class) * ... * P(wn | class)
 - 非垃圾邮件中 `free` 5 次，`money` 10 次，`meeting` 100 次（共 115）
 - 垃圾邮件占比 40%，非垃圾邮件占比 60%
 
-Laplace 平滑（alpha=1）：
+拉普拉斯平滑（alpha=1）：
 
 ```text
 P(free | spam)    = (80 + 1) / (150 + 3) = 81/153 = 0.529
