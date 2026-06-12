@@ -174,26 +174,24 @@ Example:
 **p 值** 是在 H0 为真时，观察到与当前结果“同等或更极端”数据的概率。它不是 H0 为真的概率，这是最常见误解之一。
 
 ```
-p-value = P(data this extreme | H0 is true)
+p-value = P(数据达到这么极端 | H0 为真)
 
-If p-value < alpha (typically 0.05):
-    Reject H0. The result is "statistically significant."
-If p-value >= alpha:
-    Fail to reject H0. You do not have enough evidence.
-    This does NOT mean H0 is true.
+如果 p-value < alpha（通常是 0.05）：
+    拒绝 H0。结果“具有统计显著性”。
+如果 p-value >= alpha：
+    不能拒绝 H0。证据还不够。
+    这并不意味着 H0 为真。
 ```
 
 **置信区间**给参数的合理取值范围：
 
 ```
-95% confidence interval for the mean:
+均值的 95% 置信区间：
     x_bar +/- z * (s / sqrt(n))
 
-where z = 1.96 for 95% confidence
+其中 z = 1.96 对应 95% 置信水平
 
-Interpretation: if you repeated this experiment many times, 95% of the
-computed intervals would contain the true mean. It does NOT mean there
-is a 95% probability the true mean is in this specific interval.
+解释：如果你重复很多次这个实验，计算出的区间里有 95% 会包含真实均值。这并不意味着真实均值有 95% 的概率落在这个特定区间里。
 ```
 
 区间越窄不确定性越小；区间越宽不确定性越大。宽区间意味着估计不稳定；窄区间则更精确，但若数据偏差，则仍可能不准确。
