@@ -76,9 +76,9 @@ agent-loop
 
 `code/main.py` 用纯标准库端到端实现这个 loop。组件包括：
 
-- `ToolRegistry`：name -> callable map，并带 input validation。
-- `ToyLLM`：一个 deterministic script，会发出 `Thought`、`Action`、`Observation`、`Finish` lines，这样 loop 可以离线测试。
-- `AgentLoop`：包含 max turns、trace recording 和 stop conditions 的 while loop。
+- `ToolRegistry`：把名称映射到可调用对象，并带输入参数校验。
+- `ToyLLM`：一个确定性脚本，会按 `Thought`、`Action`、`Observation`、`Finish` 步骤输出，方便离线测试 loop。
+- `AgentLoop`：封装 while 循环，包含最大轮次、执行轨迹记录和停止条件。
 - 三个示例工具：`calculator`、`kv_store.get`、`kv_store.set`，足够展示分支。
 
 运行：
