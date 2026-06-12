@@ -208,7 +208,7 @@ L[i][j] = (A[i][j] - sum(L[i][k]*L[j][k] for k < j)) / L[j][j]    for i > j
 ```
 minimize ||Ax - b||^2
 
-This is the sum of squared residuals:
+这就是残差平方和：
   sum((A[i,:] @ x - b[i])^2 for i in range(m))
 ```
 
