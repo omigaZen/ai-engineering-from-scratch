@@ -81,13 +81,13 @@ Column picture: find x1, x2 such that:
 高斯消元把 Ax=b 变成上三角系统 Ux=c，再用回代解方程。
 
 ```
-1. For each column k (the pivot column):
-   a. Find the largest entry in column k at or below row k (partial pivoting).
-   b. Swap that row with row k.
-   c. For each row i below k:
-      - Compute multiplier m = A[i][k] / A[k][k]
-      - Subtract m times row k from row i.
-2. Back substitute: solve from the last equation upward.
+1. 对每一列 k（主元列）：
+   a. 找出第 k 行及其下方该列中的最大元素（部分主元选取）。
+   b. 将该行与第 k 行交换。
+   c. 对 k 下方的每一行 i：
+      - 计算乘子 m = A[i][k] / A[k][k]
+      - 用第 i 行减去 m 倍的第 k 行。
+2. 回代：从最后一个方程往上求解。
 ```
 
 样例：
