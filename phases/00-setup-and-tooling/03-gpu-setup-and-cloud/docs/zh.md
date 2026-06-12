@@ -2,10 +2,10 @@
 
 > 在 CPU 上学习可以，真正训练时通常需要 GPU。
 
-**Type:** Build
-**Languages:** Python
-**Prerequisites:** Phase 0, Lesson 01
-**Time:** ~45 minutes
+**类型:** Build
+**语言:** Python
+**先修:** 第 0 阶段第 01 课
+**时长:** ~45 分钟
 
 ## 学习目标
 
