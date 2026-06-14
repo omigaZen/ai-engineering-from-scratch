@@ -135,7 +135,7 @@ log(1e-46) = -inf        (input underflowed to 0, then log(0) = -inf)
 
 在机器学习里，`exp()` 出现在 softmax、sigmoid 和概率计算里。`log()` 出现在交叉熵、对数似然和 KL 散度里。没有正确技巧时，`log(exp(x))` 是一条雷区链。
 
-### Log-Sum-Exp 技巧
+### log-sum-exp 技巧
 
 直接计算 `log(sum(exp(x_i)))` 很危险。只要有一个 `x_i` 很大，`exp(x_i)` 就会溢出；如果所有 `x_i` 都很负，`exp(x_i)` 又会全部下溢到 0，最后 `log(0)` 就变成 `-inf`。
 
