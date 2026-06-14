@@ -2,12 +2,12 @@
 
 > 大多数 AI 任务都跑在 Linux 上。你只要把常用操作掌握住，就不容易卡壳。
 
-**Type:** Learn
-**Languages:** Bash
-**Prerequisites:** Phase 0, Lesson 01
-**Time:** ~30 minutes
+**类型：** 学习
+**语言：** Bash
+**先修：** 第 0 阶段第 01 课
+**时长：** ~30 分钟
 
-## Learning Objectives
+## 学习目标
 
 - 从命令行掌握 Linux 文件系统和常用文件操作
 - 用 `chmod` 和 `chown` 处理 “Permission denied”
@@ -105,7 +105,7 @@ ls -l train.py
 
 看到 `/home/your-username` 下的文件有问题时，优先检查权限和所有者。
 
-## 包管理（apt）
+## 权限与所有者
 
 Ubuntu 用 `apt` 安装系统软件：
 
@@ -129,7 +129,7 @@ apt list --installed        # 查看已安装软件
 sudo apt remove htop        # 卸载软件包
 ```
 
-## 用户与 sudo
+## 包管理（apt）
 
 一般以普通用户登录，只有部分操作需要 root：
 
@@ -147,7 +147,7 @@ sudo apt update && sudo apt install -y \
 
 有 sudo 权限的机器不要整机都用 root，能不用就不用。
 
-## 进程与 systemd
+## 用户与 sudo
 
 训练卡住时可以先看这些：
 
@@ -167,7 +167,7 @@ kill -9 12345               # 强制结束（前一步无效时再用）
 nvidia-smi                  # 查看 GPU 进程和显存占用
 ```
 
-## 磁盘空间
+## 进程与 systemd
 
 GPU 机器最常见的问题之一就是磁盘紧张：
 
@@ -193,7 +193,7 @@ du -sh /data/checkpoints/   # 查看 checkpoint 总大小
 du -h --max-depth=1 / 2>/dev/null | sort -hr | head -20
 ```
 
-## 网络与文件传输
+## 磁盘空间
 
 ```bash
 # 清理 pip 缓存
@@ -208,7 +208,7 @@ rm -rf checkpoints/epoch_01/ checkpoints/epoch_02/
 
 大文件优先用 `rsync`，支持断点续传，而且只传变更块。
 
-## tmux：保持会话
+## 网络与文件传输
 
 ```bash
 # 下载文件
@@ -228,7 +228,7 @@ rsync -avz --progress user@remote:/results/ ./results/
 
 远程训练时，请始终在 tmux 里运行。
 
-## WSL2（Windows 用户）
+## tmux：保持会话
 
 ```bash
 tmux new -s train           # 新建名为 train 的会话
@@ -246,7 +246,7 @@ tmux attach -t train        # 重新接入会话
 
 WSL2 的文件系统通过 `/mnt` 把 Windows 分区映射进来。Windows 侧安装 NVIDIA 驱动后，WSL2 也可以使用 CUDA。
 
-## macOS 到 Linux 的常见坑
+## WSL2（Windows 用户）
 
 | macOS | Linux | 说明 |
 |-------|-------|------|
@@ -258,7 +258,7 @@ WSL2 的文件系统通过 `/mnt` 把 Windows 分区映射进来。Windows 侧�
 | `less` | `pbcopy` | macOS BSD sed 需要空参数，Linux 不需要 |
 | 文件名大小写 | 区分大小写 | Linux 中 `pbpaste` 和 `~/.zshrc` 是不同文件 |
 
-## 快速参考
+## macOS 到 Linux 的常见坑
 
 ```bash
 # 在 PowerShell（管理员）下
@@ -268,7 +268,7 @@ wsl --install -d Ubuntu-24.04
 sudo apt update && sudo apt upgrade -y
 ```
 
-## 练习
+## 快速参考
 
 1. 进入 Linux（或 WSL2）后，创建项目目录，并在 `~/.bashrc` 里写入 3 个空文件，然后用 `pwd` 验证当前路径
 2. 用 `apt install -y htop` 安装 `htop`，运行后找出内存占用最大的进程
@@ -276,7 +276,7 @@ sudo apt update && sudo apt upgrade -y
 4. 用 `df -h` 和 `du -sh` 对比磁盘占用，定位缓存最大的目录
 5. 分别用 `scp` 和 `rsync` 各传一次 `Model.py` 到远端，比较体验差异
 
-## 关键词
+## 练习
 
 | 术语 | 口语说法 | 实际含义 |
 |------|----------------|----------------------|
@@ -286,8 +286,7 @@ sudo apt update && sudo apt upgrade -y
 | `apt` | 软件源 | Ubuntu 软件包管理入口 |
 | `systemctl` | 服务开关 | 管理系统服务 |
 
-```
-导航:     pwd, ls, cd, find
+## 关键词`n`n```n导航:     pwd, ls, cd, find
 文件:     cp, mv, rm, mkdir, cat, head, tail, less
 搜索:     grep, find
 权限:     chmod, chown, sudo
@@ -298,3 +297,4 @@ sudo apt update && sudo apt upgrade -y
 网络:     curl, wget, scp, rsync
 会话:     tmux new/attach/detach
 ```
+
