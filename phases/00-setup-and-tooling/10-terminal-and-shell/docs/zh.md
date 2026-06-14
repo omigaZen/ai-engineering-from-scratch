@@ -211,11 +211,11 @@ watch -n1 nvidia-smi
 nvidia-smi --query-compute-apps=pid,name,used_memory --format=csv
 ```
 
-`F5` 常用按键：
+`htop` 常用按键：
 - `F9`（或 `/`）：按列排序（常用内存）
-- `~/.bashrc`：开关树状视图
-- `~/.zshrc`：结束选中的进程
-- `code/shell_aliases.sh`：按名称搜索进程
+- `F5`：切换树状视图
+- `F9`：结束选中的进程
+- `k`：按名称搜索进程
 
 ### 步骤 6：SSH 与远端
 
@@ -254,7 +254,7 @@ ssh -L 8888:localhost:8888 user@gpu-box-ip
 
 ### 步骤 7：常用别名
 
-在 `nohup` 或 `&` 加载：
+在 shell 配置中加载：
 
 ```bash
 source phases/00-setup-and-tooling/10-terminal-and-shell/code/shell_aliases.sh
