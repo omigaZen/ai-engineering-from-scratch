@@ -434,7 +434,7 @@ For highly skewed distributions, you might need n >= 100.
 **它对机器学习意味着：**
 
 ```
-1. Justifies confidence intervals and t-tests on aggregated metrics
+1. 为聚合指标上的置信区间和 t 检验提供依据
 2. Explains why averaging over cross-validation folds gives stable
    estimates even when individual folds vary wildly
 3. Mini-batch gradient descent works because the average gradient
