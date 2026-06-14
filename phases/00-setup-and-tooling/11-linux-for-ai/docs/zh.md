@@ -39,7 +39,7 @@ graph TD
 
 ## 核心命令
 
-远端 95% 场景都能覆盖的 15 个命令：
+覆盖远程 95% 场景的 15 个命令：
 
 ### 移动与定位
 
@@ -103,7 +103,7 @@ ls -l train.py
 #        ^^        其他用户：只读
 ```
 
-看到 `/home/your-username` 下的文件有问题时，优先检查权限和所有者。
+如果 `/home/your-username` 下的文件访问异常，先检查权限和所有者。
 
 ## 权限与所有者
 
@@ -149,7 +149,7 @@ sudo apt update && sudo apt install -y \
 
 ## 用户与 sudo
 
-训练卡住时先看这些：
+训练卡住时先排查这些：
 
 ```bash
 whoami                      # 查看当前用户
@@ -157,7 +157,7 @@ sudo command                # 以 root 身份运行一条命令
 sudo su                     # 切换到 root（操作完 exit 返回，尽量少用）
 ```
 
-如果有服务进程，用 systemd：
+管理服务进程时，用 systemd：
 
 ```bash
 htop                        # 交互式进程查看器（q 退出）
@@ -179,7 +179,7 @@ sudo systemctl status nginx         # 查看服务状态
 sudo systemctl enable nginx         # 配置开机自启
 ```
 
-释放空间常用：
+清理空间时常用：
 
 ```bash
 df -h                       # 查看所有已挂载磁盘的使用率
@@ -206,7 +206,7 @@ sudo apt clean
 rm -rf checkpoints/epoch_01/ checkpoints/epoch_02/
 ```
 
-大文件优先用 `rsync`，支持断点续传，而且只传变更块。
+传大文件优先用 `rsync`，它支持断点续传，并且只同步变更部分。
 
 ## 网络与文件传输
 
@@ -226,7 +226,7 @@ rsync -avz --progress ./data/ user@remote:/data/
 rsync -avz --progress user@remote:/results/ ./results/
 ```
 
-远程训练时，请始终在 tmux 里运行。
+远程训练时，始终在 tmux 里运行。
 
 ## tmux：保持会话
 
