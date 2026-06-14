@@ -310,7 +310,7 @@ class Value:
 
 ### 第 5 步：从零实现迷你 MLP
 
-有了完整的 `Value` 类，你就可以搭建神经网络了。不用 PyTorch，不用 NumPy。只靠 `Value` 和链式法则。
+有了完整的 `Value` 类，你就能搭建神经网络了。不用 PyTorch，不用 NumPy。只靠 `Value` 和链式法则。
 
 ```python
 import random
