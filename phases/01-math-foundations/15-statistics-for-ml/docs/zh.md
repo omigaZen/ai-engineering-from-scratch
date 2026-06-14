@@ -235,7 +235,7 @@ Then run a one-sample t-test on the d_i values against mu_0 = 0
 ```
 chi^2 = sum((observed - expected)^2 / expected)
 
-Example: does a language model's output distribution match the
+示例：语言模型的输出分布是否匹配
 training distribution across categories?
 
 Category    Observed   Expected
