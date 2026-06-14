@@ -600,7 +600,7 @@ for epoch in range(200):
     w -= lr * dw
     b -= lr * db
 
-print(f"Learned: y = {w:.2f}x + {b:.2f}")
+print(f"学到的函数：y = {w:.2f}x + {b:.2f}")
 ```
 
 你已经从零实现了梯度下降。PyTorch 会自动算梯度，但更新循环的逻辑是一样的。
