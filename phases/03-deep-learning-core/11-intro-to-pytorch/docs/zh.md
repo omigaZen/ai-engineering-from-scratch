@@ -27,7 +27,7 @@ PyTorch 把这些坑都填上了，而且它保留了你已经熟悉的心智模
 
 ## 概念
 
-### 为什么 PyTorch 赢了
+### 为什么 PyTorch 会赢
 
 2015 年，TensorFlow 要求你先定义静态计算图，再运行它。你先搭图、编译，然后把数据喂进去。调试意味着盯着图结构看。改架构意味着推倒重建整张图。
 
@@ -82,7 +82,7 @@ x.unsqueeze(0)     # add dimension: (1, 2, 3, 4)
 x.squeeze()        # remove size-1 dimensions
 ```
 
-### Autograd
+### 自动微分
 
 你的迷你框架要求你给每个模块手写 `backward()`。PyTorch 不需要。它会在张量上记录每一个操作，形成一张有向无环图（计算图），然后沿着这张图反向遍历，自动算出梯度。
 
@@ -268,18 +268,7 @@ for inputs, targets in loader:
 ```
 
 ### 对比：迷你框架、PyTorch、JAX
-
-| Feature | Mini Framework (L10) | PyTorch | JAX |
-|---------|---------------------|---------|-----|
-| Autodiff | Manual backward() | Tape-based autograd | Functional transforms |
-| Execution | Eager (Python loops) | Eager (C++ kernels) | Traced + JIT compiled |
-| GPU support | No | Yes (CUDA, ROCm, MPS) | Yes (CUDA, TPU) |
-| Speed (MNIST MLP) | ~300s/epoch | ~0.5s/epoch | ~0.3s/epoch |
-| Module system | Custom Module class | nn.Module | Stateless functions (Flax/Equinox) |
-| Debugging | print() | print(), pdb, breakpoint() | Harder (JIT tracing breaks print) |
-| Ecosystem | None | Hugging Face, Lightning, timm | Flax, Optax, Orbax |
-| Learning curve | You built it | Moderate | Steep (functional paradigm) |
-| Production use | Toy problems | Meta, OpenAI, Anthropic, HF | Google DeepMind, Midjourney |
+`n| 特性 | 迷你框架（第 10 课） | PyTorch | JAX |`n|---------|---------------------|---------|-----|`n| 自动微分 | 手写 `backward()` | 基于 tape 的 autograd | 函数式变换 |`n| 执行方式 | 即时执行（Python 循环） | 即时执行（C++ kernel） | 跟踪后 JIT 编译 |`n| GPU 支持 | 否 | 是（CUDA、ROCm、MPS） | 是（CUDA、TPU） |`n| 速度（MNIST MLP） | ~300 秒/epoch | ~0.5 秒/epoch | ~0.3 秒/epoch |`n| 模块系统 | 自定义 `Module` 类 | `nn.Module` | 无状态函数（Flax/Equinox） |`n| 调试 | `print()` | `print()`、`pdb`、`breakpoint()` | 更难（JIT 跟踪会破坏 `print`） |`n| 生态 | 没有 | Hugging Face、Lightning、timm | Flax、Optax、Orbax |`n| 学习曲线 | 你自己造出来的 | 中等 | 较陡（函数式范式） |`n| 生产使用 | 玩具问题 | Meta、OpenAI、Anthropic、HF | Google DeepMind、Midjourney |
 
 ```figure
 dropout-mask
@@ -533,3 +522,4 @@ PyTorch 自带 15 种以上调度器：`StepLR`、`ExponentialLR`、`CosineAnnea
 - PyTorch Tutorials: "Learning PyTorch with Examples" (https://pytorch.org/tutorials/beginner/pytorch_with_examples.html) - 从张量到 `nn.Module` 的官方入门路径
 - PyTorch Performance Tuning Guide (https://pytorch.org/tutorials/recipes/recipes/tuning_guide.html) - 混合精度、DataLoader workers、pinned memory 等生产优化
 - Horace He, "Making Deep Learning Go Brrrr" (https://horace.io/brrr_intro.html) - 为什么 GPU 训练这么快，以及 PyTorch 相关的优化策略
+
