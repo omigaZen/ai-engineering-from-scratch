@@ -626,7 +626,7 @@ def train():
         if predicted_class == t[0]:
             correct += 1
     test_accuracy = correct / len(test_data) * 100
-    print(f"\nTest Accuracy: {test_accuracy:.1f}% ({correct}/{len(test_data)})")
+    print(f"\n测试准确率：{test_accuracy:.1f}% ({correct}/{len(test_data)})")
 
     return model, test_accuracy
 ```
