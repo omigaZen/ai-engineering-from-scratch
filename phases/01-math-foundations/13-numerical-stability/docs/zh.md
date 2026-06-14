@@ -31,8 +31,8 @@
 计算机按照 IEEE 754 标准用浮点数存储实数。一个浮点数由三部分组成：符号位、指数和尾数（mantissa，也叫 significand）。
 
 ```text
-Float32 layout (32 bits total):
-[1 sign] [8 exponent] [23 mantissa]
+Float32 布局（共 32 位）：
+[1 符号位] [8 指数] [23 尾数]
 
 Value = (-1)^sign * 2^(exponent - 127) * 1.mantissa
 ```
@@ -267,12 +267,12 @@ relative_error = |grad_analytical - grad_numerical| / max(|grad_analytical|, |gr
 现代 GPU 里有 Tensor Core，float16 的矩阵乘法可以比 float32 快 2 到 8 倍。混合精度训练就是利用这一点：
 
 ```text
-1. Maintain float32 master copy of weights
-2. Forward pass in float16 (fast)
-3. Compute loss in float32 (prevents overflow)
-4. Backward pass in float16 (fast)
-5. Scale gradients to float32
-6. Update float32 master weights
+1. 保留一份 float32 的主权重
+2. 前向用 float16（更快）
+3. 用 float32 计算 loss（防止上溢）
+4. 反向用 float16（更快）
+5. 把梯度缩放回 float32
+6. 更新 float32 主权重
 ```
 
 纯 float16 训练的问题是：梯度通常非常小，可能在 `1e-8` 或更低。float16 会把 `6e-8` 以下的数下溢成 0。模型就不再学习了，因为梯度更新全变成 0。
@@ -280,11 +280,11 @@ relative_error = |grad_analytical - grad_numerical| / max(|grad_analytical|, |gr
 解决办法是损失缩放：
 
 ```text
-1. Multiply loss by a large scale factor (e.g., 1024)
-2. Backward pass computes gradients of (loss * 1024)
-3. All gradients are 1024x larger (pushed above float16 underflow)
-4. Divide gradients by 1024 before updating weights
-5. Net effect: same update, but no underflow
+1. 把 loss 乘上一个大的缩放因子（例如 1024）
+2. 反向传播计算 (loss * 1024) 的梯度
+3. 所有梯度都会变大 1024 倍（从而高于 float16 的下溢阈值）
+4. 在更新权重前把梯度除以 1024
+5. 最终效果相同，但不会下溢
 ```
 
 动态损失缩放会自动调整这个 scale。先从较大值开始，比如 65536；如果梯度溢出成 `inf`，就减半；如果连续 N 步都没溢出，就翻倍。
@@ -292,8 +292,8 @@ relative_error = |grad_analytical - grad_numerical| / max(|grad_analytical|, |gr
 ### bfloat16 vs float16：为什么训练更偏向 bfloat16
 
 ```text
-float16:   [1 sign] [5 exponent]  [10 mantissa]
-bfloat16:  [1 sign] [8 exponent]  [7 mantissa]
+float16:   [1 符号位] [5 指数]  [10 尾数]
+bfloat16:  [1 符号位] [8 指数]  [7 尾数]
 ```
 
 float16 精度更高一些，但范围小，最大约 65,504。bfloat16 精度更低，但指数范围和 float32 一样，最大约 3.4e38。
@@ -394,7 +394,7 @@ logsumexp-stability
 ### 步骤 1：展示浮点精度边界
 
 ```python
-print("=== Floating Point Precision ===")
+print("=== 浮点精度边界 ===")
 print(f"0.1 + 0.2 = {0.1 + 0.2}")
 print(f"0.1 + 0.2 == 0.3? {0.1 + 0.2 == 0.3}")
 print(f"Difference: {(0.1 + 0.2) - 0.3:.2e}")
@@ -417,11 +417,11 @@ def softmax_stable(logits):
     return [e / total for e in exps]
 
 safe_logits = [2.0, 1.0, 0.1]
-print(f"Naive:  {softmax_naive(safe_logits)}")
-print(f"Stable: {softmax_stable(safe_logits)}")
+print(f"朴素版：  {softmax_naive(safe_logits)}")
+print(f"稳定版：  {softmax_stable(safe_logits)}")
 
 dangerous_logits = [100.0, 101.0, 102.0]
-print(f"Stable: {softmax_stable(dangerous_logits)}")
+print(f"稳定版：{softmax_stable(dangerous_logits)}")
 # softmax_naive(dangerous_logits) would return [nan, nan, nan]
 ```
 
@@ -436,11 +436,11 @@ def logsumexp_stable(values):
     return c + math.log(sum(math.exp(v - c) for v in values))
 
 safe = [1.0, 2.0, 3.0]
-print(f"Naive:  {logsumexp_naive(safe):.6f}")
-print(f"Stable: {logsumexp_stable(safe):.6f}")
+print(f"朴素版：  {logsumexp_naive(safe):.6f}")
+print(f"稳定版：  {logsumexp_stable(safe):.6f}")
 
 large = [500.0, 501.0, 502.0]
-print(f"Stable: {logsumexp_stable(large):.6f}")
+print(f"稳定版：{logsumexp_stable(large):.6f}")
 # logsumexp_naive(large) returns inf
 ```
 
@@ -460,8 +460,8 @@ def cross_entropy_stable(true_class, logits):
 
 logits = [2.0, 5.0, 1.0]
 true_class = 1
-print(f"Naive:  {cross_entropy_naive(true_class, logits):.6f}")
-print(f"Stable: {cross_entropy_stable(true_class, logits):.6f}")
+print(f"朴素版：  {cross_entropy_naive(true_class, logits):.6f}")
+print(f"稳定版：  {cross_entropy_stable(true_class, logits):.6f}")
 ```
 
 ### 步骤 5：梯度检查
@@ -585,7 +585,7 @@ check_tensor("ugly", [1.0, float('inf'), 3.0])
 | 梯度检查 | “验证反向传播” | 用有限差分算数值梯度，再和解析梯度比对，发现实现错误。 |
 | 混合精度 | “前向轻量化” | 关键或敏感路径用更高精度，其余路径用低精度，兼顾速度和稳定性。 |
 | 损失缩放 | “防梯度下溢” | 反向前先把 loss 乘上一个大常数，防止梯度小到被 float16 下溢掉；更新前再除回去。 |
-| bfloat16 | “Brain floating point” | Google 的 16 位格式，8 位 exponent + 7 位 mantissa。精度比 float16 低，但范围和 float32 一样大，常用于训练。 |
+| bfloat16 | “Brain floating point” | Google 的 16 位格式，8 位指数 + 7 位尾数。精度比 float16 低，但范围和 float32 一样大，常用于训练。 |
 | 梯度裁剪 | “限制梯度范数” | 将梯度向量按比例缩小，使其范数不超过阈值，避免爆炸梯度毁掉权重。 |
 | NaN | “不是一个数” | 由非法操作（0/0、inf-inf、sqrt(-1)）产生，后续会传播污染所有计算。 |
 | Inf | “无穷大” | 由上溢或除零得到。它和别的值运算时可能生成 NaN（比如 `inf-inf`、`inf*0`）。 |
