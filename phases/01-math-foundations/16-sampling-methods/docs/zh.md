@@ -618,27 +618,27 @@ def gumbel_softmax(logits, temperature):
 | 反变换采�?| “概率反变换�?| �?F^{-1}(U) 从已�?CDF 采样，精确且高效 |
 | 拒绝采样 | “先提议后接受�?| 从简单分布提议，�?target/proposal 比例接受。可精确但有浪费 |
 | 重要性采�?| “重加权样本�?| �?q 分布样本估计 p 下期望，权重 p(x)/q(x)，PPO 的核心之一 |
-| Monte Carlo | “随机均值法�?| 用样本均值近似积分，误差 O(1/√N)，与维度无关 |
-| MCMC | “随机游走收敛�?| 构造以目标分布为平稳分布的马尔可夫链，MH 是核心算�?|
-| Metropolis-Hastings | “有时向上，常常向下�?| 按密度比接受提议，详细平衡保证收�?|
-| Gibbs sampling | “逐维更新�?| 条件采样逐个变量，接受率 1 |
-| Temperature | “置信度旋钮�?| softmax 前除�?T。T<1 更尖锐，T>1 更平�?|
-| Top-k 采样 | “保留前 k�?| 只保留概率最�?k �?token 重归一化再采样 |
-| Nucleus（top-p�?| “保留累计概率达阈值的候选�?| 按累计概率选择可变候选集，适应性更�?|
-| 重参数化技�?| “把随机性移到外面�?| z=μ+σ·ε 让采样可微，�?VAE 训练关键 |
-| Gumbel-Softmax | “可微分类采样�?| �?Gumbel 噪声 + temperature 的软化近�?|
-| 分层采样 | “强制覆盖�?| 先分层再每层采样，方差通常更低 |
-| Burn-in | “热身期�?| 丢弃初始 MCMC 样本直到平稳 |
-| 详细平衡 | “可逆条件�?| p(x)T(x→y)=p(y)T(y→x)，充分条件之一 |
-| 扩散采样 | “迭代去噪�?| 从噪声起步，学习逐步去噪生成数据 |
+| Monte Carlo | “随机均值法” | 用样本均值近似积分，误差 O(1/√N)，与维度无关 |
+| MCMC | “随机游走收敛” | 构造以目标分布为平稳分布的马尔可夫链，MH 是核心算法 |
+| Metropolis-Hastings | “有时向上，常常向下” | 按密度比接受提议，详细平衡保证收敛 |
+| Gibbs sampling | “逐维更新” | 条件采样逐个变量，接受率 1 |
+| Temperature | “置信度旋钮” | softmax 前除以 `T`。`T<1` 更尖锐，`T>1` 更平滑 |
+| Top-k 采样 | “保留前 k 个” | 只保留概率最高的 k 个 token，重归一化后再采样 |
+| Nucleus（top-p） | “保留累计概率达阈值的候选” | 按累计概率选择可变候选集，适应性更强 |
+| 重参数化技巧 | “把随机性移到外面” | `z=μ+σ·ε` 让采样可微，是 VAE 训练的关键 |
+| Gumbel-Softmax | “可微分类采样” | 用 Gumbel 噪声 + temperature 的软化近似 |
+| 分层采样 | “强制覆盖” | 先分层再每层采样，方差通常更低 |
+| Burn-in | “热身期” | 丢弃初始 MCMC 样本直到平稳 |
+| 详细平衡 | “可逆条件” | `p(x)T(x→y)=p(y)T(y→x)`，充分条件之一 |
+| 扩散采样 | “迭代去噪” | 从噪声起步，学习逐步去噪生成数据 |
 
 ## 深入阅读
 
-- [Holbrook (2023): The Metropolis-Hastings Algorithm](https://arxiv.org/abs/2304.07010) -- MCMC 进阶教程  
-- [Jang, Gu, Poole (2017): Categorical Reparameterization with Gumbel-Softmax](https://arxiv.org/abs/1611.01144) -- 原始 Gumbel-Softmax 论文  
-- [Holtzman et al. (2020): The Curious Case of Neural Text Degeneration](https://arxiv.org/abs/1904.09751) -- nucleus 采样论文  
+- [Holbrook (2023): The Metropolis-Hastings Algorithm](https://arxiv.org/abs/2304.07010) -- MCMC 进阶教程
+- [Jang, Gu, Poole (2017): Categorical Reparameterization with Gumbel-Softmax](https://arxiv.org/abs/1611.01144) -- 原始 Gumbel-Softmax 论文
+- [Holtzman et al. (2020): The Curious Case of Neural Text Degeneration](https://arxiv.org/abs/1904.09751) -- nucleus 采样论文
 - [Kingma & Welling (2014): Auto-Encoding Variational Bayes](https://arxiv.org/abs/1312.6114) -- 首次系统提出重参数化技巧
-- [Ho, Jain, Abbeel (2020): Denoising Diffusion Probabilistic Models](https://arxiv.org/abs/2006.11239) -- DDPM 与采�?生成关系
+- [Ho, Jain, Abbeel (2020): Denoising Diffusion Probabilistic Models](https://arxiv.org/abs/2006.11239) -- DDPM 与采样生成关系
 
 ```python
 import numpy as np
