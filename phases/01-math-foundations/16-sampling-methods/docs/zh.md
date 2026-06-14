@@ -276,9 +276,9 @@ Algorithm:
   4. Renormalize: p_i' = p_i / sum(p_j for j in top-k)
   5. Sample from the renormalized distribution
 
-k = 1:  greedy decoding
-k = V:  no filtering (standard sampling)
-k = 40: typical setting, removes long tail of unlikely tokens
+k = 1:  贪心解码
+k = V:  不过滤（标准采样）
+k = 40:  常见设置，去掉不太可能出现的 token 长尾
 ```
 
 Top-k 能避免抽到那些极不可能的 token，比如词表尾部的错拼写或胡言乱语。问题在于 `k` 是固定的，不管上下文是否确定都一样。模型很自信时，`k = 40` 仍然会保留很多没必要的候选；模型很不确定时，`k = 40` 又可能砍掉大量合理选项。
