@@ -355,7 +355,7 @@ docker logs -f <container_id>
 ## 练习
 
 1. 构建 Dockerfile，并在容器内运行 `python -c "import torch; print(torch.__version__)"`
-2. 启动 docker-compose 栈，并确认 qdrant 可以在 AI 容器内通过 `http://qdrant:6333/collections` 访问
+2. 启动 docker-compose 栈，并确认 qdrant 能在 AI 容器内通过 `http://qdrant:6333/collections` 访问
 3. 在 Dockerfile 中加上 `flask`，重建镜像，再在 5000 端口跑一个简单 API。用 `-p 5000:5000` 做端口映射
 4. 用 `docker images` 测量镜像大小。把基础镜像从 `devel` 切到 `runtime`，比较两者体积
 
