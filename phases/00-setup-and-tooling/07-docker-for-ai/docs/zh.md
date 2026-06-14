@@ -95,7 +95,7 @@ docker run hello-world
 
 ### 步骤 2：安装 NVIDIA Container Toolkit（Linux + NVIDIA GPU）
 
-这一步是为了让 Docker 容器访问 GPU。macOS 和 Windows（WSL2）用户可以跳过，因为 Docker Desktop 在这些平台上处理 GPU passthrough 的方式不同。
+这一步是为了让 Docker 容器访问 GPU。macOS 和 Windows（WSL2）用户可跳过，因为 Docker Desktop 在这些平台上处理 GPU passthrough 的方式不同。
 
 ```bash
 distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
