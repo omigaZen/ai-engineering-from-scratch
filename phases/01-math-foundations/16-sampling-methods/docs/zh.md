@@ -239,7 +239,7 @@ Gibbs 采样要求你能从每个条件分布 `p(x_i | x_-i)` 中采样。很多
 
 **局限。** 如果变量之间相关性很强，Gibbs 采样会混合得很慢，因为一次只改一个变量，没法沿着相关方向快速移动。
 
-### Temperature 采样（LLM 常用）
+### 温度采样（LLM 常用）
 
 语言模型会输出词表里每个 token 的 logits：`z_1, ..., z_V`。softmax 会把 logits 变成概率。Temperature 会在 softmax 之前重新缩放 logits：
 
