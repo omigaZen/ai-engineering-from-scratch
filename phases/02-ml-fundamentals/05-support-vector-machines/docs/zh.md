@@ -2,12 +2,12 @@
 
 > 在两类样本之间找一条最宽的“马路”。这就是全部思路。
 
-**Type:** Build
-**Languages:** Python
-**Prerequisites:** Phase 1 (Lessons 08 Optimization, 14 Norms and Distances, 18 Convex Optimization)
-**Time:** ~90 minutes
+**类型：** 构建
+**语言：** Python
+**先修：** 第 1 阶段（第 08 课优化、第 14 课范数与距离、第 18 课凸优化）
+**时长：** ~90 分钟
 
-## Learning Objectives
+## 学习目标
 
 - 使用铰链损失和原始形式上的梯度下降，从零实现线性 SVM
 - 解释最大间隔原理，并从训练好的模型中找出支持向量
@@ -225,7 +225,7 @@ SVM 仍然在这些场景很强：
 svm-margin
 ```
 
-## Build It
+## 动手实现
 
 ### 第 1 步：铰链损失和梯度
 
@@ -347,7 +347,7 @@ clf = Pipeline([
 
 ## 关键术语
 
-| Term | What it actually means |
+| 术语 | 实际含义 |
 |------|----------------------|
 | Support vectors | 距离决策边界最近的一批训练点，真正决定超平面的点 |
 | Margin | 决策边界到最近支持向量的距离，SVM 要把它最大化 |
@@ -370,3 +370,4 @@ clf = Pipeline([
 - [Platt: Sequential Minimal Optimization (1998)](https://www.microsoft.com/en-us/research/publication/sequential-minimal-optimization-a-fast-algorithm-for-training-support-vector-machines/) - 让 SVM 训练可用的 SMO 算法
 - [scikit-learn SVM documentation](https://scikit-learn.org/stable/modules/svm.html) - 带实现细节的实用参考
 - [LIBSVM: A Library for Support Vector Machines](https://www.csie.ntu.edu.tw/~cjlin/libsvm/) - 大多数 SVM 实现背后的 C++ 库
+
