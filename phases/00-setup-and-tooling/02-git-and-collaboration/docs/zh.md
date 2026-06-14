@@ -24,10 +24,10 @@ Git 是版本控制工具，GitHub 是代码托管平台。本课只覆盖本课
 
 ```mermaid
 sequenceDiagram
-    participant WD as Working Directory
-    participant SA as Staging Area
-    participant LR as Local Repo
-    participant R as Remote (GitHub)
+    participant WD as 工作目录
+    participant SA as 暂存区
+    participant LR as 本地仓库
+    participant R as 远端（GitHub）
     WD->>SA: git add
     SA->>LR: git commit
     LR->>R: git push
@@ -36,9 +36,9 @@ sequenceDiagram
 ```
 
 三件事要记住：
-1. 经常保存（`git clone`）
-2. 提交到远端（`git add`）
-3. 用分支做实验（`git commit`）
+1. 经常保存（`git add`）
+2. 提交到本地仓库（`git commit`）
+3. 用分支做实验（`git checkout -b`）
 
 ## 动手
 
@@ -86,19 +86,19 @@ git push origin my-progress
 
 | 命令 | 场景 |
 |---------|------|
-| `git push` | 获取课程仓库 |
+| `git clone` | 获取课程仓库 |
 | `git checkout -b` + `git log --oneline` | 保存你的修改 |
-| `my-progress` | 备份到 GitHub |
+| `git push origin my-progress` | 备份到 GitHub |
 | `.gitignore` | 在不影响主线的情况下尝试新方案 |
-| `.pt` | 查看你做过什么 |
+| `.pth` / `.pt` | 模型检查点文件 |
 
 本课程不需要 rebase、cherry-pick 或子模块。
 
 ## 练习
 
-1. 克隆该仓库，创建 `.pth` 分支，新增一个文件并提交后推送
-2. 编写 `.safetensors`，排除模型检查点文件（`git log --oneline`、.pth、.safetensors）
-3. 用 git log --oneline 查看本课程提交历史，读几条 lesson 的提交记录
+1. 克隆该仓库，创建一个 `experiment` 分支，新增一个文件并提交后推送
+2. 为模型检查点文件配置 `.gitignore` 或 `.safetensors` 路径过滤
+3. 用 `git log --oneline` 查看本课程的提交历史，读几条 lesson 的提交记录
 
 ## 关键词
 
