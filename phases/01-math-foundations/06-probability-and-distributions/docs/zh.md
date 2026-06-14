@@ -118,7 +118,7 @@ Discrete: P(X = k) = 1/n for k in {1, ..., n}
 Continuous: f(x) = 1/(b-a) for x in [a, b]
 ```
 
-**Normal（Gaussian）：** 钟形曲线，用均值 `mu` 和方差 `sigma^2` 参数化。
+**正态分布（Gaussian）：** 钟形曲线，用均值 `mu` 和方差 `sigma^2` 参数化。
 
 ```text
 f(x) = (1 / sqrt(2*pi*sigma^2)) * exp(-(x - mu)^2 / (2*sigma^2))
@@ -179,11 +179,11 @@ P(X = x) = sum over all y of P(X = x, Y = y)
 中心极限定理：很多独立随机变量的和（或平均）会收敛到正态分布，不管原始分布长什么样。
 
 ```text
-Roll 1 die:  uniform distribution (flat)
-Average of 2 dice:  triangular (peaked)
-Average of 30 dice: nearly perfect bell curve
+掷 1 次骰子：均匀分布（平的）
+2 颗骰子的平均值：三角形分布（有峰）
+30 颗骰子的平均值：几乎完美的钟形曲线
 
-This works for ANY starting distribution.
+对任何初始分布都适用。
 ```
 
 这解释了很多现象：
@@ -450,6 +450,6 @@ print(f"Log-softmax: {log_probs}")
 
 ## 延伸阅读
 
-- [3Blue1Brown: But what is the Central Limit Theorem?](https://www.youtube.com/watch?v=zeJD6dqJ5lo) - 直观解释为什么平均值会变成正态
-- [Stanford CS229 Probability Review](https://cs229.stanford.edu/section/cs229-prob.pdf) - 覆盖这里所有概率基础的简洁参考
+- [3Blue1Brown：But what is the Central Limit Theorem?](https://www.youtube.com/watch?v=zeJD6dqJ5lo) - 直观解释为什么平均值会变成正态
+- [Stanford CS229 概率复习](https://cs229.stanford.edu/section/cs229-prob.pdf) - 覆盖这里所有概率基础的简洁参考
 - [The Log-Sum-Exp Trick](https://gregorygundersen.com/blog/2020/02/09/log-sum-exp/) - 为什么数值稳定性重要，以及如何实现它
