@@ -320,7 +320,7 @@ clf = Pipeline([
     ("svm", SVC(kernel="rbf", C=1.0, gamma="scale")),
 ])
 clf.fit(X_train, y_train)
-print(f"Accuracy: {clf.score(X_test, y_test):.4f}")
+print(f"准确率：{clf.score(X_test, y_test):.4f}")
 print(f"Support vectors: {clf['svm'].n_support_}")
 ```
 
