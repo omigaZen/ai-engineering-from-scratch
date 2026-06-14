@@ -3,7 +3,7 @@
 > 大多数 AI 运行在 Linux 上。你只要够用就不容易卡住。
 
 **类型:** 学习
-**语言:** --
+**语言:** Bash
 **先修:** 第 0 阶段第 01 课
 **时长:** ~30 分钟
 
@@ -298,4 +298,3 @@ sudo apt update && sudo apt upgrade -y
 网络:     curl, wget, scp, rsync
 会话:     tmux new/attach/detach
 ```
- `touch` `ls -la` `htop` `sleep 300` `df -h` `du -sh ~/.cache/*` `scp` `rsync`
