@@ -339,7 +339,7 @@ Example:
 PCA 本质上就是对中心化数据做 SVD。这不是类比，而是同一件计算。
 
 ```text
-Given data matrix X (n_samples x n_features), centered (mean subtracted):
+给定数据矩阵 X（n_samples x n_features），已中心化（减去均值）：
 
 Covariance matrix: C = (1/(n-1)) * X^T X
 
