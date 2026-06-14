@@ -40,7 +40,7 @@ P(A|B) = P(A and B) / P(B)
 P(B|A) = P(A and B) / P(A)
 ```
 
-这两个式子分子都一样：`code/bayes.py`。两边相等并重排得：
+这两个式子的分子都一样。两边相等并重排得：
 
 ```
 P(A and B) = P(A|B) * P(B) = P(B|A) * P(A)
@@ -354,7 +354,7 @@ graph LR
 | 似然 | 共轭先验 | 后验 | 示例 |
 |------|---------|--------|------|
 | Bernoulli | Beta(a, b) | Beta(a + successes, b + failures) | 硬币偏置估计 |
-| Normal（已知方差） | Normal(mu_0, sigma_0) | Normal(加权均值, 更小方差) | 传感器校准 |
+| 正态（已知方差） | Normal(mu_0, sigma_0) | Normal(加权均值, 更小方差) | 传感器校准 |
 | Poisson | Gamma(a, b) | Gamma(a + counts_sum, b + n) | 到达率建模 |
 | Multinomial | Dirichlet(alpha) | Dirichlet(alpha + counts) | 主题模型、语言模型 |
 
@@ -441,7 +441,7 @@ P(B > A) 可通过蒙特卡洛近似：
 ## 练习
 
 1. **多重测试。** 同一个人连续做两次独立检测（均 99% 准确，患病率 1/10000）。第一次阳性后，第二次阳性时 P(sick)是多少？用第一次后验作为第二次先验计算。
-2. **平滑影响。** 用 smoothing=0.01, 0.1, 1.0, 10.0 运行分类器。顶级词概率如何变化？若 smoothing=0 且某词仅在 ham 中出现，会发生什么？
+2. **平滑影响。** 用 smoothing=0.01、0.1、1.0、10.0 运行分类器。顶级词概率如何变化？若 smoothing=0 且某词仅在 ham 中出现，会发生什么？
 3. **增加特征。** 给 NaiveBayes 再加一个长度特征（short/long），与词计数一起用。估计 P(short|spam) 和 P(short|ham) 并计入得分。
 4. **手工做 MAP。** 已观察到 10 次抛 7 正，且先验为 Beta(2,2)，请手算 MAP。与 MLE 估计（7/10）比较。
 
