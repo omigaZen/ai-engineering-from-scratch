@@ -181,7 +181,7 @@ graph TD
 
 下面这些 bug 在 PyTorch 社区里最浪费时间：
 
-| Bug | 症状 | 修复 |
+| 问题 | 症状 | 修复 |
 |---|---|---|
 | 忘记 `optimizer.zero_grad()` | 梯度在不同 batch 之间累积，损失开始振荡 | 在 `loss.backward()` 前加 `optimizer.zero_grad()` |
 | 测试时忘记 `model.eval()` | Dropout 和 batch norm 行为不同，测试准确率每次都不一样 | 加上 `model.eval()` 和 `torch.no_grad()` |
