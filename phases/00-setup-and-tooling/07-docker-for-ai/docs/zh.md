@@ -49,8 +49,8 @@ graph TD
 
 | 术语 | 含义 |
 |------|------|
-| Image | 只读模板。可以理解成你的配方，由 Dockerfile 构建出来。 |
-| Container | 镜像的运行实例。可以理解成你的厨房运行环境。 |
+| Image | 只读模板。可视作你的配方，由 Dockerfile 构建出来。 |
+| Container | 镜像的运行实例。可视作你的厨房运行环境。 |
 | Dockerfile | 用于构建镜像的指令文件，按层执行。 |
 | Volume | 容器重启后仍然保留的持久化存储。 |
 | docker-compose | 用 YAML 定义多容器应用的工具。 |
