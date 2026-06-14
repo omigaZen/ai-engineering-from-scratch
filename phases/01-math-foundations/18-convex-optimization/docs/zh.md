@@ -175,14 +175,14 @@ H = [ 2  3 ]
 ```mermaid
 graph TD
     subgraph "梯度下降"
-        GD1["Start"] --> GD2["Step 1"]
-        GD2 --> GD3["Step 2"]
+        GD1["开始"] --> GD2["第 1 步"]
+        GD2 --> GD3["第 2 步"]
         GD3 --> GD4["..."]
         GD4 --> GD5["约 500 步：收敛"]
         GD_note["盲目沿梯度方向，小步前进"]
     end
     subgraph "牛顿法"
-        NM1["Start"] --> NM2["Step 1"]
+        NM1["开始"] --> NM2["第 1 步"]
         NM2 --> NM3["..."]
         NM3 --> NM4["约 5 步：收敛"]
         NM_note["用曲率选最优步"]
