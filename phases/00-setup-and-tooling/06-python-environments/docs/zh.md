@@ -98,7 +98,7 @@ Conda 可管理非 Python 依赖，如 CUDA toolkit、cuDNN、C 库。适用于�
 - 库文档明确要求 `pip install`
 
 ```bash
-# Install miniconda (not the full Anaconda)
+# 安装 Miniconda（不是完整的 Anaconda）
 curl -LsSf https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -o miniconda.sh
 bash miniconda.sh -b
 
