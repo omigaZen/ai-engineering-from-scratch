@@ -259,7 +259,7 @@ print("\n=== Normal Equation (Closed-Form) ===")
 model_normal = LinearRegressionNormal()
 model_normal.fit(X, y)
 print(f"\nClosed form: y = {model_normal.w:.4f}x + {model_normal.b:.4f}")
-print(f"R-squared: {model_normal.r_squared(X, y):.4f}")
+print(f"R²：{model_normal.r_squared(X, y):.4f}")
 ```
 
 ### 步骤 4：多元线性回归（含标准化）
