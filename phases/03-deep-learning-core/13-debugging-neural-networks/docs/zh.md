@@ -427,7 +427,7 @@ for name, param in model.named_parameters():
 4. **出现异常**：在失败点加上 `debug_tools.py`，交互式检查张量
 5. **性能问题**：对比数据加载、前向和反向耗时。如果接近 OOM，再进一步做内存分析
 
-## Ship It
+## 上线交付
 
 运行这课的调试工具脚本：
 
