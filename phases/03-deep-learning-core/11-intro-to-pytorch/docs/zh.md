@@ -268,7 +268,18 @@ for inputs, targets in loader:
 ```
 
 ### 对比：迷你框架、PyTorch、JAX
-`n| 特性 | 迷你框架（第 10 课） | PyTorch | JAX |`n|---------|---------------------|---------|-----|`n| 自动微分 | 手写 `backward()` | 基于 tape 的 autograd | 函数式变换 |`n| 执行方式 | 即时执行（Python 循环） | 即时执行（C++ kernel） | 跟踪后 JIT 编译 |`n| GPU 支持 | 否 | 是（CUDA、ROCm、MPS） | 是（CUDA、TPU） |`n| 速度（MNIST MLP） | ~300 秒/epoch | ~0.5 秒/epoch | ~0.3 秒/epoch |`n| 模块系统 | 自定义 `Module` 类 | `nn.Module` | 无状态函数（Flax/Equinox） |`n| 调试 | `print()` | `print()`、`pdb`、`breakpoint()` | 更难（JIT 跟踪会破坏 `print`） |`n| 生态 | 没有 | Hugging Face、Lightning、timm | Flax、Optax、Orbax |`n| 学习曲线 | 你自己造出来的 | 中等 | 较陡（函数式范式） |`n| 生产使用 | 玩具问题 | Meta、OpenAI、Anthropic、HF | Google DeepMind、Midjourney |
+
+| 特性 | 迷你框架（第 10 课） | PyTorch | JAX |
+|---------|---------------------|---------|-----|
+| 自动微分 | 手写 `backward()` | 基于 tape 的 autograd | 函数式变换 |
+| 执行方式 | 即时执行（Python 循环） | 即时执行（C++ kernel） | 跟踪后 JIT 编译 |
+| GPU 支持 | 否 | 是（CUDA、ROCm、MPS） | 是（CUDA、TPU） |
+| 速度（MNIST MLP） | ~300 秒/epoch | ~0.5 秒/epoch | ~0.3 秒/epoch |
+| 模块系统 | 自定义 `Module` 类 | `nn.Module` | 无状态函数（Flax/Equinox） |
+| 调试 | `print()` | `print()`、`pdb`、`breakpoint()` | 更难（JIT 跟踪会破坏 `print`） |
+| 生态 | 没有 | Hugging Face、Lightning、timm | Flax、Optax、Orbax |
+| 学习曲线 | 你自己造出来的 | 中等 | 较陡（函数式范式） |
+| 生产使用 | 玩具问题 | Meta、OpenAI、Anthropic、HF | Google DeepMind、Midjourney |
 
 ```figure
 dropout-mask
@@ -445,15 +456,15 @@ def main():
 
 ### 快速对比：迷你框架 vs PyTorch
 
-| Mini Framework (Lesson 10) | PyTorch |
+| 自建框架（第 10 课） | PyTorch |
 |---------------------------|---------|
 | `model = Sequential(Linear(784, 256), ReLU(), ...)` | `model = nn.Sequential(nn.Linear(784, 256), nn.ReLU(), ...)` |
 | `pred = model.forward(x)` | `pred = model(x)` |
 | `optimizer.zero_grad()` | `optimizer.zero_grad()` |
 | `grad = criterion.backward()` then `model.backward(grad)` | `loss.backward()` |
 | `optimizer.step()` | `optimizer.step()` |
-| No GPU | `model.to("cuda")` |
-| Manual backward for every module | Autograd handles everything |
+| 没有 GPU | `model.to("cuda")` |
+| 每个模块都手写反向传播 | Autograd 自动处理 |
 
 接口几乎一样，底层完全不同。
 
