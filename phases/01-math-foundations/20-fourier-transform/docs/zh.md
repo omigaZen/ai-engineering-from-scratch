@@ -462,4 +462,3 @@ spectrogram 矩阵形状为 \((n_frequencies, n_time_frames)\)，每列是某时
 - [Smith: The Scientist and Engineer's Guide to DSP](http://www.dspguide.com/)：深入覆盖 FFT、窗函数与谱分析
 - [Vaswani et al.: Attention Is All You Need (2017)](https://arxiv.org/abs/1706.03762)：原始 Transformer 的频率位置编码基础
 - [Radford et al.: Whisper (2022)](https://arxiv.org/abs/2212.04356)：基于 mel-spectrogram 的语音识别示例
- `outputs/prompt-spectral-analyzer.md`

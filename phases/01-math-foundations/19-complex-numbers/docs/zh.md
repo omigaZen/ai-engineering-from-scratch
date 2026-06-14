@@ -459,4 +459,3 @@ freqs = np.fft.fftfreq(128, d=1/128)
 - [3Blue1Brown: Euler 的几何讲解](https://www.youtube.com/watch?v=mvmuCPvRoWQ)：为何 \(e^{i\pi}=-1\) 的直觉视角
 - [Needham: Visual Complex Analysis](https://global.oup.com/academic/product/visual-complex-analysis-9780198534464)：复数几何理解的经典教材
 - [Strang: Intro to Linear Algebra, Ch.10](https://math.mit.edu/~gs/linearalgebra/)：在矩阵与特征值背景下看复数
- `euler(pi)` `j` `code/complex_numbers.py` `outputs/skill-complex-arithmetic.md`
