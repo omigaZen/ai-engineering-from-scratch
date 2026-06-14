@@ -88,10 +88,10 @@ x.squeeze()        # remove size-1 dimensions
 
 ```mermaid
 graph LR
-    x["x (leaf)"] --> mul["*"]
-    w["w (leaf, requires_grad)"] --> mul
+    x["x（叶子张量）"] --> mul["*"]
+    w["w（叶子张量，requires_grad）"] --> mul
     mul --> add["+"]
-    b["b (leaf, requires_grad)"] --> add
+    b["b（叶子张量，requires_grad）"] --> add
     add --> loss["loss"]
     loss --> |".backward()"| add
     add --> |"grad"| b
@@ -140,16 +140,16 @@ class MLP(nn.Module):
 
 常见模块：
 
-| Module | What it does | Parameters |
+| 模块 | 作用 | 参数量 |
 |--------|-------------|------------|
 | nn.Linear(in, out) | Wx + b | in*out + out |
-| nn.Conv2d(in_ch, out_ch, k) | 2D convolution | in_ch*out_ch*k*k + out_ch |
-| nn.BatchNorm1d(features) | Normalize activations | 2 * features |
-| nn.Dropout(p) | Random zeroing | 0 |
+| nn.Conv2d(in_ch, out_ch, k) | 二维卷积 | in_ch*out_ch*k*k + out_ch |
+| nn.BatchNorm1d(features) | 归一化激活 | 2 * features |
+| nn.Dropout(p) | 随机置零 | 0 |
 | nn.ReLU() | max(0, x) | 0 |
-| nn.GELU() | Gaussian error linear | 0 |
-| nn.Embedding(vocab, dim) | Lookup table | vocab * dim |
-| nn.LayerNorm(dim) | Per-sample normalization | 2 * dim |
+| nn.GELU() | 高斯误差线性单元 | 0 |
+| nn.Embedding(vocab, dim) | 查找表 | vocab * dim |
+| nn.LayerNorm(dim) | 按样本归一化 | 2 * dim |
 
 ### 损失函数与优化器
 
@@ -157,24 +157,24 @@ PyTorch 直接提供了你已经构建过的一切生产级版本。
 
 **损失函数**（来自 `torch.nn`）：
 
-| Loss | Task | Input |
+| 损失函数 | 任务 | 输入 |
 |------|------|-------|
-| nn.MSELoss() | Regression | Any shape |
-| nn.CrossEntropyLoss() | Multi-class classification | Logits (not softmax) |
-| nn.BCEWithLogitsLoss() | Binary classification | Logits (not sigmoid) |
-| nn.L1Loss() | Regression (robust) | Any shape |
-| nn.CTCLoss() | Sequence alignment | Log probabilities |
+| nn.MSELoss() | 回归 | 任意形状 |
+| nn.CrossEntropyLoss() | 多分类 | Logits（不要先 softmax） |
+| nn.BCEWithLogitsLoss() | 二分类 | Logits（不要先 sigmoid） |
+| nn.L1Loss() | 回归（更鲁棒） | 任意形状 |
+| nn.CTCLoss() | 序列对齐 | 对数概率 |
 
 注意：`CrossEntropyLoss` 内部已经组合了 `LogSoftmax` + `NLLLoss`。传原始 logits，不要先做 softmax。这是一个很常见的错误，而且不会明显报错，只会悄悄给你错误梯度。
 
 **优化器**（来自 `torch.optim`）：
 
-| Optimizer | When to use | Typical LR |
+| 优化器 | 何时使用 | 典型学习率 |
 |-----------|-------------|-----------|
-| SGD(params, lr, momentum) | CNNs, well-tuned pipelines | 0.01--0.1 |
-| Adam(params, lr) | Default starting point | 1e-3 |
-| AdamW(params, lr, weight_decay) | Transformers, fine-tuning | 1e-4--1e-3 |
-| LBFGS(params) | Small-scale, second-order | 1.0 |
+| SGD(params, lr, momentum) | CNN、调得比较好的流程 | 0.01--0.1 |
+| Adam(params, lr) | 默认起点 | 1e-3 |
+| AdamW(params, lr, weight_decay) | Transformer、微调 | 1e-4--1e-3 |
+| LBFGS(params) | 小规模、二阶优化 | 1.0 |
 
 ### 训练循环
 
