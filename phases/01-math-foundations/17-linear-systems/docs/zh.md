@@ -261,7 +261,7 @@ X^T X w = X^T y
 w = (X^T X)^(-1) X^T y
 ```
 
-这就是线性回归的闭式解。每次调用 `sklearn.linear_model.LinearRegression.fit()`，本质上都在计算这个解，或者一个等价的 QR / SVD 版本。
+这就是线性回归的闭式解。每次调用 `sklearn.linear_model.LinearRegression.fit()`，都在计算这个解，或者一个等价的 QR / SVD 版本。
 
 如果在矩阵里加上正则项 `lambda * I`，就得到岭回归：
 
