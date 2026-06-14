@@ -116,7 +116,7 @@ AND (separable):        XOR (not separable):
 perceptron-boundary
 ```
 
-## 动手做
+## 动手实现
 
 ### 步骤 1：实现 Perceptron 类
 
@@ -324,7 +324,7 @@ for inputs, expected in xor_data:
 
 这也是通往第 03 课的桥梁。`d_output` 和 `hidden_deltas` 背后的数学，就是把链式法则应用到网络图上。第 03 课我们会正式推导它。
 
-## 实战应用
+## 实际使用
 
 你刚刚从零实现的功能，在一个导入里就有：
 
@@ -351,7 +351,7 @@ print([clf.predict([x])[0] for x in X])
 
 单个感知机只能画直线。把它们堆起来，就能画出任意形状。
 
-## 产出
+## 交付物
 
 本课产出：
 - `outputs/skill-perceptron.md` - 说明单层和多层架构分别适合什么场景的 skill 文档
@@ -362,7 +362,7 @@ print([clf.predict([x])[0] for x in X])
 2. 修改 `Perceptron` 类，让它在每个 epoch 记录决策边界（`w1*x1 + w2*x2 + b = 0`）。打印它在 AND 门训练过程中的移动轨迹。
 3. 实现一个 3 输入感知机：当 3 个输入里至少有 2 个为 1 时输出 1。这个问题是否线性可分？为什么？
 
-## 关键术语
+## 术语表
 
 | 术语 | 常见说法 | 实际含义 |
 |------|---------|---------|
@@ -380,3 +380,4 @@ print([clf.predict([x])[0] for x in X])
 - Frank Rosenblatt, “The Perceptron: A Probabilistic Model for Information Storage and Organization in the Brain” (1958) -- 开启这一切的原始论文
 - Minsky & Papert, “Perceptrons” (1969) -- 证明了单层网络无法解决 XOR，也让感知机研究沉寂了十年
 - Michael Nielsen, “Neural Networks and Deep Learning”, Chapter 1 (http://neuralnetworksanddeeplearning.com/) -- 免费在线版，最适合直观理解感知机如何组合成网络
+
