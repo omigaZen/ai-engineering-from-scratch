@@ -26,9 +26,9 @@ AI 工程环境一般分为四层：
 
 ```mermaid
 graph TD
-    A["4. AI/ML Libraries\nPyTorch, JAX, transformers, etc."] --> B["3. Language Runtimes\nPython 3.11+, Node 20+, Rust, Julia"]
-    B --> C["2. Package Managers\nuv, pnpm, cargo, juliaup"]
-    C --> D["1. System Foundation\nOS, shell, git, editor, GPU drivers"]
+    A["4. AI/ML 库\nPyTorch、JAX、transformers 等"] --> B["3. 语言运行时\nPython 3.11+、Node 20+、Rust、Julia"]
+    B --> C["2. 包管理器\nuv、pnpm、cargo、juliaup"]
+    C --> D["1. 系统基础\n操作系统、shell、git、编辑器、GPU 驱动"]
 ```
 
 安装顺序是自底向上。每一层都依赖它下面的那一层。
@@ -47,7 +47,7 @@ brew install git curl wget
 # Ubuntu/Debian
 sudo apt update && sudo apt install -y build-essential git curl wget
 
-# Windows (use WSL2)
+# Windows（使用 WSL2）
 wsl --install -d Ubuntu-24.04
 ```
 
@@ -61,7 +61,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 uv python install 3.12
 
 uv venv
-source .venv/bin/activate  # or .venv\Scripts\activate on Windows
+source .venv/bin/activate  # Windows 上则运行 .venv\Scripts\activate
 
 uv pip install numpy matplotlib jupyter
 ```
@@ -119,7 +119,7 @@ julia -e 'println("Julia ", VERSION)'
 # NVIDIA
 nvidia-smi
 
-# Install PyTorch with CUDA
+# 安装带 CUDA 的 PyTorch
 uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
 ```
 
