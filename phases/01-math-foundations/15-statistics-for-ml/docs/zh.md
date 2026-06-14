@@ -356,7 +356,7 @@ Sort the B bootstrap statistics
 **为什么它对机器学习有用：**
 
 ```
-- 测试集准确率只是一个点估计。Bootstrap 会给你
+- 测试集准确率只是一个点估计。Bootstrap 会给出
   置信区间。
 - 不能假设各项指标的分布一定是正态的（尤其是
   AUC、F1、precision@k 这类指标）。
