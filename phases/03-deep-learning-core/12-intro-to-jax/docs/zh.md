@@ -367,7 +367,7 @@ for epoch in range(n_epochs):
           f"训练准确率：{train_acc:.4f} | 测试准确率：{test_acc:.4f}")
 ```
 
-10 个 epoch，大约能到 97% 的测试精度。第一个 epoch 会慢一些，因为要做 JIT 编译；第 2 到第 10 个 epoch 就会快很多。
+10 轮，大约能到 97% 的测试精度。第一轮会慢一些，因为要做 JIT 编译；第 2 到第 10 轮就会快很多。
 
 注意这里少了什么：没有 `.zero_grad()`、没有 `.backward()`、没有 `.step()`。整个更新过程就是一个组合函数调用。梯度计算、Adam 变换和参数更新都在 `train_step` 里完成。
 
