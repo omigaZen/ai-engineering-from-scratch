@@ -125,23 +125,23 @@ docker run --rm --gpus all nvidia/cuda:12.4.1-base-ubuntu22.04 nvidia-smi
 ```text
 nvidia/cuda:12.4.1-devel-ubuntu22.04
   Full CUDA toolkit. Compilers included.
-  Use for: building packages that need nvcc (flash-attn, bitsandbytes)
-  Size: ~4 GB
+  用于：构建需要 `nvcc` 的包（如 flash-attn、bitsandbytes）
+  大小：约 4 GB
 
 nvidia/cuda:12.4.1-runtime-ubuntu22.04
-  CUDA runtime only. No compilers.
-  Use for: running pre-built code
-  Size: ~1.5 GB
+  仅含 CUDA 运行时，不含编译器。
+  用于：运行已构建好的代码
+  大小：约 1.5 GB
 
 pytorch/pytorch:2.3.1-cuda12.4-cudnn9-runtime
-  PyTorch pre-installed on top of CUDA.
-  Use for: skipping the PyTorch install step
-  Size: ~6 GB
+  已预装 PyTorch，并基于 CUDA。
+  用于：跳过 PyTorch 安装步骤
+  大小：约 6 GB
 
 python:3.12-slim
-  No CUDA. CPU only.
-  Use for: inference on CPU, lightweight tools
-  Size: ~150 MB
+  不含 CUDA，仅支持 CPU。
+  用于：CPU 推理和轻量工具
+  大小：约 150 MB
 ```
 
 ### 步骤 4：编写 AI 开发用 Dockerfile
