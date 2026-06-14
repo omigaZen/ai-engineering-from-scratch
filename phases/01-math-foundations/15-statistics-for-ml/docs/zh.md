@@ -283,7 +283,7 @@ The difference is significant.
 一个结果可以统计显著，但在实际中毫无意义。样本足够大时，哪怕很小的差异也会变得统计显著。
 
 ```
-Example:
+示例：
   Model A accuracy: 0.9234
   Model B accuracy: 0.9237
   n = 1,000,000 test samples
