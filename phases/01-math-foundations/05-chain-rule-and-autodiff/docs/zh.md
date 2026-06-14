@@ -7,14 +7,14 @@
 **Prerequisites:** Phase 1, Lesson 04 (Derivatives & Gradients)
 **Time:** ~90 minutes
 
-## Learning Objectives
+## 学习目标
 
 - 构建一个最小化的自动微分引擎（`Value` 类），记录运算并通过反向模式自动微分计算梯度
 - 使用拓扑排序实现计算图的前向与反向传播
 - 只用从零实现的自动微分引擎搭建并训练一个用于 XOR 的多层感知机
 - 通过与数值有限差分比较，验证自动微分的正确性
 
-## The Problem
+## 问题是什么
 
 你可以求出简单函数的导数。但神经网络不是简单函数。它是成百上千个函数的复合：矩阵乘法、加偏置、应用激活函数、再次矩阵乘法、softmax、交叉熵损失。输出是函数的函数的函数。
 
@@ -24,9 +24,9 @@
 
 这就是 PyTorch、TensorFlow 和 JAX 的工作方式。你会从零构建一个迷你版本。
 
-## The Concept
+## 核心概念
 
-### The Chain Rule
+### 链式法则
 
 如果 `y = f(g(x))`，那么 `y` 对 `x` 的导数是：
 
@@ -55,7 +55,7 @@ dy/dx = f'(g(h(x))) * g'(h(x)) * h'(x)
 
 神经网络中的每一层，都是这条链上的一环。
 
-### Computational Graphs
+### 计算图
 
 计算图让链式法则变得可视化。每个运算都是一个节点，数据沿图向前流动，梯度沿图向后流动。
 
@@ -84,7 +84,7 @@ graph TD
 
 反向传播在每个节点应用链式法则，把梯度从输出传回输入。
 
-### Forward Mode vs Reverse Mode
+### 前向模式与反向模式
 
 沿着计算图应用链式法则有两种方式。
 
@@ -115,7 +115,7 @@ Reverse mode: seed dy/dy = 1, propagate backward
 | Forward | `dx_i/dx_i = 1` | Input to output | Few inputs, many outputs |
 | Reverse | `dy/dy = 1` | Output to input | Many inputs, few outputs (neural nets) |
 
-### Dual Numbers for Forward Mode
+### 用对偶数实现前向模式
 
 前向模式可以用双数优雅地实现。双数的形式是 `a + b*epsilon`，其中 `epsilon^2 = 0`。
 
@@ -132,7 +132,7 @@ Arithmetic rules:
 
 给输入变量的导数种子设为 1，导数就会在每个运算中自动传播。
 
-### Building an Autograd Engine
+### 构建自动微分引擎
 
 一个自动微分引擎需要三样东西：
 
@@ -142,7 +142,7 @@ Arithmetic rules:
 
 这正是 PyTorch 的 `autograd` 所做的事。`torch.Tensor` 类会包装数值，在 `requires_grad=True` 时记录运算，并在调用 `.backward()` 时计算梯度。
 
-### How PyTorch Autograd Works Under the Hood
+### PyTorch 的自动微分是如何工作的
 
 当你写出这样的 PyTorch 代码时：
 
@@ -167,9 +167,9 @@ PyTorch 内部会：
 chain-rule
 ```
 
-## Build It
+## 动手实现
 
-### Step 1: The Value class
+### 第 1 步：`Value` 类
 
 ```python
 class Value:
@@ -186,7 +186,7 @@ class Value:
 
 每个 `Value` 都保存数值、梯度（初始为零）、反向函数，以及产生它的子节点指针。
 
-### Step 2: Arithmetic operations with gradient tracking
+### 第 2 步：支持梯度追踪的算术运算
 
 ```python
     def __add__(self, other):
@@ -217,7 +217,7 @@ class Value:
 
 每个运算都会创建一个闭包，它知道如何计算局部梯度，并乘以上游梯度（`out.grad`）。`+=` 处理的是一个值被多个运算使用的情况。
 
-### Step 3: The backward pass
+### 第 3 步：反向传播
 
 ```python
     def backward(self):
@@ -238,7 +238,7 @@ class Value:
 
 拓扑排序确保每个节点在把梯度传给子节点前，自己的梯度已经完全计算完毕。种子梯度是 1.0（`dy/dy = 1`）。
 
-### Step 4: More operations for a complete engine
+### 第 4 步：补全引擎所需的更多运算
 
 基础的 `Value` 类能处理加法、乘法和 relu。真正的自动微分引擎需要更多运算。下面这些操作是构建神经网络时必须的：
 
@@ -308,7 +308,7 @@ class Value:
 
 巧妙之处在于：`__sub__` 和 `__truediv__` 都是基于已有操作定义的。由于链式法则会沿着底层加法/乘法/幂运算自动组合，所以它们天然就有正确梯度。
 
-### Step 5: Mini MLP from scratch
+### 第 5 步：从零实现迷你 MLP
 
 有了完整的 `Value` 类，你就可以搭建神经网络了。不用 PyTorch，不用 NumPy。只靠 `Value` 和链式法则。
 
@@ -383,7 +383,7 @@ for x, y in zip(xs, ys):
 
 这就是 micrograd。一个完整的、纯 Python 的神经网络训练循环，带自动微分。所有商用深度学习框架本质上做的也是同一件事，只是规模大得多。
 
-### Step 6: Gradient checking
+### 第 6 步：梯度检查
 
 怎么确认你的自动微分是对的？拿它和数值导数对比。这叫梯度检查。
 
@@ -426,7 +426,7 @@ print(f"Difference: {diff:.2e}")
 | Production training | No, too slow (2x forward passes per parameter) |
 | Unit tests for autograd code | Yes, automate it |
 
-### Step 7: Verify against manual calculation
+### 第 7 步：与手工计算对照验证
 
 ```python
 x1 = Value(2.0)
@@ -445,9 +445,9 @@ print(f"dy/dx2 = {x2.grad}")   # 2.0 (= x1)
 手算检查：`y = relu(x1*x2 + 1)`。由于 `x1*x2 + 1 = 7 > 0`，relu 等同于恒等函数。
 `dy/dx1 = x2 = 3`。`dy/dx2 = x1 = 2`。这个引擎是对的。
 
-## Use It
+## 用起来
 
-### Verify against PyTorch
+### 与 PyTorch 对照验证
 
 ```python
 import torch
@@ -465,7 +465,7 @@ print(f"PyTorch dy/dx2 = {x2.grad.item()}")  # 2.0
 
 梯度完全一致。你的引擎会得到和 PyTorch 一样的结果，因为数学本身就是一样的：通过链式法则做反向模式自动微分。
 
-### A more complex expression
+### 更复杂的表达式
 
 ```python
 a = Value(2.0)
@@ -479,7 +479,7 @@ print(f"df/db = {b.grad}")  #  2.0 (= a)
 print(f"df/dc = {c.grad}")  #  1.0
 ```
 
-## Ship It
+## 上线交付
 
 这一课会产出：
 - `outputs/skill-autodiff.md` -- 一个用于构建和调试自动微分系统的 skill
@@ -487,7 +487,7 @@ print(f"df/dc = {c.grad}")  #  1.0
 
 这里实现的 `Value` 类，是 Phase 3 中神经网络训练循环的基础。
 
-## Exercises
+## 练习
 
 1. 给 `Value` 类增加 `__pow__`，这样就能计算 `x ** n`。验证在 `x=2` 时，`d/dx(x^3)` 等于 `12.0`。
 
@@ -497,7 +497,7 @@ print(f"df/dc = {c.grad}")  #  1.0
 
 4. 使用双数实现前向模式自动微分。创建一个 `Dual` 类，并验证它给出的导数与反向模式引擎一致。
 
-## Key Terms
+## 关键术语
 
 | Term | What people say | What it actually means |
 |------|----------------|----------------------|
@@ -514,7 +514,7 @@ print(f"df/dc = {c.grad}")  #  1.0
 | MLP | "Multi-layer perceptron" | A neural network with one or more hidden layers of neurons. Each neuron computes a weighted sum plus bias, then applies an activation function. |
 | Neuron | "Weighted sum + activation" | The basic unit: output = activation(w1*x1 + w2*x2 + ... + b). The weights and bias are learnable parameters. |
 
-## Further Reading
+## 延伸阅读
 
 - [3Blue1Brown: Backpropagation calculus](https://www.youtube.com/watch?v=tIeHLnjs5U8) -- visual explanation of the chain rule in neural networks
 - [PyTorch Autograd mechanics](https://pytorch.org/docs/stable/notes/autograd.html) -- how the real system works
