@@ -2,10 +2,10 @@
 
 > 链式法则是所有能学习的神经网络背后的引擎。
 
-**Type:** Build
-**Language:** Python
-**Prerequisites:** Phase 1, Lesson 04 (Derivatives & Gradients)
-**Time:** ~90 minutes
+**类型:** 构建
+**语言:** Python
+**先修:** 第 1 阶段，第 04 课（导数与梯度）
+**时长:** ~90 分钟
 
 ## 学习目标
 
