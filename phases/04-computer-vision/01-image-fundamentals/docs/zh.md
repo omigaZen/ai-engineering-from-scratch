@@ -348,7 +348,7 @@ nearest 在粗糙度上通常最高，因为它保留硬边。bilinear 最平滑
 
 ## 使用
 
-`ToTensor()` 可以把上面步骤组合成一条完整流水线。下面代码与 `Normalize` 同时加入 resize 与 crop。
+`ToTensor()` 能把上面步骤组合成一条完整流水线。下面代码与 `Normalize` 同时加入 resize 与 crop。
 
 ```python
 import torch
