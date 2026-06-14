@@ -118,7 +118,7 @@ w = w - lr * m_hat / (sqrt(v_hat) + epsilon) - lr * lambda * w
 
 ```mermaid
 graph TD
-    LR["Learning Rate"] --> TooHigh["太高（lr > 0.01）"]
+    LR["学习率"] --> TooHigh["太高（lr > 0.01）"]
     LR --> JustRight["刚刚好"]
     LR --> TooLow["太低（lr < 0.00001）"]
 
@@ -144,7 +144,7 @@ graph TD
 flowchart LR
     subgraph "Optimization Path"
         SGD_P["SGD<br/>在谷底来回振荡<br/>慢，但能找到平坦极小值"]
-        Mom_P["SGD + Momentum<br/>路径更平滑<br/>比 SGD 快 3 倍"]
+        Mom_P["SGD + 动量<br/>路径更平滑<br/>比 SGD 快 3 倍"]
         Adam_P["Adam<br/>按参数自适应<br/>收敛快"]
         AdamW_P["AdamW<br/>Adam + 正确的衰减<br/>泛化最好"]
     end
@@ -158,9 +158,9 @@ flowchart TD
     Task["你在训练什么？"] --> Type{"模型类型？"}
 
     Type -->|"Transformer / LLM"| AdamW["AdamW<br/>lr=1e-4, wd=0.01-0.1"]
-    Type -->|"CNN / ResNet"| SGD_M["SGD + Momentum<br/>lr=0.1, momentum=0.9"]
+    Type -->|"CNN / ResNet"| SGD_M["SGD + 动量<br/>lr=0.1, momentum=0.9"]
     Type -->|"GAN"| Adam2["Adam<br/>lr=2e-4, beta1=0.5"]
-    Type -->|"Fine-tuning"| AdamW2["AdamW<br/>lr=2e-5, wd=0.01"]
+    Type -->|"微调"| AdamW2["AdamW<br/>lr=2e-5, wd=0.01"]
     Type -->|"还不知道"| Default["先用 AdamW<br/>lr=3e-4, wd=0.01"]
 ```
 
