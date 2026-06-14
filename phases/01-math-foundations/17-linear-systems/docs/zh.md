@@ -197,7 +197,7 @@ R[i][j] = qi . aj    for i <= j
 
 ### Cholesky 分解
 
-当 A 是对称矩阵（`A = A^T`）且正定（所有特征值都大于 0）时，可以写成 `A = L L^T`，这就是 Cholesky 分解。
+当 A 是对称矩阵（`A = A^T`）且正定（所有特征值都大于 0）时，能写成 `A = L L^T`，这就是 Cholesky 分解。
 
 ```
 A = L @ L^T
