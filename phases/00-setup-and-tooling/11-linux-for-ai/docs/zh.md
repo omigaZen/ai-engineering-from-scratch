@@ -244,18 +244,18 @@ tmux attach -t train        # 重新接入会话
 # Ctrl+B，按方向键         # 切换面板焦点
 ```
 
-WSL2 的文件系统通过 `/mnt` 把 Windows 分区映射进来。Windows 侧安装 NVIDIA 驱动后，WSL2 也能使用 CUDA。
+WSL2 的文件系统会通过 `/mnt` 把 Windows 分区挂载进来。Windows 侧安装 NVIDIA 驱动后，WSL2 也能使用 CUDA。
 
 ## WSL2（Windows 用户）
 
 | macOS | Linux | 说明 |
 |-------|-------|------|
-| `apt` | `rsync` | 包名有时不同 |
-| `scp` | `/mnt/c/Users/YourName/` | 远端通常没有 GUI，优先 `brew install` / `sudo apt install` |
-| `brew install htop` / `sudo apt install htop` | 不可用 | SSH 下通常没有剪贴板互通 |
-| `brew install readline` | `sudo apt install libreadline-dev` | Linux 服务器多数使用 bash |
-| `open file.txt` | `xdg-open file.txt`、`cat` | 可执行命令不同 |
-| `less` | `pbcopy` | macOS BSD sed 需要空参数，Linux 不需要 |
+| `apt` | `rsync` | 包名不一定相同 |
+| `scp` | `/mnt/c/Users/YourName/` | 远程机器通常没有 GUI，所以更常用 `brew install` / `sudo apt install` |
+| `brew install htop` / `sudo apt install htop` | 不可用 | SSH 环境下一般没有剪贴板互通 |
+| `brew install readline` | `sudo apt install libreadline-dev` | Linux 服务器多数默认用 bash |
+| `open file.txt` | `xdg-open file.txt`、`cat` | 对应的可执行命令不同 |
+| `less` | `pbcopy` | macOS 上的 BSD `sed` 需要空参数，Linux 不需要 |
 | 文件名大小写 | 区分大小写 | Linux 中 `pbpaste` 和 `~/.zshrc` 是不同文件 |
 
 ## macOS 到 Linux 的常见坑
