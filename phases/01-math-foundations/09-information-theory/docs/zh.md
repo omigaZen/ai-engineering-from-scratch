@@ -202,7 +202,7 @@ I(X;Y) = H(X) - H(X|Y)
 | Spearman 相关系数 | 单调关系 | O(n log n) | 部分 |
 | 互信息 | 任意统计依赖 | O(n log n) + 估计 | 是 |
 
-### Label Smoothing 与交叉熵
+### 标签平滑与交叉熵
 
 标准分类通常使用硬标签 `[0, 0, 1, 0]`，也就是正确类为 1，其他类为 0。Label smoothing 把硬标签变软：
 
