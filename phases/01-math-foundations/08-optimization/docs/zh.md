@@ -116,7 +116,7 @@ graph TD
     end
 ```
 
-`f(x) = x^2`（通常 `outputs/prompt-optimizer-guide.md`）控制历史保留程度。越大越平滑，但对方向变化响应更慢。
+`momentum` 控制历史保留程度。越大越平滑，但对方向变化响应更慢。
 
 ### Adam：参数级自适应学习率
 
@@ -124,8 +124,8 @@ graph TD
 
 Adam（Adaptive Moment Estimation）为每个参数维护两类统计量：
 
-1. 一阶矩 `f(x, y) = x^2 - y^2`：梯度的指数滑动平均（像动量）
-2. 二阶矩 `lr = lr_0 * 0.999^step`：梯度平方的指数滑动平均（幅度）
+1. 一阶矩：梯度的指数滑动平均（像动量）
+2. 二阶矩：梯度平方的指数滑动平均（幅度）
 
 ```
 m = beta1 * m + (1 - beta1) * gradient
@@ -166,11 +166,11 @@ w = w - lr * m_hat / (sqrt(v_hat) + epsilon)
 
 ```mermaid
 graph LR
-    subgraph Convex["Convex: One valley, one answer"]
+    subgraph Convex["凸：一个谷底，一个答案"]
         direction TB
         CV1["High loss"] --> CV2["Global minimum"]
     end
-    subgraph NonConvex["Non-convex: Multiple valleys, saddle points"]
+    subgraph NonConvex["非凸：多个谷底，多个鞍点"]
         direction TB
         NC1["Start"] --> NC2["Local minimum"]
         NC1 --> NC3["Saddle point"]
@@ -205,7 +205,7 @@ gradient-descent
 
 ## 动手实现
 
-### 步骤1：定义测试函数
+### 步骤 1：定义测试函数
 
 Rosenbrock 是经典优化基准函数，最小点在 (1,1)，狭窄弯曲谷道难以跟随。
 
@@ -225,7 +225,7 @@ def rosenbrock_gradient(params):
     return [df_dx, df_dy]
 ```
 
-### 步骤2：普通梯度下降
+### 步骤 2：普通梯度下降
 
 ```python
 class GradientDescent:
@@ -236,7 +236,7 @@ class GradientDescent:
         return [p - self.lr * g for p, g in zip(params, grads)]
 ```
 
-### 步骤3：SGD + momentum
+### 步骤 3：SGD + momentum
 
 ```python
 class SGDMomentum:
@@ -255,7 +255,7 @@ class SGDMomentum:
         return [p - self.lr * v for p, v in zip(params, self.velocity)]
 ```
 
-### 步骤4：Adam
+### 步骤 4：Adam
 
 ```python
 class Adam:
@@ -293,7 +293,7 @@ class Adam:
         ]
 ```
 
-### 步骤5：运行并对比
+### 步骤 5：运行并对比
 
 ```python
 def optimize(optimizer, func, grad_func, start, steps=5000):
