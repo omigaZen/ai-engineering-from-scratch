@@ -287,7 +287,7 @@ dropout-mask
 
 ## 实现
 
-用纯 PyTorch primitives 训练一个 3 层 MLP 跑 MNIST。不用高层封装，不用 `torchvision.datasets`。我们自己下载并解析原始数据。
+用 PyTorch 原生算子训练一个 3 层 MLP 跑 MNIST。不用高层封装，不用 `torchvision.datasets`。我们自己下载并解析原始数据。
 
 ### 步骤 1：从原始文件加载 MNIST
 
