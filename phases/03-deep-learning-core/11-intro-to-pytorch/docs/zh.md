@@ -429,9 +429,9 @@ def main():
             model, test_loader, criterion, device
         )
         print(
-            f"Epoch {epoch+1:2d} | "
-            f"Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.4f} | "
-            f"Test Loss: {test_loss:.4f} | Test Acc: {test_acc:.4f}"
+            f"第 {epoch+1:2d} 轮 | "
+            f"训练损失：{train_loss:.4f} | 训练准确率：{train_acc:.4f} | "
+            f"测试损失：{test_loss:.4f} | 测试准确率：{test_acc:.4f}"
         )
 
     torch.save(model.state_dict(), "mnist_mlp.pt")
