@@ -14,7 +14,7 @@
 - 使用 `einsum` 表达式实现点积、矩阵乘法、外积和批量运算
 - 跟踪多头注意力每一步中的精确张量形状
 
-## 问题是什么
+## 问题
 
 你在搭建 Transformer。前向传播看起来很干净。跑起来却报错：`RuntimeError: mat1 and mat2 shapes cannot be multiplied (32x768 and 512x768)`。你盯着 shape 看了半天，尝试转置。现在它又说：`Expected 4D input (got 3D input)`。你加了一个 unsqueeze。别的地方又坏了。
 
