@@ -286,7 +286,10 @@ sudo apt update && sudo apt upgrade -y
 | `apt` | 软件源 | Ubuntu 软件包管理入口 |
 | `systemctl` | 服务开关 | 管理系统服务 |
 
-## 关键词`n`n```n导航:     pwd, ls, cd, find
+## 关键词
+
+```text
+导航:     pwd, ls, cd, find
 文件:     cp, mv, rm, mkdir, cat, head, tail, less
 搜索:     grep, find
 权限:     chmod, chown, sudo
