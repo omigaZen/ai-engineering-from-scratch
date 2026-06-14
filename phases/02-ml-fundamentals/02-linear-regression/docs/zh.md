@@ -207,7 +207,7 @@ class LinearRegression:
             cost = self.compute_cost(X, y)
             self.cost_history.append(cost)
             if epoch % print_every == 0:
-                print(f"  Epoch {epoch:4d} | Cost: {cost:.4f} | w: {self.w:.4f} | b: {self.b:.4f}")
+                print(f"  轮次 {epoch:4d} | 代价 {cost:.4f} | w: {self.w:.4f} | b: {self.b:.4f}")
         return self
 
     def r_squared(self, X, y):
@@ -294,7 +294,7 @@ class MultipleLinearRegression:
             cost = self.compute_cost(X, y)
             self.cost_history.append(cost)
             if epoch % print_every == 0:
-                print(f"  Epoch {epoch:4d} | Cost: {cost:.4f}")
+                print(f"  轮次 {epoch:4d} | 代价 {cost:.4f}")
         return self
 
     def r_squared(self, X, y):
@@ -378,7 +378,7 @@ class PolynomialRegression:
             self.bias -= self.lr * grad_b
             if epoch % print_every == 0:
                 cost = sum(e ** 2 for e in errors) / n
-                print(f"  Epoch {epoch:4d} | Cost: {cost:.6f}")
+                print(f"  轮次 {epoch:4d} | 代价 {cost:.6f}")
         return self
 
     def r_squared(self, X, y):
@@ -448,7 +448,7 @@ class RidgeRegression:
             grad_b = (2 / n) * sum(errors)
             self.bias -= self.lr * grad_b
             if epoch % print_every == 0:
-                print(f"  Epoch {epoch:4d} | Cost: {cost:.4f} | L2 penalty: {reg_term:.4f}")
+                print(f"  轮次 {epoch:4d} | 代价 {cost:.4f} | L2 惩罚 {reg_term:.4f}")
         return self
 
 
