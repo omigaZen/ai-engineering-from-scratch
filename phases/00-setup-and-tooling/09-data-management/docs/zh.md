@@ -65,7 +65,7 @@ for i, example in enumerate(dataset):
         break
 ```
 
-`IterableDataset` 会返回 `datasets`，按需拉取，内存占用不随数据集规模增长。
+`IterableDataset` 会按需返回数据，不会把整个数据集一次性载入内存，因此内存占用不会随着数据集规模增长。
 
 ### 步骤 4：数据格式
 
@@ -132,7 +132,7 @@ model_dir = snapshot_download("sentence-transformers/all-MiniLM-L6-v2")
 print(f"Full model at: {model_dir}")
 ```
 
-模型默认缓存到 `.dvc`，后续加载几乎秒出。
+模型默认缓存到 `~/.cache/huggingface/hub/`，后续加载通常会快很多。
 
 ### 步骤 7：处理大文件
 
@@ -179,11 +179,11 @@ DVC 用小 `.gitignore` 文件记录数据位置，数据本体存在 S3/GCS 等
 | Git LFS | 中 | 团队共享模型权重 |
 | DVC | 高 | 跨机器可复现实验、超大数据集 |
 
-课程阶段默认用 `code/data_utils.py`，当实验复现需要时再上 DVC。
+课程阶段默认使用 `code/data_utils.py`，只有在确实需要复现实验时才引入 DVC。
 
 ### 步骤 8：存储策略
 
-本地存储适合约 10GB 以内的数据，HF 缓存可自动管理。
+本地存储适合约 10GB 以内的数据，Hugging Face 缓存也足够应付这一级别的数据。
 
 更大规模或多机共享建议云存储：
 
@@ -216,7 +216,7 @@ dvc push
 | MNIST | 视觉基础 | 21 MB | 图像分类 |
 | COCO（子集） | 多模态 | 变化 | 图文配对任务 |
 
-你不必一次性下载全部，每节课会说明需要哪些。
+你不必一次性下载全部，每节课都会说明需要哪些数据集。
 
 ## 应用
 
@@ -226,7 +226,7 @@ dvc push
 python code/data_utils.py
 ```
 
-脚本会下载小数据集、转换格式、划分并输出摘要。
+脚本会下载一个小数据集，完成格式转换和切分，并输出摘要。
 
 ## 交付
 
@@ -236,8 +236,8 @@ python code/data_utils.py
 
 ## 练习
 
-1. 用 `mrpc` 加载 `c4` 的 mrpc 配置，并查看前 5 条样例
-2. 流式读取 c4 数据集并统计 10 秒内能处理多少条
+1. 用 `mrpc` 配置加载 `c4`，并查看前 5 条样例
+2. 流式读取 `c4` 数据集，并统计 10 秒内能处理多少条
 3. 将一个数据集转成 Parquet，对比 CSV 文件体积
 4. 使用固定种子创建 70/15/15 的 train/val/test 切分并核对规模
 
@@ -246,9 +246,9 @@ python code/data_utils.py
 | 术语 | 口语说法 | 实际含义 |
 |------|----------------|----------------------|
 | Dataset split | “训练数据” | 训练/验证/测试三类子集，用于模型不同阶段 |
-| Streaming | “懒加载” | 按行从远端源读取，不一次性下载全量 |
+| Streaming | “懒加载” | 按需从远端读取，不一次性下载全部内容 |
 | Parquet | “压缩版 CSV” | 列式存储格式，体积更小、查询更快 |
-| Arrow | “高速 dataframe” | 列式内存格式，datasets 内部用于零拷贝读取 |
+| Arrow | “高速 dataframe” | 列式内存格式，`datasets` 内部用于零拷贝读取 |
 | Git LFS | “大文件用 Git” | 把大文件内容放到外部服务，git 里只存指针 |
 | DVC | “数据版 Git” | 数据和模型的版本控制工具，常配合云存储 |
-| Cache | “已下载缓存” | 默认保存在 ~/.cache/huggingface/ 的本地副本 |
+| Cache | “已下载缓存” | 默认保存在 `~/.cache/huggingface/` 的本地副本 |
