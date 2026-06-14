@@ -26,7 +26,7 @@ Notebook 是一组单元格（cell）构成。每个 cell 要么是代码，要�
 
 ```mermaid
 graph TD
-    A["**Markdown Cell**\n# 我的实验\n测试学习率 0.01"] --> B["**代码单元** ► 运行\nmodel.fit(X, y, lr=0.01)\n---\n输出：loss = 0.342"]
+    A["**Markdown 单元**\n# 我的实验\n测试学习率 0.01"] --> B["**代码单元** ► 运行\nmodel.fit(X, y, lr=0.01)\n---\n输出：loss = 0.342"]
     B --> C["**代码单元** ► 运行\nplt.plot(losses)\n---\n输出：内联图表"]
 ```
 
@@ -167,7 +167,7 @@ import matplotlib.pyplot as plt
 
 plt.figure(figsize=(8, 4))
 plt.plot([1, 2, 3, 4], [1, 4, 2, 3])
-plt.title("Inline Plot")
+    plt.title("内联图")
 plt.show()
 ```
 
