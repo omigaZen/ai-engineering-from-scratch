@@ -259,7 +259,7 @@ kitten -> sitten  (substitute k -> s)
 sitten -> sittin  (substitute e -> i)
 sittin -> sitting (insert g)
 
-Edit distance = 3
+编辑距离 = 3
 ```
 
 它通常通过动态规划计算。填一个矩阵，其中 (i, j) 表示字符串 A 的前 i 个字符和字符串 B 的前 j 个字符之间的编辑距离。
@@ -310,7 +310,7 @@ D_KL(P || Q) != D_KL(Q || P)
 Wasserstein 距离衡量把一个概率分布变成另一个分布所需的最小“工作量”。可将其理解为：如果一个分布是一堆土，另一个分布是一个坑，那么你需要搬多少土、搬多远。
 
 ```
-W(P, Q) = inf over all transport plans gamma of E[d(x, y)]
+W(P, Q) = 在所有运输方案 gamma 中，使 E[d(x, y)] 最小的下确界
 ```
 
 对于一维分布，它能简化为两个累积分布函数差值绝对值的积分：
@@ -353,9 +353,9 @@ Wasserstein 会给出有意义的梯度，KL 不会。
 | 离群点检测 | Mahalanobis | 考虑特征相关性和尺度差异 |
 | 比较分布 | KL divergence | 衡量用 Q 去编码 P 额外损失的信息 |
 | GAN 训练 | Wasserstein | 即使分布不重叠也有梯度 |
-| Embedding（向量数据库） | Cosine 或 dot product | embedding 往往把语义编码在方向里 |
-| 推荐系统 | Dot product | 模长可编码热度或置信度 |
-| DNA 序列 | Weighted edit distance | 替换代价会随碱基对而变化 |
+| Embedding（向量数据库） | 余弦或点积 | embedding 往往把语义编码在方向里 |
+| 推荐系统 | 点积 | 模长可编码热度或置信度 |
+| DNA 序列 | 加权编辑距离 | 替换代价会随碱基对而变化 |
 | 制造业质检 | L-infinity | 任何单维的最坏偏差都很关键 |
 
 ### 与损失函数的关系
@@ -363,17 +363,15 @@ Wasserstein 会给出有意义的梯度，KL 不会。
 损失函数就是把“预测值 vs 目标值”写成一个距离或散度。
 
 ```
-Loss function       Distance it uses       Behavior
-MSE                 L2 squared             Penalizes large errors heavily
-MAE                 L1                     Penalizes all errors equally
-Huber loss          L1 for large errors,   Best of both: robust to outliers,
-                    L2 for small errors    smooth gradient near zero
-Cross-entropy       KL divergence          Measures distribution mismatch
-Hinge loss          max(0, margin - d)     Only penalizes below margin
-Triplet loss        L2 (typically)         Pulls positives close, pushes
-                                           negatives away
-Contrastive loss    L2                     Similar pairs close, dissimilar
-                                           pairs beyond margin
+损失函数              使用的距离             行为
+MSE                  L2 平方               对大误差惩罚很重
+MAE                  L1                    所有误差一视同仁
+Huber loss           L1 for large errors,   兼顾鲁棒性与零附近的平滑梯度
+                     L2 for small errors
+Cross-entropy        KL divergence          衡量分布不匹配
+Hinge loss           max(0, margin - d)    只惩罚低于 margin 的情况
+Triplet loss         L2 (typically)         拉近正样本，推远负样本
+Contrastive loss     L2                     相似样本拉近，不相似样本推到 margin 之外
 ```
 
 ### 与正则化的关系
@@ -382,18 +380,18 @@ Contrastive loss    L2                     Similar pairs close, dissimilar
 
 ```
 L1 regularization (Lasso):   loss + lambda * ||w||_1
-  -> Sparse weights. Some weights become exactly zero.
-  -> Automatic feature selection.
-  -> Solution has corners (non-differentiable at zero).
+  -> 权重稀疏。部分权重会精确变成 0。
+  -> 自动特征选择。
+  -> 解有尖角（在 0 处不可导）。
 
 L2 regularization (Ridge):   loss + lambda * ||w||_2^2
-  -> Small weights. All weights shrink toward zero.
-  -> No feature selection (nothing goes to exactly zero).
-  -> Smooth solution everywhere.
+  -> 权重更小。所有权重都会向 0 收缩。
+  -> 不会做特征选择（没有权重会精确变成 0）。
+  -> 解处处平滑。
 
 Elastic Net:                  loss + lambda_1 * ||w||_1 + lambda_2 * ||w||_2^2
-  -> Combines sparsity of L1 with stability of L2.
-  -> Groups of correlated features are kept or dropped together.
+  -> 结合 L1 的稀疏性和 L2 的稳定性。
+  -> 相关特征通常会成组保留或成组丢弃。
 ```
 
 为什么 L1 会产生稀疏性而 L2 不会：想象二维权重空间中的约束区域。L1 是菱形，L2 是圆形。损失函数的等高线（椭圆）最容易在菱形的角点处接触，而角点对应某个权重为 0。它们和圆形接触时则通常是平滑点，因此两个权重都不为 0。
@@ -456,8 +454,8 @@ sim_matrix = cosine_similarity_matrix(embeddings)
 query_idx = 0
 similarities = sim_matrix[query_idx]
 top_k = np.argsort(similarities)[::-1][1:6]
-print(f"Top 5 most similar to item 0: {top_k}")
-print(f"Similarities: {similarities[top_k]}")
+print(f"与条目 0 最相似的前 5 个：{top_k}")
+print(f"相似度：{similarities[top_k]}")
 ```
 
 当你调用 `model.encode(text)`，再把结果送进向量数据库做检索时，底层就是这套流程：embedding 模型把文本映射成向量，向量数据库用余弦相似度（或点积）把查询向量和所有存储向量进行比较，并借助 ANN 算法避免全量扫描。
