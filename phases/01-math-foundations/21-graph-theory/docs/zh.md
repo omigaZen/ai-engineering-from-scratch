@@ -49,8 +49,8 @@
 对含 \(n\) 个节点的图：
 
 ```
-A[i][j] = 1    if there is an edge from node i to node j
-A[i][j] = 0    otherwise
+A[i][j] = 1    如果从节点 i 到节点 j 存在边
+A[i][j] = 0    否则
 ```
 
 无向图中 \(A\) 对称；加权图中 \(A[i][j]\) 是边权值。
@@ -160,18 +160,18 @@ D = [[2, 0, 0],    A = [[0, 1, 1],    L = [[2, -1, -1],
 
 ```mermaid
 graph TD
-    subgraph "Graph to Matrices"
-        G["Graph G"] --> A["Adjacency Matrix A"]
-        G --> D["Degree Matrix D"]
-        A --> L["Laplacian L = D - A"]
+    subgraph "图到矩阵"
+        G["图 G"] --> A["邻接矩阵 A"]
+        G --> D["度矩阵 D"]
+        A --> L["拉普拉斯 L = D - A"]
         D --> L
     end
-    subgraph "Spectral Analysis"
-        L --> E["Eigenvalues of L"]
-        L --> V["Eigenvectors of L"]
-        E --> C["Connected components (zeros)"]
-        E --> F["Connectivity (Fiedler value)"]
-        V --> S["Spectral clustering"]
+    subgraph "谱分析"
+        L --> E["L 的特征值"]
+        L --> V["L 的特征向量"]
+        E --> C["连通分量（零特征值个数）"]
+        E --> F["连通性（Fiedler 值）"]
+        V --> S["谱聚类"]
     end
 ```
 
@@ -309,7 +309,7 @@ def dfs(graph, start):
 
 ## 实践
 
-用 networkx + numpy 可快速复现：
+用 `networkx` + `numpy` 可以快速复现：
 
 ```python
 def connected_components(graph):
@@ -366,7 +366,7 @@ def spectral_clustering(graph, k=2):
 | 连接分量 | 预处理时拆分子图 |
 | PageRank | 节点重要度 |
 
-GCN（Kipf & Welling, 2017）使用自环后的归一化形式：
+GCN（Kipf & Welling, 2017）使用的是加入自环后的归一化形式：
 
 ```python
 def message_passing(graph, features, weight_matrix):
@@ -380,7 +380,7 @@ def message_passing(graph, features, weight_matrix):
     return output
 ```
 
-其中 \(A_{hat}=A+I\)，\(D_{hat}\) 是 \(A_{hat}\) 的度矩阵。自环意味着每个节点保留自己的特征。该归一化和 \(L_{sym}=I-D^{-1/2}AD^{-1/2}\) 的谱性质高度相关。
+其中 \(A_{hat}=A+I\)，\(D_{hat}\) 是 \(A_{hat}\) 的度矩阵。自环意味着每个节点都会保留自己的特征。这种归一化和 \(L_{sym}=I-D^{-1/2}AD^{-1/2}\) 的谱性质高度相关。
 
 ## 练习
 
