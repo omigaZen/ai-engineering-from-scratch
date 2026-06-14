@@ -81,7 +81,7 @@ D[i][j] = 0    for i != j
 
 三角形中每个节点度为 2，所以 \(D=diag(2,2,2)\)。
 
-### BFS 与 DFS
+### BFS/DFS
 
 两种基本遍历方式都要会。
 
@@ -330,7 +330,7 @@ def laplacian_eigenvalues(graph):
     return eigenvalues
 ```
 
-### numpy 谱分析
+### NumPy 谱分析
 
 ```python
 def spectral_clustering(graph, k=2):
