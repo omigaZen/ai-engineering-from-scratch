@@ -314,7 +314,7 @@ clf = Pipeline([
     ("knn", KNeighborsClassifier(n_neighbors=5, metric="euclidean")),
 ])
 clf.fit(X_train, y_train)
-print(f"Accuracy: {clf.score(X_test, y_test):.4f}")
+print(f"准确率：{clf.score(X_test, y_test):.4f}")
 ```
 
 Scikit-learn 在数据足够大、维度足够低时，会自动使用 KD-tree 或 Ball tree。高维数据则回退到朴素搜索。你可以通过 `algorithm` 参数手动指定。
