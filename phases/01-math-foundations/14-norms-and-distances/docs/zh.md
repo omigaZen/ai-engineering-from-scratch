@@ -354,7 +354,7 @@ Wasserstein gives a meaningful gradient. KL does not.
 | 比较分布 | KL divergence | 衡量用 Q 去编码 P 额外损失的信息 |
 | GAN 训练 | Wasserstein | 即使分布不重叠也有梯度 |
 | Embedding（向量数据库） | Cosine 或 dot product | embedding 往往把语义编码在方向里 |
-| 推荐系统 | Dot product | 模长可以编码热度或置信度 |
+| 推荐系统 | Dot product | 模长可编码热度或置信度 |
 | DNA 序列 | Weighted edit distance | 替换代价会随碱基对而变化 |
 | 制造业质检 | L-infinity | 任何单维的最坏偏差都很关键 |
 
