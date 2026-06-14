@@ -84,7 +84,7 @@ python -c "import torch; print(torch.cuda.get_device_name(0))"
 
 ### 没有 GPU 也没关系
 
-大多数课程都可以在 CPU 上完成。需要 GPU 的课程会明确标注，并附上 Colab 链接。
+大多数课程都能在 CPU 上完成。需要 GPU 的课程会明确标注，并附上 Colab 链接。
 
 ```python
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
