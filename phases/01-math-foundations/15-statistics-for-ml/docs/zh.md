@@ -356,8 +356,8 @@ Sort the B bootstrap statistics
 **为什么它对机器学习有用：**
 
 ```
-- Test set accuracy is a point estimate. Bootstrap gives you
-  confidence intervals.
+- 测试集准确率只是一个点估计。Bootstrap 能给你
+  置信区间。
 - You cannot assume metric distributions are normal (especially
   for AUC, F1, precision at k).
 - Bootstrap works for ANY statistic: median, ratio of two means,
