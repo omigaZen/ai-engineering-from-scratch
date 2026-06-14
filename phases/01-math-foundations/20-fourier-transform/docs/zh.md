@@ -239,12 +239,12 @@ PE(pos, 2i+1) = cos(pos / 10000^(2i/d_model))
 短时傅里叶变换（STFT）在重叠窗口上做 FFT，得到频谱图（spectrogram）：一个时间-频率二维矩阵。
 
 ```
-STFT procedure:
-1. Choose a window size (e.g., 1024 samples)
-2. Choose a hop size (e.g., 256 samples -- 75% overlap)
+STFT 流程：
+1. 选择窗口大小（例如 1024 个采样点）
+2. 选择步长（例如 256 个采样点 -- 75% 重叠）
 3. 对每个窗口位置：
    a. 截取对应的窗口片段
-   b. 乘上 Hann/Hamming 窗
+        b. 乘上 Hann/Hamming 窗
    c. 计算 FFT
    d. 把幅度谱作为频谱图的一列存起来
 ```
@@ -458,7 +458,7 @@ spectrogram 矩阵形状为 \((n_frequencies, n_time_frames)\)，每列是某时
 
 - [Cooley & Tukey 论文（1965）](https://www.ams.org/journals/mcom/1965-19-090/S0025-5718-1965-0178586-1/)：开创性 FFT 算法
 - [3Blue1Brown: But what is the Fourier Transform?](https://www.youtube.com/watch?v=spUNpyF58BY)：直观视角，非常适合快速建立图像
-- [Lee-Thorp et al.: FNet (2021)](https://arxiv.org/abs/2105.03824)：在 Transformer 中用 FFT 替代 self-attention 的思路
+- [Lee-Thorp 等：FNet（2021）](https://arxiv.org/abs/2105.03824)：在 Transformer 中用 FFT 替代 self-attention 的思路
 - [Smith: The Scientist and Engineer's Guide to DSP](http://www.dspguide.com/)：深入覆盖 FFT、窗函数与谱分析
-- [Vaswani et al.: Attention Is All You Need (2017)](https://arxiv.org/abs/1706.03762)：原始 Transformer 的频率位置编码基础
-- [Radford et al.: Whisper (2022)](https://arxiv.org/abs/2212.04356)：基于 mel-spectrogram 的语音识别示例
+- [Vaswani 等：Attention Is All You Need（2017）](https://arxiv.org/abs/1706.03762)：原始 Transformer 的频率位置编码基础
+- [Radford 等：Whisper（2022）](https://arxiv.org/abs/2212.04356)：基于 mel-spectrogram 的语音识别示例
