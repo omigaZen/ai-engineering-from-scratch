@@ -7,14 +7,14 @@
 **Prerequisites:** Phase 1, Lessons 01 (Linear Algebra Intuition), 02 (Vectors, Matrices & Operations)
 **Time:** ~90 minutes
 
-## Learning Objectives
+## 学习目标
 
 - 从零实现一个张量类，支持 shape、strides、reshape、transpose 和逐元素运算
 - 应用广播规则，在不复制数据的前提下操作不同形状的张量
 - 使用 `einsum` 表达式实现点积、矩阵乘法、外积和批量运算
 - 跟踪多头注意力每一步中的精确张量形状
 
-## The Problem
+## 问题是什么
 
 你在搭建 Transformer。前向传播看起来很干净。跑起来却报错：`RuntimeError: mat1 and mat2 shapes cannot be multiplied (32x768 and 512x768)`。你盯着 shape 看了半天，尝试转置。现在它又说：`Expected 4D input (got 3D input)`。你加了一个 unsqueeze。别的地方又坏了。
 
@@ -22,9 +22,9 @@
 
 矩阵只能处理两组事物之间的两两关系。真实数据并不是二维的。一个包含 32 张 224x224 RGB 图像的批次，是一个 4D 张量：`(32, 3, 224, 224)`。12 个头的自注意力也是 4D：`(batch, heads, seq_len, head_dim)`。你需要一种能推广到任意维度的数据结构，并且它的运算能够在所有维度上干净组合。那种结构就是张量。掌握它的运算后，形状错误就会变得非常容易排查。
 
-## The Concept
+## 核心概念
 
-### What a tensor is
+### 什么是张量
 
 张量是一个具有统一数据类型的多维数值数组。维度的数量叫做 **rank**（或 **order**）。每个维度叫做一个 **axis**。**shape** 是一个元组，列出每个轴上的大小。
 
@@ -38,7 +38,7 @@ graph LR
 
 元素总数 = 所有维度大小的乘积。形状 `(2, 3, 4)` 的张量包含 `2 * 3 * 4 = 24` 个元素。
 
-### Tensor shapes in deep learning
+### 深度学习中的张量形状
 
 不同类型的数据会按照约定映射到特定的张量形状。
 
@@ -60,7 +60,7 @@ graph TD
 
 PyTorch 使用 NCHW（channels-first）。TensorFlow 默认使用 NHWC（channels-last）。布局不一致会造成静默变慢，或者直接报错。
 
-### How memory layout works
+### 内存布局是怎么工作的
 
 内存中的二维数组本质上是一维字节序列。**strides** 告诉你沿每个轴移动一步时，需要跳过多少个元素。
 
@@ -76,7 +76,7 @@ graph LR
 
 转置不会移动数据，只会交换 strides，从而让张量变成 **non-contiguous**。也就是说，一个行里的元素不再在内存中相邻。
 
-### Broadcasting rules
+### 广播规则
 
 广播允许你在不复制数据的前提下，对不同形状的张量进行运算。对齐方式是从右往左。两个维度只要相等，或者其中一个为 1，就兼容。维度更少的张量会在左侧补 1。
 
@@ -87,7 +87,7 @@ Padded B:     (1, 7, 1, 5)
 Result:       (8, 7, 6, 5)
 ```
 
-### Einsum: the universal tensor operation
+### Einsum：通用的张量操作
 
 Einstein 求和约定会用字母给每个轴命名。输入里有、输出里没有的轴会被求和。输入和输出都出现的轴会被保留。
 
@@ -105,11 +105,11 @@ graph LR
 tensor-broadcast
 ```
 
-## Build It
+## 动手实现
 
 代码位于 `code/tensors.py`。下面每一步都对应那里实现的功能。
 
-### Step 1: Tensor storage and strides
+### 第 1 步：张量存储与步幅
 
 张量会保存一个扁平的数字列表，以及 shape 元数据。strides 决定索引逻辑如何把多维索引映射到一维位置。
 
@@ -147,7 +147,7 @@ class Tensor:
 
 对于形状 `(3, 4)`，strides 是 `(4, 1)`，也就是：往下一行跳过 4 个元素，往右一列跳过 1 个元素。
 
-### Step 2: Reshape, squeeze, unsqueeze
+### 第 2 步：`reshape`、`squeeze`、`unsqueeze`
 
 Reshape 只改变形状，不改变元素顺序。元素总数必须保持不变。可以用 `-1` 表示其中一维由系统推断大小。
 
@@ -166,7 +166,7 @@ v = Tensor([1, 2, 3])
 u = v.unsqueeze(0)
 ```
 
-### Step 3: Transpose and permute
+### 第 3 步：`transpose` 和 `permute`
 
 Transpose 会交换两个轴。Permute 会重新排列所有轴。这就是在 NCHW 和 NHWC 之间转换的方式。
 
@@ -180,7 +180,7 @@ perm = t4d.permute((0, 2, 3, 1))
 
 经过 transpose 或 permute 之后，张量在内存里会变成 non-contiguous。在 PyTorch 里，`view` 不能作用于 non-contiguous 张量，需要改用 `reshape`，或者先调用 `.contiguous()`。
 
-### Step 4: Element-wise operations and reductions
+### 第 4 步：逐元素运算与归约
 
 逐元素运算（add、multiply、subtract）会独立作用于每个元素，并保持形状不变。规约运算（sum、mean、max）会折叠一个或多个轴。
 
@@ -194,7 +194,7 @@ s = a.sum(axis=0)
 
 CNN 中的全局平均池化：`(B, C, H, W).mean(axis=[2, 3])` 会得到 `(B, C)`。NLP 中的序列平均池化：`(B, T, D).mean(axis=1)` 会得到 `(B, D)`。
 
-### Step 5: Broadcasting with NumPy
+### 第 5 步：使用 NumPy 实现广播
 
 `tensors.py` 里的 `demo_broadcasting_numpy()` 函数展示了核心模式。
 
@@ -214,7 +214,7 @@ outer = a * b
 
 通过广播计算两两距离：把 `(M, 2)` reshape 成 `(M, 1, 2)`，把 `(N, 2)` reshape 成 `(1, N, 2)`，相减、平方、沿最后一个轴求和，再开方。结果形状是 `(M, N)`。
 
-### Step 6: Einsum operations
+### 第 6 步：Einsum 运算
 
 `tensors.py` 里的 `demo_einsum()` 和 `demo_einsum_gallery()` 函数会逐个讲解常见模式。
 
@@ -234,7 +234,7 @@ batch_mm = np.einsum("bij,bjk->bik", batch_A, batch_B)
 
 一次收缩运算的计算量，是所有索引维度大小的乘积（保留的和被求和的都算）。对于 `bij,bjk->bik`，如果 B=32、I=128、J=64、K=128，那么计算量是 `32 * 128 * 64 * 128 = 33,554,432` 次乘加。
 
-### Step 7: Attention mechanism via einsum
+### 第 7 步：用 einsum 实现注意力机制
 
 `tensors.py` 里的 `demo_attention_einsum()` 函数实现了端到端的多头注意力。
 
@@ -258,9 +258,9 @@ output = np.einsum("bte,ek->btk", concat, W_o)
 
 每一步都是张量运算：投影（通过 `einsum` 做矩阵乘法）、拆分 heads（reshape + transpose）、注意力分数（批量矩阵乘法）、加权求和（批量矩阵乘法）、合并 heads（transpose + reshape）、输出投影（通过 `einsum` 做矩阵乘法）。
 
-## Use It
+## 用起来
 
-### Scratch vs NumPy
+### 从零实现 vs NumPy
 
 | Operation | Scratch (Tensor class) | NumPy |
 |---|---|---|
@@ -271,7 +271,7 @@ output = np.einsum("bte,ek->btk", concat, W_o)
 | Sum | `t.sum(axis=0)` | `a.sum(axis=0)` |
 | Einsum | N/A | `np.einsum("ij,jk->ik", a, b)` |
 
-### Scratch vs PyTorch
+### 从零实现 vs PyTorch
 
 ```python
 import torch
@@ -291,7 +291,7 @@ torch.einsum("ik,kj->ij", A, B)
 
 PyTorch 额外提供了 autograd、GPU 支持和优化过的 BLAS 内核。形状语义是一样的。只要你理解了从零实现的版本，PyTorch 里的形状报错就会变得可读。
 
-### Every neural network layer as a tensor operation
+### 把每一层神经网络都看作张量操作
 
 | Operation | Tensor Form | Einsum |
 |---|---|---|
@@ -302,7 +302,7 @@ PyTorch 额外提供了 autograd、GPU 支持和优化过的 BLAS 内核。形�
 | Batch norm | `(X - mu) / sigma * gamma` | element-wise + broadcast |
 | Softmax | `exp(x) / sum(exp(x))` | element-wise + reduction |
 
-## Ship It
+## 上线交付
 
 这一课会产出两个可复用的提示词：
 
@@ -310,7 +310,7 @@ PyTorch 额外提供了 autograd、GPU 支持和优化过的 BLAS 内核。形�
 
 2. **`outputs/prompt-tensor-debugger.md`** -- 一个逐步排查提示词。你把它粘到任何 AI 助手里，再附上报错和张量形状，就能拿到具体修复方案。
 
-## Exercises
+## 练习
 
 1. **Easy -- Reshape round-trip.** 取一个形状为 `(2, 3, 4)` 的张量。把它 reshape 成 `(6, 4)`，再变成 `(24,)`，最后再变回 `(2, 3, 4)`。每一步都打印 flat data，验证元素顺序保持不变。
 
@@ -320,7 +320,7 @@ PyTorch 额外提供了 autograd、GPU 支持和优化过的 BLAS 内核。形�
 
 4. **Hard -- Attention shape tracker.** 写一个函数，输入 `batch_size`、`seq_len`、`embed_dim` 和 `num_heads`，然后打印多头注意力每一步的精确 shape：输入、Q/K/V 投影、head 拆分、注意力分数、softmax 权重、加权求和、head 合并、输出投影。和 `demo_attention_einsum()` 的输出对比验证。
 
-## Key Terms
+## 关键术语
 
 | Term | What people say | What it actually means |
 |---|---|---|
@@ -335,7 +335,7 @@ PyTorch 额外提供了 autograd、GPU 支持和优化过的 BLAS 内核。形�
 | Contraction | "Summing over an index" | The general operation where a shared index between tensors is multiplied and summed, producing a lower-rank result |
 | NCHW / NHWC | "PyTorch vs TensorFlow format" | Memory layout conventions for image tensors. NCHW puts channels before spatial dims, NHWC puts them after |
 
-## Further Reading
+## 延伸阅读
 
 - [NumPy Broadcasting](https://numpy.org/doc/stable/user/basics.broadcasting.html) -- The canonical rules with visual examples
 - [PyTorch Tensor Views](https://pytorch.org/docs/stable/tensor_view.html) -- When views work and when they copy
