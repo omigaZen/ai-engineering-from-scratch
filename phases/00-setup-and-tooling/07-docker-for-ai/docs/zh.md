@@ -26,13 +26,13 @@ Docker 会把代码、运行时、库和系统工具打包成一个隔离单元�
 
 ```mermaid
 graph TD
-    subgraph without["Without Docker"]
+    subgraph without["没有 Docker"]
         A1["Your machine<br/>Python 3.12<br/>CUDA 12.4<br/>PyTorch 2.3"] -->|crashes| X1["???"]
         A2["Their machine<br/>Python 3.10<br/>CUDA 11.8<br/>PyTorch 2.1"] -->|crashes| X2["???"]
         A3["Server<br/>Python 3.11<br/>CUDA 12.1<br/>PyTorch 2.2"] -->|crashes| X3["???"]
     end
 
-    subgraph with_docker["With Docker - Same image everywhere"]
+    subgraph with_docker["使用 Docker - 全程同一镜像"]
         B1["Your machine<br/>Python 3.12 | CUDA 12.4<br/>PyTorch 2.3 | Your code"]
         B2["Their machine<br/>Python 3.12 | CUDA 12.4<br/>PyTorch 2.3 | Your code"]
         B3["Server<br/>Python 3.12 | CUDA 12.4<br/>PyTorch 2.3 | Your code"]
