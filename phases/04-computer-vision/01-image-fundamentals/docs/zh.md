@@ -30,15 +30,15 @@
 
 ```mermaid
 flowchart LR
-    A["Image file<br/>(JPEG/PNG)"] --> B["Decode<br/>uint8 HWC"]
-    B --> C["Convert<br/>colorspace<br/>(RGB/BGR/YCbCr)"]
-    C --> D["Resize<br/>shorter side"]
-    D --> E["Center crop<br/>model size"]
-    E --> F["Divide by 255<br/>float32 [0,1]"]
-    F --> G["Subtract mean<br/>Divide by std"]
-    G --> H["Transpose<br/>HWC → CHW"]
-    H --> I["Batch<br/>CHW → NCHW"]
-    I --> J["Model"]
+    A["图像文件<br/>(JPEG/PNG)"] --> B["解码<br/>uint8 HWC"]
+    B --> C["转换<br/>色彩空间<br/>(RGB/BGR/YCbCr)"]
+    C --> D["缩放<br/>短边"]
+    D --> E["中心裁剪<br/>到模型尺寸"]
+    E --> F["除以 255<br/>float32 [0,1]"]
+    F --> G["减均值<br/>除以标准差"]
+    G --> H["转置<br/>HWC → CHW"]
+    H --> I["批处理<br/>CHW → NCHW"]
+    I --> J["模型"]
 
     style A fill:#fef3c7,stroke:#d97706
     style J fill:#ddd6fe,stroke:#7c3aed
@@ -141,7 +141,7 @@ flowchart TB
 | 约定         | dtype   | 取值范围            | 常见来源 |
 |--------------|---------|--------------------|----------|
 | 原始         | `float32` | [0, 255]           | 磁盘文件、PIL、OpenCV 输出 |
-| 归一化后     | `img.astype('float32') / 255` | [0.0, 1.0]       | `float32` 后 |
+| 归一化后     | `img.astype('float32') / 255` | [0.0, 1.0]       | `float32` 之后 |
 | 标准化后     | `mean=[0.485, 0.456, 0.406]` | 大致 [-2, +2]     | 减均值后再除以标准差 |
 
 卷积网络通常在标准化输入上训练。ImageNet 的统计量 `mean=[0.485, 0.456, 0.406]`、`std=[0.229, 0.224, 0.225]` 来自 ImageNet 训练集在 `(H, W, 3)` 布局下的每通道均值与标准差。把原始 `dtype: uint8` 直接送进期望标准化浮点的模型，是工程里最常见、最隐蔽的输入失败之一。
@@ -172,7 +172,7 @@ RGB 是采集格式，但不总是模型最优输入。
 灰度并非三通道平均，而是加权和，因为人眼对绿色更敏感、对蓝色最不敏感：
 
 ```
-Y = 0.299 R + 0.587 G + 0.114 B       (ITU-R BT.601, the classic weights)
+Y = 0.299 R + 0.587 G + 0.114 B       (ITU-R BT.601，经典权重)
 ```
 
 ### 宽高比、缩放与插值方法
@@ -218,7 +218,7 @@ def synthetic_rgb(h=128, w=192, seed=0):
     return np.clip(rgb, 0, 255).astype(np.uint8)
 
 arr = synthetic_rgb()
-# Or load from disk:
+# 或者从磁盘加载：
 # arr = np.asarray(Image.open("your_image.jpg").convert("RGB"))
 
 print(f"type:   {type(arr).__name__}")
