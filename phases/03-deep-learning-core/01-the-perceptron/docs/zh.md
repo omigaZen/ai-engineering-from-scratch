@@ -144,9 +144,9 @@ class Perceptron:
                         self.weights[i] += self.lr * error * inputs[i]
                     self.bias += self.lr * error
             if errors == 0:
-                print(f"Converged at epoch {epoch + 1}")
+                print(f"在第 {epoch + 1} 个 epoch 收敛")
                 return
-        print(f"Did not converge after {epochs} epochs")
+        print(f"{epochs} 个 epoch 后仍未收敛")
 ```
 
 ### 步骤 2：训练逻辑门
@@ -171,19 +171,19 @@ not_data = [
     ([1], 0),
 ]
 
-print("=== AND Gate ===")
+print("=== AND 门 ===")
 p_and = Perceptron(2)
 p_and.train(and_data)
 for inputs, _ in and_data:
     print(f"  {inputs} -> {p_and.predict(inputs)}")
 
-print("\n=== OR Gate ===")
+print("\n=== OR 门 ===")
 p_or = Perceptron(2)
 p_or.train(or_data)
 for inputs, _ in or_data:
     print(f"  {inputs} -> {p_or.predict(inputs)}")
 
-print("\n=== NOT Gate ===")
+print("\n=== NOT 门 ===")
 p_not = Perceptron(1)
 p_not.train(not_data)
 for inputs, _ in not_data:
@@ -200,13 +200,13 @@ xor_data = [
     ([1, 1], 0),
 ]
 
-print("\n=== XOR Gate (single perceptron) ===")
+print("\n=== XOR 门（单个感知机）===")
 p_xor = Perceptron(2)
 p_xor.train(xor_data, epochs=1000)
 for inputs, expected in xor_data:
     result = p_xor.predict(inputs)
-    status = "OK" if result == expected else "WRONG"
-    print(f"  {inputs} -> {result} (expected {expected}) {status}")
+    status = "正确" if result == expected else "错误"
+    print(f"  {inputs} -> {result}（期望 {expected}）{status}")
 ```
 
 它永远不会收敛。这就是单个感知机无法学习 XOR 的直接证明。
@@ -246,10 +246,10 @@ def xor_network(x1, x2):
     return output
 
 
-print("\n=== XOR Gate (multi-layer network) ===")
+print("\n=== XOR 门（多层网络）===")
 for inputs, expected in xor_data:
     result = xor_network(inputs[0], inputs[1])
-    print(f"  {inputs} -> {result} (expected {expected})")
+    print(f"  {inputs} -> {result}（期望 {expected}）")
 ```
 
 四种情况都能正确分类。把感知机堆叠成层，就能形成单个感知机做不到的决策边界。
