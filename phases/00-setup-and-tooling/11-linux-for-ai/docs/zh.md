@@ -244,7 +244,7 @@ tmux attach -t train        # 重新接入会话
 # Ctrl+B，按方向键         # 切换面板焦点
 ```
 
-WSL2 的文件系统通过 `/mnt` 把 Windows 分区映射进来。Windows 侧安装 NVIDIA 驱动后，WSL2 也可以使用 CUDA。
+WSL2 的文件系统通过 `/mnt` 把 Windows 分区映射进来。Windows 侧安装 NVIDIA 驱动后，WSL2 也能使用 CUDA。
 
 ## WSL2（Windows 用户）
 
