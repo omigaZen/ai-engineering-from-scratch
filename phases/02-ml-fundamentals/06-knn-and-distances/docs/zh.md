@@ -131,7 +131,7 @@ weight_i = 1 / (distance_i + epsilon)
 回归：weighted average = sum(w_i * y_i) / sum(w_i)
 ```
 
-`epsilon` 用来避免查询点与训练点重合时除零。加权后，对 K 的依赖通常更弱，因为远邻的贡献会被压低。
+`epsilon` 用于避免查询点与训练点重合时除零。加权后，对 K 的依赖通常更弱，因为远邻的贡献会被压低。
 
 ### 维度灾难
 
