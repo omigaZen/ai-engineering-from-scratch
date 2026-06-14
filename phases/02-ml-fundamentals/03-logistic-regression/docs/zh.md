@@ -285,7 +285,7 @@ model.fit(X_train, y_train, epochs=1000, print_every=200)
 
 print(f"\n训练准确率：{model.accuracy(X_train, y_train):.4f}")
 print(f"测试准确率：{model.accuracy(X_test, y_test):.4f}")
-print(f"Weights: [{model.weights[0]:.4f}, {model.weights[1]:.4f}]")
+print(f"权重：[{model.weights[0]:.4f}, {model.weights[1]:.4f}]")
 print(f"Bias: {model.bias:.4f}")
 ```
 
