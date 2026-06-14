@@ -351,7 +351,7 @@ text_clf.fit(train_texts, train_labels)
 accuracy = text_clf.score(test_texts, test_labels)
 ```
 
-`naive_bayes.py` 中还对比了 from-scratch 与 sklearn 在同一数据集上的结果，用于正确性对照。
+`naive_bayes.py` 还对比了从零实现与 `sklearn` 在同一数据集上的结果，用于校验正确性。
 
 ### TF-IDF + 朴素贝叶斯
 
