@@ -357,7 +357,7 @@ LayerNorm(x) = (x - mean(x)) / (std(x) + epsilon) * gamma + beta
 
 ### 常见数值 bug
 
-**Bug 1：loss 几个 epoch 后变成 NaN。**
+**Bug 1：loss 几个训练轮次后变成 NaN。**
 原因：logits 变得太大，softmax 溢出；或者学习率太高，权重发散。
 修复：用稳定 softmax（减 max），降低学习率，加梯度裁剪。
 
