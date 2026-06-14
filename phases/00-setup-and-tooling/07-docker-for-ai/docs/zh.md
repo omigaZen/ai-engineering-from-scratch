@@ -55,7 +55,7 @@ graph TD
 | Volume | 容器重启后仍然保留的持久化存储。 |
 | docker-compose | 用 YAML 定义多容器应用的工具。 |
 
-### AI 里常见的容器形态
+### AI 中常见的容器形态
 
 ```text
 Dev Container
