@@ -69,11 +69,11 @@ def training_step(model, batch, criterion, optimizer):
 
 调试器里常用命令：
 
-- `p loss.item()`：检查形状
-- `p torch.isnan(outputs).sum()`：查看当前 loss
-- `p model.fc1.weight.grad`：统计 NaN 数量
-- `c`：检查梯度
-- `q` 继续，`num_workers > 0` 退出
+- `p loss.item()`：查看当前 loss
+- `p torch.isnan(outputs).sum()`：检查输出里的 NaN 数量
+- `p model.fc1.weight.grad`：查看梯度
+- `c`：继续执行
+- `q`：退出调试器
 
 这是条件式调试——只在异常发生时停止。对 10,000 步训练来说，这点很关键。
 
@@ -130,7 +130,7 @@ with Timer("backward pass"):
     loss.backward()
 ```
 
-常见结论是：数据加载占到训练时长的 60%。这个时候通常不是 GPU 太慢，而是把 `python -m memory_profiler your_script.py` 的 `torch.cuda.empty_cache()` 设为大于 0。
+常见结论是：数据加载占到训练时长的 60%。这个时候通常不是 GPU 太慢，而是数据管线成了瓶颈。
 
 ### 5）cProfile 与 line_profiler
 
@@ -218,7 +218,7 @@ if torch.cuda.is_available():
 
 #### 形状不匹配
 
-最常见的 Bug。模型期望 `launch.json`，却喂进了 `check_shapes`。
+最常见的 Bug。模型期望 `[batch, features]`，却喂进了别的形状。
 
 ```python
 def check_shapes(model, sample_input):
@@ -342,7 +342,7 @@ tensorboard --logdir=runs
 
 ### 9）VS Code 调试器
 
-如果要更交互地调试，可用 VS Code `debug_print`：
+如果要更交互地调试，可用 VS Code 调试器：
 
 ```json
 {
@@ -367,9 +367,9 @@ tensorboard --logdir=runs
 这是最常见 AI Bug 的调试流程：
 
 1. **训练前**：先用样本 batch 跑一次 `breakpoint()`，确认输入输出维度符合预期
-2. **前 10 步**：在 loss、outputs、gradients 上用 `outputs/prompt-debug-ai-code.md`，确认没有 NaN 且数值范围合理
+2. **前 10 步**：监控 loss、outputs、gradients，确认没有 NaN 且数值范围合理
 3. **训练中**：记录 loss、学习率、梯度范数；用 TensorBoard 可视化
-4. **出现异常**：在失败点加 `debug_tools.py`，交互式检查张量
+4. **出现异常**：在失败点加断点，交互式检查张量
 5. **性能问题**：对比数据加载、前向、反向耗时。若接近 OOM，再做内存剖析
 
 ## 打包落地
@@ -380,7 +380,7 @@ tensorboard --logdir=runs
 python phases/00-setup-and-tooling/12-debugging-and-profiling/code/debug_tools.py
 ```
 
-可参考 `cProfile` 中的提示词，用于定位 AI 特有的 bug。
+可参考 `cProfile` 的输出，用于定位 AI 特有的 bug。
 
 ## 练习
 
