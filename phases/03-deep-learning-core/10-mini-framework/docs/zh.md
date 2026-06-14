@@ -695,7 +695,7 @@ for epoch in range(100):
 | 反向传播 | "算梯度" | 按模块逆序把损失梯度传回，得到参数梯度 |
 | Parameters | "可训练权重" | 优化器可更新的所有参数，通常是权重和偏置 |
 | Optimizer | "更新参数的人" | 根据梯度执行参数更新的算法，常见有 SGD、Adam |
-| DataLoader | "喂数据的人" | 按 epoch 切批并可选洗牌的数据迭代器 |
+| DataLoader | “数据加载器” | 按 epoch 切批并可选洗牌的数据迭代器 |
 | Training mode | "model.train()" | 打开 dropout、batchnorm 的 batch 统计行为 |
 | Evaluation mode | "model.eval()" | 关闭 dropout，并使用移动统计量进行 batchnorm |
 | Zero grad | "清空梯度" | 在下一次计算前将参数梯度重置为 0 |
