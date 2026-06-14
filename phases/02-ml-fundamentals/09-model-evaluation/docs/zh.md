@@ -25,7 +25,7 @@
 
 ## 核心概念
 
-### 训练/验证/测试
+### 训练集、验证集、测试集
 
 ```mermaid
 flowchart LR
@@ -112,7 +112,7 @@ precision-recall-threshold
 
 ## 代码实现
 
-### 步骤 1：train/val/test 划分
+### 步骤 1：训练集、验证集、测试集划分
 
 ```python
 import random
@@ -258,17 +258,17 @@ def mae(y_true, y_pred):
 
 横向扫描超参数，寻找验证分数峰值。
 
-### 步骤 8：与 sklearn 对照
+### 步骤 8：与 scikit-learn 对照
 
 对比同一数据上自实现指标与 sklearn 的指标实现是否一致。
 
 ## 工程实践
 
-### 用 sklearn 实践
+### 用 scikit-learn 实践
 
-- 使用 `cross_val_score`, `StratifiedKFold`, `learning_curve`
-- 分类用 `precision_recall_fscore_support`, `roc_auc_score`
-- 回归用 `mean_squared_error`, `mean_absolute_error`, `r2_score`
+- 使用 `cross_val_score`、`StratifiedKFold`、`learning_curve`
+- 分类用 `precision_recall_fscore_support`、`roc_auc_score`
+- 回归用 `mean_squared_error`、`mean_absolute_error`、`r2_score`
 
 ### 常见反模式
 
@@ -296,7 +296,7 @@ def mae(y_true, y_pred):
 |---|---|
 | 数据泄漏 | 信息从未来或验证/测试泄露到训练 |
 | 分层采样 | 各类比例在各折中保持一致 |
-| PR 曲线 | 精确率-召回率随阈值变化曲线 |
+| PR 曲线 | 精确率-召回率随阈值变化的曲线 |
 | AUC-ROC | 阈值无关的排序指标 |
 | 学习曲线 | 训练规模对性能影响的可视化 |
 
