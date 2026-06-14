@@ -267,7 +267,7 @@ class LogisticRegression:
             loss = self.compute_loss(X, y)
             self.loss_history.append(loss)
             if epoch % print_every == 0:
-                print(f"  Epoch {epoch:4d} | Loss: {loss:.4f} | w: [{self.weights[0]:.3f}, {self.weights[1]:.3f}] | b: {self.bias:.3f}")
+                print(f"  第 {epoch:4d} 轮 | 损失：{loss:.4f} | w: [{self.weights[0]:.3f}, {self.weights[1]:.3f}] | b: {self.bias:.3f}")
         return self
 
     def accuracy(self, X, y):
@@ -283,8 +283,8 @@ print("\n=== Training Logistic Regression ===")
 model = LogisticRegression(n_features=2, learning_rate=0.1)
 model.fit(X_train, y_train, epochs=1000, print_every=200)
 
-print(f"\nTrain accuracy: {model.accuracy(X_train, y_train):.4f}")
-print(f"Test accuracy:  {model.accuracy(X_test, y_test):.4f}")
+print(f"\n训练准确率：{model.accuracy(X_train, y_train):.4f}")
+print(f"测试准确率：{model.accuracy(X_test, y_test):.4f}")
 print(f"Weights: [{model.weights[0]:.4f}, {model.weights[1]:.4f}]")
 print(f"Bias: {model.bias:.4f}")
 ```
