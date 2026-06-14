@@ -16,7 +16,7 @@
 
 ## 问题是什么
 
-第 1 到 3 阶段的大多数课程都可以在 CPU 上运行。但一旦开始训练 CNN、Transformer 或 LLM（第 4 阶段及以后），就需要 GPU 加速。CPU 上跑 8 小时的训练，在 GPU 上可能只要 10 分钟。
+第 1 到 3 阶段的大多数课程都能在 CPU 上运行。但一旦开始训练 CNN、Transformer 或 LLM（第 4 阶段及以后），就需要 GPU 加速。CPU 上跑 8 小时的训练，在 GPU 上可能只要 10 分钟。
 
 你有三种选择：本地 GPU、云 GPU，或者 Google Colab（免费）。
 
