@@ -35,7 +35,7 @@ graph LR
     x3["x3"] -- "w3" --> sum
     bias["bias"] --> sum
     sum --> step["step(z)"]
-    step --> out["output (0 or 1)"]
+    step --> out["输出（0 或 1）"]
 ```
 
 阶跃函数非常直接：如果加权和再加偏置大于等于 0，就输出 1；否则输出 0。
