@@ -363,8 +363,8 @@ for epoch in range(n_epochs):
 
     train_acc = accuracy(params, X_train[:5000], y_train[:5000])
     test_acc = accuracy(params, X_test, y_test)
-    print(f"Epoch {epoch + 1:2d} | Loss: {epoch_loss / n_batches:.4f} | "
-          f"Train Acc: {train_acc:.4f} | Test Acc: {test_acc:.4f}")
+    print(f"第 {epoch + 1:2d} 轮 | 损失：{epoch_loss / n_batches:.4f} | "
+          f"训练准确率：{train_acc:.4f} | 测试准确率：{test_acc:.4f}")
 ```
 
 10 个 epoch，大约能到 97% 的测试精度。第一个 epoch 会慢一些，因为要做 JIT 编译；第 2 到第 10 个 epoch 就会快很多。
