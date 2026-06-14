@@ -251,7 +251,7 @@ model = model.to(device)
 inputs, targets = inputs.to(device), targets.to(device)
 ```
 
-**混合精度**可以把显存占用减半、吞吐翻倍。现代 GPU（A100、H100、RTX 4090）上，前向/反向用 float16 跑，同时把主权重保留在 float32 里：
+**混合精度**可将显存占用减半、吞吐翻倍。现代 GPU（A100、H100、RTX 4090）上，前向/反向用 float16 跑，同时把主权重保留在 float32 里：
 
 ```python
 from torch.amp import autocast, GradScaler
