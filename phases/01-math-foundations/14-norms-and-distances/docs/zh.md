@@ -313,7 +313,7 @@ Wasserstein 距离衡量把一个概率分布变成另一个分布所需的最�
 W(P, Q) = inf over all transport plans gamma of E[d(x, y)]
 ```
 
-对于一维分布，它可以简化为两个累积分布函数差值绝对值的积分：
+对于一维分布，它能简化为两个累积分布函数差值绝对值的积分：
 
 ```
 W_1(P, Q) = integral |CDF_P(x) - CDF_Q(x)| dx
