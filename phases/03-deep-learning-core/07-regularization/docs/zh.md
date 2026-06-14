@@ -425,7 +425,7 @@ class RegularizedNetwork:
             history.append((train_loss, train_acc, test_loss, test_acc))
             if epoch % 75 == 0 or epoch == epochs - 1:
                 gap = train_acc - test_acc
-                print(f"    Epoch {epoch:3d}: train_acc={train_acc:.1f}%, test_acc={test_acc:.1f}%, gap={gap:.1f}%")
+                print(f"    第 {epoch:3d} 轮：训练准确率={train_acc:.1f}%，测试准确率={test_acc:.1f}%，差距={gap:.1f}%")
         return history
 ```
 
