@@ -10,7 +10,7 @@
 ## 学习目标
 
 - 使用管道、重定向和 `grep` 过滤处理训练日志
-- 用 tmux 建持久会话和多 pane 管理并行训练与监控
+- 用 tmux 建持久会话和多个窗格，管理并行训练与监控
 - 用 `htop`、`nvtop`、`nvidia-smi` 监控系统与 GPU
 - 用 SSH、`scp`、`rsync` 在本地和远端机器间传输文件
 
@@ -31,7 +31,7 @@ graph TD
     end
 ```
 
-一个终端里并行看三类输出。你可以 detach 后回家，稍后再 SSH 回来，训练照常执行。
+一个终端里并行看三类输出。你可以脱离会话后回家，稍后再 SSH 回来，训练照常执行。
 
 ## 动手
 
@@ -93,11 +93,11 @@ python train.py > train_full.log 2>&1
 
 | 符号 | 作用 |
 |--------|-------------|
-| `>` | 覆盖写入 stdout |
-| `>>` | 追加 stdout |
-| `2>` | 写入 stderr |
-| `2>&1` | 将 stderr 重定向到 stdout 相同位置 |
-| `\|` | 将前一条命令 stdout 作为下一条 stdin |
+| `>` | 覆盖写入标准输出 |
+| `>>` | 追加标准输出 |
+| `2>` | 写入标准错误 |
+| `2>&1` | 将标准错误重定向到标准输出相同位置 |
+| `\|` | 将前一条命令的标准输出作为下一条命令的标准输入 |
 
 ### 步骤 3：后台进程
 
@@ -170,8 +170,8 @@ tmux kill-session -t training
 常用快捷键：
 - `Ctrl+B` 再按 `"`：水平分屏
 - `Ctrl+B` 再按 `%`：垂直分屏
-- `Ctrl+B` 再配合方向键：切换 pane
-- `F6` 再按 `>`：detach
+- `Ctrl+B` 再配合方向键：切换窗格
+- `F6` 再按 `>`：脱离会话
 
 典型流程：
 
@@ -323,7 +323,7 @@ env | grep -i torch
 
 ## 练习
 
-1. 安装 tmux 并创建三个 pane：一个跑 `~/.bashrc`，一个跑 `for i in $(seq 1 100); do echo "epoch $i loss: $(echo "scale=4; 1/$i" | bc)"; sleep 0.1; done > fake_train.log`，一个跑 Python 脚本；练习 detach 后再 reattach 回来。
+1. 安装 tmux 并创建三个窗格：一个跑 `~/.bashrc`，一个跑 `for i in $(seq 1 100); do echo "epoch $i loss: $(echo "scale=4; 1/$i" | bc)"; sleep 0.1; done > fake_train.log`，一个跑 Python 脚本；练习脱离会话后再重新接回。
 2. 把 `grep` 相关别名加到你的 shell 配置里并重载配置。
 3. 用 `tail` 生成日志，再用 `awk`、`localhost`、`\|` 抽取 loss。
 4. 为可访问的机器配置 SSH（或用 localhost）并写出完整连接方式。
@@ -333,7 +333,7 @@ env | grep -i torch
 | 术语 | 口语说法 | 实际含义 |
 |------|----------------|----------------------|
 | Shell | “终端” | 解释用户命令的程序（bash、zsh、fish） |
-| tmux | “终端复用器” | 在一个窗口里管理多个会话和 pane，并可 detach/attach |
+| tmux | “终端复用器” | 在一个窗口里管理多个会话和窗格，并可脱离/接回 |
 | Pipe | “管道” | \| 把前一条命令输出作为下一条命令输入 |
 | PID | “进程编号” | 每个运行进程的唯一 ID，用于监控和杀掉进程 |
 | nohup | “不挂断” | 命令对 SIGHUP 不敏感，关闭终端不会退出 |
