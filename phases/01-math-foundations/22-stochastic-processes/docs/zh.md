@@ -178,14 +178,14 @@ MCMC 用于目标分布 \(p(x)\) 只能“按比例”算出但难直接采样�
 
 ```mermaid
 graph LR
-    subgraph "Forward Process (add noise)"
+    subgraph "前向过程（加噪）"
         X0["x_0 (data)"] -->|"+ noise"| X1["x_1"]
         X1 -->|"+ noise"| X2["x_2"]
         X2 -->|"..."| XT["x_T (pure noise)"]
     end
-    subgraph "Reverse Process (denoise)"
-        XT2["x_T (noise)"] -->|"neural net"| XR2["x_{T-1}"]
-        XR2 -->|"neural net"| XR1["x_{T-2}"]
+    subgraph "逆向过程（去噪）"
+        XT2["x_T（噪声）"] -->|"神经网络"| XR2["x_{T-1}"]
+        XR2 -->|"神经网络"| XR1["x_{T-2}"]
         XR1 -->|"..."| XR0["x_0 (generated data)"]
     end
 ```
