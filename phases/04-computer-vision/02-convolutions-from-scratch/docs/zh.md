@@ -110,7 +110,7 @@ Zero padding (P = 1) on a 5 x 5 input:
 
 ### 步幅
 
-步幅就是滑动时每次跨出的距离。`stride=1` 是默认值。`stride=2` 会让空间尺寸减半，是 CNN 里经典的下采样方式之一，可以不依赖独立的池化层完成下采样 - 现代架构（ResNet、ConvNeXt、MobileNet）都会在某些地方用带步幅的卷积替代 max-pool。
+步幅就是滑动时每次跨出的距离。`stride=1` 是默认值。`stride=2` 会让空间尺寸减半，是 CNN 里经典的下采样方式之一，能无需依赖独立的池化层完成下采样 - 现代架构（ResNet、ConvNeXt、MobileNet）都会在某些地方用带步幅的卷积替代 max-pool。
 
 ```
 Stride 1 on a 5 x 5 input, 3 x 3 kernel:
