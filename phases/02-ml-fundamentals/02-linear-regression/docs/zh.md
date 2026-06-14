@@ -221,9 +221,9 @@ class LinearRegression:
 print("=== Training Linear Regression (Gradient Descent) ===")
 model = LinearRegression(learning_rate=0.005)
 model.fit(X, y, epochs=1000, print_every=200)
-print(f"\nLearned: y = {model.w:.4f}x + {model.b:.4f}")
-print(f"True:    y = {TRUE_W}x + {TRUE_B}")
-print(f"R-squared: {model.r_squared(X, y):.4f}")
+print(f"\n学到的函数：y = {model.w:.4f}x + {model.b:.4f}")
+print(f"真实函数：   y = {TRUE_W}x + {TRUE_B}")
+print(f"R²：{model.r_squared(X, y):.4f}")
 ```
 
 ### 步骤 3：正规方程（闭式解）
