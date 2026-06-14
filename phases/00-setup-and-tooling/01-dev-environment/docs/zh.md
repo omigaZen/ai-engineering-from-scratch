@@ -152,7 +152,7 @@ python phases/00-setup-and-tooling/01-dev-environment/code/verify.py
 
 ## 交付成果
 
-本课产出一份验证脚本，任何人都可以用它检查自己的环境搭建是否成功。
+本课产出一份验证脚本，任何人都能用它检查自己的环境搭建是否成功。
 
 参见 `outputs/prompt-env-check.md`，其中有一份可直接使用的 prompt，能帮助 AI 助手诊断环境问题。
 
