@@ -449,7 +449,7 @@ lr = 0.1
 for step in range(20):
     grad = 2 * x
     x = x - lr * grad
-    print(f"step {step:2d}  x={x:8.4f}  f(x)={x**2:10.6f}")
+    print(f"第 {step:2d} 步  x={x:8.4f}  f(x)={x**2:10.6f}")
 ```
 
 从 `x=5` 开始，每一步都会更靠近 `x=0`，也就是最小值。
@@ -468,7 +468,7 @@ for step in range(30):
     point = [p - lr * g for p, g in zip(point, grad)]
     loss = f_2d(point)
     if step % 5 == 0 or step == 29:
-        print(f"step {step:2d}  point=({point[0]:7.4f}, {point[1]:7.4f})  f={loss:.6f}")
+        print(f"第 {step:2d} 步  point=({point[0]:7.4f}, {point[1]:7.4f})  f={loss:.6f}")
 ```
 
 ### 步骤 5：比较数值导数和解析导数
