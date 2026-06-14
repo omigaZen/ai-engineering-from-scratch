@@ -128,7 +128,7 @@ batch_predict = jax.vmap(predict, in_axes=(None, 0))
 
 `in_axes=(None, 0)` 的意思是：`params` 不做批处理，`x` 的第 0 轴做批处理。没有手写 `for` 循环，没有 reshape，也没有批量维度来回传。JAX 会自己处理 batch 维度，并把整个计算向量化。
 
-这不是语法糖。`vmap` 会生成融合后的矢量化代码，通常比 Python 循环快 10 到 100 倍。它还可以和 `jit`、`grad` 组合：
+这不是语法糖。`vmap` 会生成融合后的矢量化代码，通常比 Python 循环快 10 到 100 倍。它还能和 `jit`、`grad` 组合：
 
 ```python
 per_example_grads = jax.vmap(jax.grad(loss_fn), in_axes=(None, 0, 0))
