@@ -248,7 +248,7 @@ model = AutoModel.from_pretrained("/models/llama-7b")
 
 ### 步骤 6：用 Docker Compose 编排多服务 AI 应用
 
-真正的 RAG 应用需要推理服务和向量数据库。Docker Compose 可以用一条命令同时启动它们。
+真正的 RAG 应用需要推理服务和向量数据库。Docker Compose 能用一条命令同时启动它们。
 
 看 `code/docker-compose.yml`：
 
