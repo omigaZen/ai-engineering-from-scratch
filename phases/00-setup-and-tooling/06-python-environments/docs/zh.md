@@ -209,9 +209,9 @@ conda install some-other-package # GOOD: let conda manage everything
 ### 3. 忘记激活环境
 
 ```bash
-python train.py           # uses system Python, missing packages
+python train.py           # 使用系统 Python，会找不到依赖包
 source .venv/bin/activate
-python train.py           # uses project Python, packages found
+python train.py           # 使用项目 Python，依赖包可用
 ```
 
 终端提示符应显示环境名：
