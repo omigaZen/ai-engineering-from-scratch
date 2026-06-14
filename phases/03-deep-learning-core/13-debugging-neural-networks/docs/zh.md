@@ -464,5 +464,5 @@ python phases/00-setup-and-tooling/12-debugging-and-profiling/code/debug_tools.p
 
 - Smith, “Cyclical Learning Rates for Training Neural Networks”（2017）——介绍学习率范围测试（LR finder）的论文
 - Northcutt 等人，“Pervasive Label Errors in Test Sets Destabilize Machine Learning Benchmarks”（2021）——证明 ImageNet、CIFAR-10 等主要基准里有 3-6% 的标签是错误的
-- Zhang 等人，“Understanding Deep Learning Requires Rethinking Generalization”（2017）——说明神经网络可以记住随机标签，也是“一批过拟合”测试有效的原因
+- Zhang 等人，“Understanding Deep Learning Requires Rethinking Generalization”（2017）——说明神经网络能记住随机标签，也是“一批过拟合”测试有效的原因
 - PyTorch 文档里关于 `torch.autograd.detect_anomaly` 和 `torch.autograd.set_detect_anomaly` 的说明
