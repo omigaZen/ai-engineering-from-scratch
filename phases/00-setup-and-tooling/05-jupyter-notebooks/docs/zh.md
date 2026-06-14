@@ -147,7 +147,7 @@ model.fit(X_train, y_train, epochs=10)
 
 ### 步骤 5：在内联展示丰富输出
 
-Notebook 会默认显示 cell 的最后一个表达式，但你也可以手动控制：
+Notebook 会默认显示 cell 的最后一个表达式，但也可手动控制：
 
 ```python
 import pandas as pd
