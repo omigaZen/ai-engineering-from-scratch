@@ -59,8 +59,8 @@
             Sensitive to outliers. Almost never useful alone.
 
 IQR：   Q3 - Q1（四分位距）
-            The range of the middle 50% of the data.
-            Robust to outliers. Used for box plots and outlier detection.
+            数据中间 50% 的范围。
+            对异常值不敏感，常用于箱线图和异常值检测。
 ```
 
 **百分位数**把排序后的数据切成 100 份。第 25 百分位数（Q1）表示有 25% 的数据低于这个值；第 50 百分位数就是中位数；第 75 百分位数是 Q3。
