@@ -1,30 +1,30 @@
 # 矩阵变换
 
-> 矩阵是一台“重塑空间”的机器。理解它如何改写每个点，你就理解了整个变换�?
+> 矩阵是一台重塑空间的机器。理解它如何改写每个点，你就理解了整个变换。
 
-**类型�?* Build  
-**语言�?* Python, Julia  
-**先修�?* Phase 1，第 01-02 课（线性代数直觉、向量与矩阵运算�? 
-**时长�?* ~75 分钟
+**类型:** Build
+**语言:** Python, Julia
+**先修:** 第 1 阶段，第 01-02 课（线性代数直觉、向量与矩阵运算）
+**时长:** ~75 分钟
 
 ## 学习目标
 
-- 构建旋转、缩放、剪切和反射矩阵，并应用于二维与三维�?
-- 通过矩阵乘法组合多个变换，验证“乘法顺序很重要�?
-- 用特征方程求 2x2 矩阵的特征值与特征向量
-- 解释为什么特征值决�?PCA 方向、RNN 稳定性和谱聚类行�?
+- 构建旋转、缩放、剪切和反射矩阵，并将它们应用到二维和三维点上
+- 通过矩阵乘法组合多个变换，并验证顺序很重要
+- 用特征方程求出 2x2 矩阵的特征值和特征向量
+- 解释为什么特征值决定 PCA 方向、RNN 稳定性和谱聚类的行为
 
 ## 问题背景
 
-你看�?PCA，文档里写着“求协方差矩阵的特征向量”；看到模型稳定性，写着“检查所有特征值模是否小于 1”；看到数据增强，写着“apply a random rotation”。这些在几何上都一样，只是你不理解矩阵对空间的作用�?
+你看到 PCA，文档里写着“求协方差矩阵的特征向量”；看到模型稳定性，写着“检查所有特征值的模是否小于 1”；看到数据增强，写着“apply a random rotation”。这些在几何上其实都是一回事，只是你还不理解矩阵对空间做了什么。
 
-矩阵不只是数字表。它是空间变换器。旋转矩阵能转动点，缩放矩阵拉伸点，剪切矩阵倾斜点。神经网络对数据施加的绝大多数线性变换，都是这些操作或它们的组合。本课把它们具象化�?
+矩阵不只是数字表。它是空间变换器。旋转矩阵能转动点，缩放矩阵能拉伸点，剪切矩阵能倾斜点。神经网络对数据施加的大多数线性变换，本质上都是这些操作，或者它们的组合。本课把这些操作具体化。
 
 ## 核心概念
 
-### 变换即矩�?
+### 变换就是矩阵
 
-2D 的任何线性变换都可写�?2x2 矩阵。该矩阵直接告诉你基向量 `Shx = [[1, k], [0, 1]]` �?`Shy = [[1, 0], [k, 1]]` 被映射到哪里，其他点都会随之确定�?
+二维中的任意线性变换都可以写成一个 `2x2` 矩阵。这个矩阵会直接告诉你基向量 `[1, 0]` 和 `[0, 1]` 会被映射到哪里，其他点也就随之确定了。
 
 ```mermaid
 graph LR
@@ -39,425 +39,353 @@ graph LR
         e1p["e1' = new x-basis"]
         e2p["e2' = new y-basis"]
     end
-    e1 --> M --> e1p
-    e2 --> M --> e2p
+    e1 --> M
+    e2 --> M
+    M --> e1p
+    M --> e2p
 ```
 
-### 旋转
+矩阵变换的核心规律是：矩阵的列向量就是变换后基向量的位置。只要知道这两列，整个变换就确定了。
 
-二维旋转角度 θ 保持距离与角度不变，点沿圆弧运动�?
+### 旋转矩阵
+
+在二维中，旋转 `theta` 的标准矩阵是：
+
+```text
+R(theta) = [[cos(theta), -sin(theta)],
+            [sin(theta),  cos(theta)]]
+```
+
+这会把点绕原点逆时针旋转 `theta` 弧度。旋转矩阵保持长度和角度不变，因此它是正交矩阵，而且行列式等于 1。
+
+### 缩放矩阵
+
+缩放矩阵会改变大小。二维缩放矩阵通常写成：
+
+```text
+S = [[sx, 0],
+     [0, sy]]
+```
+
+它沿 `x` 轴缩放 `sx` 倍，沿 `y` 轴缩放 `sy` 倍。如果 `sx` 和 `sy` 相同，就是等比缩放；如果不同，就是非等比缩放。
+
+### 剪切矩阵
+
+剪切会把图形“斜着推”。二维剪切矩阵可以写成：
+
+```text
+Shx = [[1, k],
+       [0, 1]]
+
+Shy = [[1, 0],
+       [k, 1]]
+```
+
+剪切会保持平行关系，但会改变角度。原本的矩形会变成平行四边形。
+
+### 反射矩阵
+
+反射矩阵会把图形镜像翻转。例如，关于 `x` 轴反射的矩阵是：
+
+```text
+[[1, 0],
+ [0,-1]]
+```
+
+关于 `y` 轴反射的矩阵是：
+
+```text
+[[-1, 0],
+ [ 0, 1]]
+```
+
+### 组合变换
+
+矩阵乘法可以把多个变换串起来。顺序很重要：`B @ A` 表示先做 `A`，再做 `B`。如果你先旋转再缩放，和先缩放再旋转，结果通常不一样。
+
+### 特征向量与特征值
+
+如果一个向量经过矩阵变换后，只发生缩放而不改变方向，那么这个向量就是特征向量，对应的缩放倍数就是特征值。
+
+```text
+A v = lambda v
+```
+
+这个等式非常关键。它表示：矩阵 `A` 在特征向量 `v` 的方向上，只会把向量拉长或压缩 `lambda` 倍。
+
+特征值和特征向量的重要性在于：它们告诉你矩阵“真正偏爱哪些方向”。PCA 里，主成分就是最大特征值对应的方向。RNN 是否稳定，也和特征值的模长有关。谱聚类也是在看图拉普拉斯矩阵的特征向量。
+
+### 特征方程
+
+要找特征值，可以解：
+
+```text
+det(A - lambda * I) = 0
+```
+
+这叫特征方程。它的解就是特征值。对于 `2x2` 矩阵，你可以手工展开并求出两个特征值。
 
 ```mermaid
-graph LR
-    subgraph Before["Before Rotation"]
-        A["A(2, 1)"]
-        B["B(0, 2)"]
-    end
-    subgraph Rot["Rotate 45 degrees"]
-        R["R(θ) = [[cos θ, -sin θ], [sin θ, cos θ]]"]
-    end
-    subgraph After["After Rotation"]
-        Ap["A'(0.71, 2.12)"]
-        Bp["B'(-1.41, 1.41)"]
-    end
-    A --> R --> Ap
-    B --> R --> Bp
+graph TD
+    A["Matrix A"] --> B["A - lambda I"]
+    B --> C["det(A - lambda I)"]
+    C --> D["Solve = 0"]
+    D --> E["Eigenvalues lambda"]
+    E --> F["Eigenvectors: directions that stay on the same line"]
 ```
 
-三维中你围绕某一轴旋转，每个轴都有对应矩阵：
+## 动手做
 
-```
-Rz(theta) = | cos  -sin  0 |     Rotate around z-axis
-            | sin   cos  0 |     (x-y plane spins, z stays)
-            |  0     0   1 |
-
-Rx(theta) = | 1   0     0    |   Rotate around x-axis
-            | 0  cos  -sin   |   (y-z plane spins, x stays)
-            | 0  sin   cos   |
-
-Ry(theta) = |  cos  0  sin |     Rotate around y-axis
-            |   0   1   0  |     (x-z plane spins, y stays)
-            | -sin  0  cos |
-```
-
-### 缩放
-
-缩放沿每条轴独立伸缩�?
-
-```mermaid
-graph LR
-    subgraph Before["Before Scaling"]
-        A["A(2, 1)"]
-        B["B(0, 2)"]
-    end
-    subgraph Scale["Scale sx=2, sy=0.5"]
-        S["S = [[2, 0], [0, 0.5]]"]
-    end
-    subgraph After["After Scaling"]
-        Ap["A'(4, 0.5)"]
-        Bp["B'(0, 1)"]
-    end
-    A --> S --> Ap
-    B --> S --> Bp
-```
-
-### 剪切
-
-剪切在一条轴上倾斜点，而另一轴保持固定。它会把矩形变成平行四边形�?
-
-```mermaid
-graph LR
-    subgraph Before["Before Shear"]
-        A["A(1, 0)"]
-        B["B(0, 1)"]
-    end
-    subgraph Shear["Shear in x, k=1"]
-        Sh["Shx = [[1, k], [0, 1]]"]
-    end
-    subgraph After["After Shear"]
-        Ap["A(1, 0) unchanged"]
-        Bp["B'(1, 1) shifted"]
-    end
-    A --> Sh --> Ap
-    B --> Sh --> Bp
-```
-
-剪切矩阵�?
-- `[[-1, 0], [0, 1]]` 表示 x 方向受到 `[[1, 0], [0, -1]]` 的偏�?
-- `result = B @ A @ point` 表示 y 方向受到 `S @ R = [[0, -2], [0.5, 0]]` 的偏�?
-
-### 反射
-
-反射是沿某个轴或直线把点镜像映射�?
-
-```mermaid
-graph LR
-    subgraph Before["Before Reflection"]
-        A["A(2, 1)"]
-    end
-    subgraph Reflect["Reflect across y-axis"]
-        R["[[-1, 0], [0, 1]]"]
-    end
-    subgraph After["After Reflection"]
-        Ap["A'(-2, 1)"]
-    end
-    A --> R --> Ap
-```
-
-反射矩阵�?
-- 关于 y 轴：`R @ S = [[0, -0.5], [2, 0]]`
-- 关于 x 轴：`[[a, b], [c, d]]`
-
-### 复合变换：顺序是关键
-
-先用 A 再用 B，等价于 `lambda^2 - (a+d)*lambda + (ad - bc) = 0`。顺序不同，结果不同�?
-
-```mermaid
-graph LR
-    subgraph Path1["Rotate 90 then Scale (2, 0.5)"]
-        P1["(1, 0)"] -->|"Rotate 90"| P2["(0, 1)"] -->|"Scale"| P3["(0, 0.5)"]
-    end
-```
-
-复合结果：S @ R = [[0, -2], [0.5, 0]]
-
-```mermaid
-graph LR
-    subgraph Path2["Scale (2, 0.5) then Rotate 90"]
-        Q1["(1, 0)"] -->|"Scale"| Q2["(2, 0)"] -->|"Rotate 90"| Q3["(0, 2)"]
-    end
-```
-
-复合结果：R @ S = [[0, -0.5], [2, 0]]
-
-不一样，矩阵乘法不满足交换律�?
-
-### 特征值与特征向量
-
-大多数向量乘以矩阵后会改变方向；特征向量是例外：矩阵只在它上面做缩放，不改变方向。缩放倍数就是特征值�?
-
-```
-A @ v = lambda * v
-
-v is the eigenvector (direction that survives)
-lambda is the eigenvalue (how much it stretches)
-
-示例：A = | 2  1 |
-             | 1  2 |
-
-Eigenvector [1, 1] with eigenvalue 3:
-  A @ [1,1] = [3, 3] = 3 * [1, 1]     ��ͬ������ 3 ����
-
-Eigenvector [1, -1] with eigenvalue 1:
-  A @ [1,-1] = [1, -1] = 1 * [1, -1]  ��ͬ�򣬲��䣩
-```
-
-该矩阵在 [1, 1] 方向放大 3 倍，�?[1, -1] 方向保持不变；其他方向是这两个方向的线性组合�?
-
-### 特征分解
-
-若矩阵有 n 个线性无关特征向量，可分解为�?
-
-```
-A = V @ D @ V^(-1)
-
-V = 列向量都是特征向量的矩阵
-D = diagonal matrix of eigenvalues
-V^(-1) = inverse of V
-
-这表示：先旋转到特征向量坐标系，再沿每个轴缩放，最后旋转回去�?```
-
-### 为什么特征值这么重�?
-
-**PCA�?* 协方差矩阵的特征向量就是主成分。特征值表示每个成分解释的方差大小。按特征值降序取�?k 个方向，即可做降维�?
-
-**稳定性�?* 在循环网络和动力系统里，若特征值模长大�?1，状态会指数发散；小�?1 会快速衰减。这就是梯度爆炸/消失问题的本质描述�?
-
-**谱方法�?* GNN 常用邻接矩阵谱；谱聚类使用拉普拉斯矩阵谱。特征向量反映图结构�?
-
-### 行列式作为体积缩放因�?
-
-变换矩阵的行列式告诉你面积（2D）或体积�?D）放大倍数�?
-
-```
-det = 1:   area preserved (rotation)
-det = 2:   area doubled
-det = 0:   space crushed to lower dimension (singular)
-det = -1:  area preserved but orientation flipped (reflection)
-
-| det(Rotation) | = 1        (always)
-| det(Scale sx, sy) | = sx * sy
-| det(Shear) | = 1           (area preserved)
-| det(Reflection) | = -1     (orientation flipped)
-```
-
-```figure
-matrix-transform
-```
-
-## 动手实践
-
-### �?1 步：从零构造变换矩阵（Python�?
+### 步骤 1：从零实现旋转、缩放和剪切
 
 ```python
 import math
 
-def rotation_2d(theta):
-    c, s = math.cos(theta), math.sin(theta)
-    return [[c, -s], [s, c]]
 
-def scaling_2d(sx, sy):
-    return [[sx, 0], [0, sy]]
+def rotate(point, theta):
+    x, y = point
+    c = math.cos(theta)
+    s = math.sin(theta)
+    return [c * x - s * y, s * x + c * y]
 
-def shearing_2d(kx, ky):
-    return [[1, kx], [ky, 1]]
 
-def reflection_x():
-    return [[1, 0], [0, -1]]
+def scale(point, sx, sy):
+    x, y = point
+    return [sx * x, sy * y]
 
-def reflection_y():
-    return [[-1, 0], [0, 1]]
 
-def mat_vec_mul(matrix, vector):
-    return [
-        sum(matrix[i][j] * vector[j] for j in range(len(vector)))
-        for i in range(len(matrix))
-    ]
+def shear_x(point, k):
+    x, y = point
+    return [x + k * y, y]
 
-def mat_mul(a, b):
-    rows_a, cols_b = len(a), len(b[0])
-    cols_a = len(a[0])
-    return [
-        [sum(a[i][k] * b[k][j] for k in range(cols_a)) for j in range(cols_b)]
-        for i in range(rows_a)
-    ]
 
-point = [1.0, 0.0]
-angle = math.pi / 4
+def shear_y(point, k):
+    x, y = point
+    return [x, y + k * x]
 
-rotated = mat_vec_mul(rotation_2d(angle), point)
-print(f"Rotate (1,0) by 45 deg: ({rotated[0]:.4f}, {rotated[1]:.4f})")
 
-scaled = mat_vec_mul(scaling_2d(2, 3), [1.0, 1.0])
-print(f"Scale (1,1) by (2,3): ({scaled[0]:.1f}, {scaled[1]:.1f})")
+points = [[1, 0], [0, 1], [1, 1], [-1, 1]]
+angle = math.pi / 4  # 45 degrees
 
-sheared = mat_vec_mul(shearing_2d(1, 0), [1.0, 1.0])
-print(f"Shear (1,1) kx=1: ({sheared[0]:.1f}, {sheared[1]:.1f})")
+print("=== Rotation ===")
+for p in points:
+    print(f"{p} -> {rotate(p, angle)}")
 
-reflected = mat_vec_mul(reflection_y(), [2.0, 1.0])
-print(f"Reflect (2,1) across y: ({reflected[0]:.1f}, {reflected[1]:.1f})")
+print("\n=== Scaling ===")
+for p in points:
+    print(f"{p} -> {scale(p, 2, 0.5)}")
+
+print("\n=== Shear X ===")
+for p in points:
+    print(f"{p} -> {shear_x(p, 1.0)}")
 ```
 
-### �?2 步：复合变换
+### 步骤 2：从零实现矩阵类
 
 ```python
-R = rotation_2d(math.pi / 2)
-S = scaling_2d(2, 0.5)
+class Matrix:
+    def __init__(self, rows):
+        self.rows = [list(row) for row in rows]
+        self.n_rows = len(rows)
+        self.n_cols = len(rows[0])
 
-rotate_then_scale = mat_mul(S, R)
-scale_then_rotate = mat_mul(R, S)
+    def __matmul__(self, other):
+        if isinstance(other, list):
+            x, y = other
+            return [
+                self.rows[0][0] * x + self.rows[0][1] * y,
+                self.rows[1][0] * x + self.rows[1][1] * y,
+            ]
+        elif isinstance(other, Matrix):
+            result = [[0 for _ in range(other.n_cols)] for _ in range(self.n_rows)]
+            for i in range(self.n_rows):
+                for j in range(other.n_cols):
+                    for k in range(self.n_cols):
+                        result[i][j] += self.rows[i][k] * other.rows[k][j]
+            return Matrix(result)
+        else:
+            raise TypeError("Unsupported operand type")
 
-point = [1.0, 0.0]
-result1 = mat_vec_mul(rotate_then_scale, point)
-result2 = mat_vec_mul(scale_then_rotate, point)
+    def determinant(self):
+        if self.n_rows == 2 and self.n_cols == 2:
+            a, b = self.rows[0]
+            c, d = self.rows[1]
+            return a * d - b * c
+        raise NotImplementedError("Only 2x2 determinant implemented")
 
-print(f"Rotate 90 then scale: ({result1[0]:.2f}, {result1[1]:.2f})")
-print(f"Scale then rotate 90: ({result2[0]:.2f}, {result2[1]:.2f})")
-print(f"Same? {result1 == result2}")
+    def transpose(self):
+        return Matrix([[self.rows[j][i] for j in range(self.n_rows)] for i in range(self.n_cols)])
+
+    def __repr__(self):
+        return f"Matrix({self.rows})"
+
+
+rotation_90 = Matrix([[0, -1], [1, 0]])
+point = [3, 1]
+print(rotation_90 @ point)
 ```
 
-### �?3 步：2x2 特征�?
-
-对矩�?[[a, b], [c, d]]，特征值来自特征方程：lambda^2 - (a+d)*lambda + (ad - bc) = 0�?
+### 步骤 3：特征值和特征向量
 
 ```python
 def eigenvalues_2x2(matrix):
-    a, b = matrix[0]
-    c, d = matrix[1]
+    a, b = matrix.rows[0]
+    c, d = matrix.rows[1]
     trace = a + d
     det = a * d - b * c
     discriminant = trace ** 2 - 4 * det
     if discriminant < 0:
-        real = trace / 2
-        imag = (-discriminant) ** 0.5 / 2
-        return (complex(real, imag), complex(real, -imag))
+        return []
     sqrt_disc = discriminant ** 0.5
-    return ((trace + sqrt_disc) / 2, (trace - sqrt_disc) / 2)
+    return [(trace + sqrt_disc) / 2, (trace - sqrt_disc) / 2]
+
 
 def eigenvector_2x2(matrix, eigenvalue):
-    a, b = matrix[0]
-    c, d = matrix[1]
+    a, b = matrix.rows[0]
+    c, d = matrix.rows[1]
     if abs(b) > 1e-10:
-        v = [b, eigenvalue - a]
-    elif abs(c) > 1e-10:
-        v = [eigenvalue - d, c]
-    else:
-        if abs(a - eigenvalue) < 1e-10:
-            v = [1, 0]
-        else:
-            v = [0, 1]
-    mag = (v[0] ** 2 + v[1] ** 2) ** 0.5
-    return [v[0] / mag, v[1] / mag]
+        return [eigenvalue - d, b]
+    if abs(c) > 1e-10:
+        return [c, eigenvalue - a]
+    return [1, 0]
 
-A = [[2, 1], [1, 2]]
+
+A = Matrix([[4, 2], [1, 3]])
 vals = eigenvalues_2x2(A)
-print(f"Matrix: {A}")
-print(f"Eigenvalues: {vals[0]:.4f}, {vals[1]:.4f}")
-
-for val in vals:
-    vec = eigenvector_2x2(A, val)
-    result = mat_vec_mul(A, vec)
-    scaled = [val * vec[0], val * vec[1]]
-    print(f"  lambda={val:.1f}, v={[round(x,4) for x in vec]}")
-    print(f"    A@v = {[round(x,4) for x in result]}")
-    print(f"    l*v = {[round(x,4) for x in scaled]}")
+print(f"Eigenvalues: {vals}")
+for lam in vals:
+    vec = eigenvector_2x2(A, lam)
+    print(f"lambda={lam:.4f}, eigenvector={vec}")
 ```
 
-### �?4 步：行列式与体积因子
+### 步骤 4：组合变换
 
 ```python
-def det_2x2(matrix):
-    return matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0]
+rotation_45 = Matrix([
+    [math.cos(math.pi / 4), -math.sin(math.pi / 4)],
+    [math.sin(math.pi / 4),  math.cos(math.pi / 4)],
+])
+scale_2 = Matrix([[2, 0], [0, 2]])
+shear = Matrix([[1, 1], [0, 1]])
 
-print(f"det(rotation 45) = {det_2x2(rotation_2d(math.pi/4)):.4f}")
-print(f"det(scale 2,3)   = {det_2x2(scaling_2d(2, 3)):.1f}")
-print(f"det(shear kx=1)  = {det_2x2(shearing_2d(1, 0)):.1f}")
-print(f"det(reflect y)   = {det_2x2(reflection_y()):.1f}")
-
-singular = [[1, 2], [2, 4]]
-print(f"det(singular)     = {det_2x2(singular):.1f}")
-print("Singular: columns are proportional, space collapses to a line.")
+combined = shear @ scale_2 @ rotation_45
+print(combined)
+print("det(combined) =", combined.determinant())
+print("det(shear) * det(scale_2) * det(rotation_45) =", 
+      shear.determinant() * scale_2.determinant() * rotation_45.determinant())
 ```
 
-## 应用
+### 步骤 5：为什么这和 AI 有关
 
-NumPy 可以用更底层优化的实现完成同样的任务�?
+```python
+import random
+
+random.seed(42)
+weights = Matrix([[random.gauss(0, 0.1) for _ in range(3)] for _ in range(2)])
+input_vector = [1.0, 0.5, -0.3]
+
+output = weights @ input_vector
+print(f"Input (3D): {input_vector}")
+print(f"Output (2D): {output}")
+print("This is what a neural network layer does -- matrix multiplication.")
+```
+
+### 步骤 6：Julia 版本
+
+```julia
+a = [1.0, 2.0, 3.0]
+b = [4.0, 5.0, 6.0]
+
+println("a + b = ", a + b)
+println("a · b = ", a ⋅ b)
+println("|a| = ", √(a ⋅ a))
+println("cosine = ", (a ⋅ b) / (√(a ⋅ a) * √(b ⋅ b)))
+
+W = [0.1 -0.2 0.3; 0.4 0.5 -0.1]
+x = [1.0, 0.5, -0.3]
+println("Wx = ", W * x)
+println("This is a neural network layer.")
+```
+
+## 使用
 
 ```python
 import numpy as np
 
-theta = np.pi / 4
-R = np.array([[np.cos(theta), -np.sin(theta)],
-              [np.sin(theta),  np.cos(theta)]])
+A = np.array([[1, 2], [2, 4]])
+print(f"Rank: {np.linalg.matrix_rank(A)}")
 
-point = np.array([1.0, 0.0])
-print(f"Rotate (1,0) by 45 deg: {R @ point}")
+a = np.array([3, 4])
+b = np.array([1, 0])
+proj = (np.dot(a, b) / np.dot(b, b)) * b
+print(f"Projection of {a} onto {b}: {proj}")
 
-S = np.diag([2.0, 3.0])
-composed = S @ R
-print(f"Scale(2,3) after Rotate(45): {composed @ point}")
-
-A = np.array([[2, 1], [1, 2]], dtype=float)
-eigenvalues, eigenvectors = np.linalg.eig(A)
-print(f"\nEigenvalues: {eigenvalues}")
-print(f"Eigenvectors (columns):\n{eigenvectors}")
-
-for i in range(len(eigenvalues)):
-    v = eigenvectors[:, i]
-    lam = eigenvalues[i]
-    print(f"  A @ v{i} = {A @ v}, lambda * v{i} = {lam * v}")
-
-print(f"\ndet(R) = {np.linalg.det(R):.4f}")
-print(f"det(S) = {np.linalg.det(S):.1f}")
-
-B = np.array([[3, 1], [0, 2]], dtype=float)
-vals, vecs = np.linalg.eig(B)
-D = np.diag(vals)
-V = vecs
-reconstructed = V @ D @ np.linalg.inv(V)
-print(f"\nEigendecomposition A = V @ D @ V^-1:")
-print(f"Original:\n{B}")
-print(f"Reconstructed:\n{reconstructed}")
+Q, R = np.linalg.qr(np.random.randn(3, 3))
+print(f"Q is orthogonal: {np.allclose(Q @ Q.T, np.eye(3))}")
+print(f"R is upper triangular: {np.allclose(R, np.triu(R))}")
 ```
 
-### �?NumPy 做三维旋�?
+### PyTorch：张量就是带自动微分的向量
 
 ```python
-def rotation_3d_z(theta):
-    c, s = np.cos(theta), np.sin(theta)
-    return np.array([[c, -s, 0], [s, c, 0], [0, 0, 1]])
+import torch
 
-def rotation_3d_x(theta):
-    c, s = np.cos(theta), np.sin(theta)
-    return np.array([[1, 0, 0], [0, c, -s], [0, s, c]])
+x = torch.randn(3, requires_grad=True)
+y = torch.tensor([1.0, 0.0, 0.0])
 
-point_3d = np.array([1.0, 0.0, 0.0])
-rotated_z = rotation_3d_z(np.pi / 2) @ point_3d
-rotated_x = rotation_3d_x(np.pi / 2) @ point_3d
+similarity = torch.dot(x, y)
+similarity.backward()
 
-print(f"\n3D point: {point_3d}")
-print(f"Rotate 90 around z: {np.round(rotated_z, 4)}")
-print(f"Rotate 90 around x: {np.round(rotated_x, 4)}")
+print(f"x = {x.data}")
+print(f"y = {y.data}")
+print(f"dot product = {similarity.item():.4f}")
+print(f"d(dot)/dx = {x.grad}")
 ```
 
-## 收官
+点积对 `x` 的梯度就是 `y`。PyTorch 会自动帮你算出来。神经网络里的每一步，其实都由这些基础操作构成：矩阵乘法、点积、投影，而自动微分会把梯度沿着这些操作一路传回去。
 
-本课为第 2 阶段 PCA 和神经网络权重分析打下几何基础。这里实现的特征�?特征向量代码，也是降维、谱聚类与稳定性分析在工程中的核心算法�?
+你刚刚从零实现了 NumPy 一行代码就能做到的事情。现在你知道底层到底发生了什么。
+
+## 输出
+
+本课产出：
+- `outputs/prompt-linear-algebra-tutor.md` -- 一个帮助 AI 通过几何直觉讲解线性代数的 prompt
+
+## 联系
+
+本课里的概念会直接出现在现代 AI 的这些地方：
+
+| 概念 | 出现在哪里 |
+|---|---|
+| 点积 | Transformer 里的注意力分数、RAG 里的余弦相似度 |
+| 矩阵乘法 | 每一层神经网络、每一次线性变换 |
+| 线性无关 | 特征选择、避免多重共线性 |
+| 秩 | 判断方程是否可解、LoRA（低秩适配） |
+| 投影 | 线性回归（投影到列空间）、PCA |
+| Gram-Schmidt / QR | 数值求解器、特征值计算 |
+| 标准正交基 | 稳定的数值计算、白化变换 |
+
+LoRA 值得单独提一句。它通过把权重更新分解成低秩矩阵来微调大语言模型。与其直接更新一个 `4096x4096` 的权重矩阵（1600 万参数），不如只更新两个 `4096x16` 和 `16x4096` 的矩阵（13.1 万参数）。`rank=16` 的约束意味着，LoRA 假设权重更新只存在于原始 4096 维空间中的一个 16 维子空间里。这就是线性代数在工程中的实际作用。
 
 ## 练习
 
-1. 对单位正方形（顶�?[0,0], [1,0], [1,1], [0,1]）分别应用旋转、缩放、剪切，打印每种变换后的顶点；并验证旋转前后边长距离是否保持不变�?
-2. 用手工特征方程求矩阵 [[4, 2], [1, 3]] 的特征值，再用你从零实现的函数�?NumPy 验证�?
-3. 组合三个变换（旋�?30°，缩�?[1.5, 0.8], kx=0.3 的剪切），对一个圆周上�?8 个点做变换，输出变换前后坐标。计算复合矩阵的行列式，并验证它等于各单独行列式乘积�?
+1. 实现 `Vector.angle_between(other)`，返回两个向量夹角的度数
+2. 创建一个二维缩放矩阵，让 x 坐标变成 2 倍、y 坐标变成 3 倍，然后把它作用到向量 `[1, 1]` 上
+3. 给出 5 个随机词向量（维度 50），用余弦相似度找出最相似的两个
+4. 验证 Gram-Schmidt 的输出确实是标准正交的：检查任意两个向量的点积是否为 0，以及每个向量的模长是否为 1
+5. 构造一个秩为 2 的 3x3 矩阵。用 `rank()` 方法验证它的秩，并说明它的列向量张成了什么几何对象
+6. 把向量 `[1, 2, 3]` 投影到 `[1, 1, 1]` 上。结果在几何上表示什么？
 
 ## 关键术语
 
 | 术语 | 常见说法 | 实际含义 |
-|------|----------------|----------------------|
-| 旋转矩阵 | “转一下�?| 一个正交矩阵，将点绕原点按圆弧移动且保持距离、角度；行列式恒�?1 |
-| 缩放矩阵 | “放大缩小�?| 对角矩阵，沿每条轴独立缩放；行列式是各缩放因子的乘积 |
-| 剪切矩阵 | “斜切�?| 让一个坐标按另一个坐标线性偏移，矩形变平行四边形；行列式通常�?1 |
-| 反射矩阵 | “镜像翻转�?| 相当于绕某轴/平面翻转，行列式�?-1 |
-| 复合变换 | “做两步�?| 通过矩阵乘法串联操作，B @ A 表示�?A �?B，顺序不可交�?|
-| 特征向量 | “特殊方向�?| 经过矩阵变换后只会缩放不旋转的方�?|
-| 特征�?| “拉伸倍数�?| 矩阵在该特征向量上的缩放倍数，可能为负（翻转）或复数（旋�?复合行为�?|
-| 特征分解 | “拆矩阵�?| 把矩阵写�?V @ D @ V^(-1)，分解为本征方向与缩放幅�?|
-| 行列�?| “矩阵的一个数�?| 变换对面积（2D）或体积�?D）缩放因子；�?0 代表不可�?|
-| 特征方程 | “特征值来源�?| det(A - lambda * I) = 0，其根就是特征�?|
-
-## 拓展阅读
-
-- [3Blue1Brown: Linear Transformations](https://www.3blue1brown.com/lessons/linear-transformations) - 空间重构的视觉直�? 
-- [3Blue1Brown: Eigenvectors and Eigenvalues](https://www.3blue1brown.com/lessons/eigenvalues) - 最经典的几何解�? 
-- [MIT 18.06 Lecture 21: Eigenvalues and Eigenvectors](https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2010/) - Gilbert Strang 经典课程
-
+|---|---|---|
+| 向量 | “一根箭头” | 表示 n 维空间中的一个点或方向的数字列表 |
+| 矩阵 | “一个数字表格” | 把向量从一个空间映射到另一个空间的变换 |
+| 点积 | “相乘再相加” | 衡量两个向量对齐程度的量，也是相似度搜索的核心 |
+| Embedding | “某种 AI 魔法” | 表示某个对象含义的向量，比如词、图片或用户 |
+| 线性无关 | “它们不重叠” | 组内没有哪个向量能由其他向量组合得到 |
+| 秩 | “有多少维” | 矩阵中线性无关列（或行）的数量 |
+| 投影 | “影子” | 一个向量在另一个向量方向上的分量 |
+| 基 | “坐标轴” | 一组最小的、线性无关且能张成整个空间的向量 |
+| 标准正交 | “互相垂直的单位向量” | 两两垂直，且每个向量长度都为 1 |
