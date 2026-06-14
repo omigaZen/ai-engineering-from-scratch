@@ -137,7 +137,7 @@ for t in range(start, len(data)-horizon):
 
 ### ARIMA 直觉
 
-ARIMA 可用来建模：
+ARIMA 可用于建模：
 - 自回归（AR）
 - 差分（I）
 - 移动平均（MA）
