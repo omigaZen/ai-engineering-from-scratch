@@ -103,7 +103,7 @@ t-SNE 的特点：
 - 输出里簇与簇之间的距离没有严格意义，主要看簇本身
 - 大数据上较慢，默认是 O(n^2)
 
-### UMAP：更快，也更保留全局结构
+### UMAP：更快，也更能保留全局结构
 
 Uniform Manifold Approximation and Projection（UMAP）和 t-SNE 类似，但有两个优势：
 - 更快：它用近邻图近似，而不是计算全部两两距离
