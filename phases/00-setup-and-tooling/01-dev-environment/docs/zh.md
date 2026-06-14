@@ -129,7 +129,7 @@ if torch.cuda.is_available():
     print(f"GPU: {torch.cuda.get_device_name(0)}")
 ```
 
-没有 GPU 也没关系。大多数课程都能在 CPU 上完成。训练较重的课程可以使用 Google Colab 或云 GPU。
+没有 GPU 也没关系。大多数课程都能在 CPU 上完成。训练较重的课程能使用 Google Colab 或云 GPU。
 
 ### 步骤 7：验证全部配置
 
