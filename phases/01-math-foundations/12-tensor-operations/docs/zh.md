@@ -2,10 +2,10 @@
 
 > 张量是数据与深度学习之间的通用语言。每一张图像、每一句话、每一个梯度，都会流经它。
 
-**Type:** Build
-**Language:** Python
-**Prerequisites:** Phase 1, Lessons 01 (Linear Algebra Intuition), 02 (Vectors, Matrices & Operations)
-**Time:** ~90 minutes
+**类型:** 构建
+**语言:** Python
+**先修:** 第 1 阶段，第 01 课（线性代数直觉），第 02 课（向量、矩阵与运算）
+**时长:** ~90 分钟
 
 ## 学习目标
 
