@@ -381,7 +381,7 @@ for x, y in zip(xs, ys):
     print(f"  input={x}  target={y:2d}  pred={model(x).data:6.3f}")
 ```
 
-这就是 micrograd。一个完整的、纯 Python 的神经网络训练循环，带自动微分。所有商用深度学习框架本质上做的也是同一件事，只是规模大得多。
+这就是 micrograd。一个完整的、纯 Python 的神经网络训练循环，带自动微分。所有商用深度学习框架做的也是同一件事，只是规模大得多。
 
 ### 第 6 步：梯度检查
 
