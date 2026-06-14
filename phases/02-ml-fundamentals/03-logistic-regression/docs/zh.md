@@ -450,7 +450,7 @@ print("\nSample predictions:")
 for i in range(5):
     probs = softmax_model.predict_proba(X_test_3[i])
     pred = softmax_model.predict(X_test_3[i])
-    print(f"  True: {y_test_3[i]}, Predicted: {pred}, Probs: [{', '.join(f'{p:.3f}' for p in probs)}]")
+    print(f"  真实值：{y_test_3[i]}，预测值：{pred}，概率：[{', '.join(f'{p:.3f}' for p in probs)}]")
 ```
 
 ### 步骤 6：阈值调节
@@ -498,7 +498,7 @@ lr.fit(X_tr_sc, y_tr)
 y_pred = lr.predict(X_te_sc)
 
 print("=== Scikit-learn Logistic Regression ===")
-print(f"Accuracy:  {accuracy_score(y_te, y_pred):.4f}")
+print(f"准确率：{accuracy_score(y_te, y_pred):.4f}")
 print(f"Precision: {precision_score(y_te, y_pred):.4f}")
 print(f"Recall:    {recall_score(y_te, y_pred):.4f}")
 print(f"F1:        {f1_score(y_te, y_pred):.4f}")
