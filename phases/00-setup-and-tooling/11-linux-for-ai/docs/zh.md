@@ -248,10 +248,10 @@ WSL2 的文件系统会通过 `/mnt` 把 Windows 分区挂载进来。Windows �
 
 ## WSL2（Windows 用户）
 
-| macOS | Linux | 说明 |
+| macOS 常用命令 | Linux 常用命令 | 说明 |
 |-------|-------|------|
 | `apt` | `rsync` | 包名不一定相同 |
-| `scp` | `/mnt/c/Users/YourName/` | 远程机器通常没有 GUI，所以更常用 `brew install` / `sudo apt install` |
+| `scp` | `/mnt/c/Users/YourName/` | 远程机器通常没有图形界面，所以更常用 `brew install` / `sudo apt install` |
 | `brew install htop` / `sudo apt install htop` | 不可用 | SSH 环境下一般没有剪贴板互通 |
 | `brew install readline` | `sudo apt install libreadline-dev` | Linux 服务器多数默认用 bash |
 | `open file.txt` | `xdg-open file.txt`、`cat` | 对应的可执行命令不同 |
@@ -261,7 +261,7 @@ WSL2 的文件系统会通过 `/mnt` 把 Windows 分区挂载进来。Windows �
 ## macOS 到 Linux 的常见坑
 
 ```bash
-# 在 PowerShell（管理员）下
+# 在 PowerShell（管理员权限）下
 wsl --install -d Ubuntu-24.04
 
 # 重启后从开始菜单打开 Ubuntu
