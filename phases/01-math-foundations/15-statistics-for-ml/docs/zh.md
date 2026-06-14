@@ -226,7 +226,7 @@ Compute d_i = x_i - y_i for each pair
 Then run a one-sample t-test on the d_i values against mu_0 = 0
 ```
 
-在机器学习里，配对 t 检验很常见：你在同样的 10 折交叉验证划分上跑两个模型，然后逐对比较它们的分数。
+在机器学习里，配对 t 检验很常见：你在同样的 10 折交叉验证划分上跑两个模型，然后逐对比较分数。
 
 ### 卡方检验
 
