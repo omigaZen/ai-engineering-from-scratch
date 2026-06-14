@@ -117,7 +117,7 @@ Reverse mode: seed dy/dy = 1, propagate backward
 
 ### 用对偶数实现前向模式
 
-前向模式可以用双数优雅地实现。双数的形式是 `a + b*epsilon`，其中 `epsilon^2 = 0`。
+前向模式能用双数优雅地实现。双数的形式是 `a + b*epsilon`，其中 `epsilon^2 = 0`。
 
 ```
 Dual number: (value, derivative)
