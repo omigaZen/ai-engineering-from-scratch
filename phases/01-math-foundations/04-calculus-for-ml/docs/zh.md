@@ -578,7 +578,7 @@ print(f"Actual:  y = 2x + 1")
 
 每个基于梯度的训练循环都遵循同样的结构：预测、计算损失、计算梯度、更新权重。
 
-## 使用实践
+## 实际使用
 
 有了 NumPy，同样的事情会更快也更简洁：
 
@@ -611,7 +611,7 @@ print(f"Learned: y = {w:.2f}x + {b:.2f}")
 2. 用梯度下降求 `f(x, y) = (x - 3)^2 + (y + 1)^2` 的最小值，起点为 `(0, 0)`，应收敛到 `(3, -1)`。
 3. 给梯度下降加上动量：维护一个累计历史梯度的速度向量。比较在 `f(x)=x^4 - 3x^2` 上，有无动量时的收敛速度。
 
-## 关键术语
+## 术语表
 
 | 术语 | 常见说法 | 实际含义 |
 |------|----------|---------|
@@ -632,3 +632,4 @@ print(f"Learned: y = {w:.2f}x + {b:.2f}")
 
 - [3Blue1Brown: Essence of Calculus](https://www.3blue1brown.com/topics/calculus) - 直观理解导数、积分和链式法则
 - [Stanford CS231n: Backpropagation](https://cs231n.github.io/optimization-2/) - 理解梯度如何在神经网络层中传播
+
