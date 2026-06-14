@@ -350,7 +350,7 @@ docker logs -f <container_id>
 
 ### 没有 GPU？
 
-去掉 `--gpus all` 参数和 NVIDIA deploy 块，容器依然可以用于 CPU 课程。PyTorch 会自动检测不到 CUDA，然后回退到 CPU。
+去掉 `--gpus all` 参数和 NVIDIA deploy 块，容器依然也能用于 CPU 课程。PyTorch 会自动检测不到 CUDA，然后回退到 CPU。
 
 ## 练习
 
