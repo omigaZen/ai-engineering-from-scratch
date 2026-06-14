@@ -81,7 +81,7 @@ code --install-extension charliermarsh.ruff
 
 ### 第 3 步：配置设置
 
-你可以把本课 `code/.vscode/settings.json` 里的设置复制到本地，也可以通过 `Settings > Open Settings (JSON)` 手动配置。
+可将本课 `code/.vscode/settings.json` 里的设置复制到本地，也可通过 `Settings > Open Settings (JSON)` 手动配置。
 
 AI 场景里最关键的是这些设置：
 
