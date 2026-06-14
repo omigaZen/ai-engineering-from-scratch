@@ -40,8 +40,8 @@ A = U * Sigma * V^T
 
 ```mermaid
 graph LR
-    A["Input space (n-dim)\nData cloud\n(arbitrary orientation)"] -->|"V^T\n(rotate)"| B["Scaled space\nAligned with axes\nthen scaled by Sigma"]
-    B -->|"U\n(rotate)"| C["Output space (m-dim)\nRotated to output\norientation"]
+    A["输入空间（n 维）\n数据云\n（任意方向）"] -->|"V^T\n（旋转）"| B["缩放后的空间\n先对齐坐标轴\n再由 Sigma 缩放"]
+    B -->|"U\n（旋转）"| C["输出空间（m 维）\n旋转到输出方向"]
 ```
 
 可以把它想成这样：你把一个矩阵交给 SVD，它会告诉你“这个矩阵先用 V^T 旋转输入球，再用 Sigma 把它拉成椭球，最后用 U 把椭球转到输出方向”。奇异值就是椭球各轴的长度。
@@ -58,7 +58,7 @@ where:
   Sigma is m x n, diagonal (singular values on the diagonal)
   V     is n x n, orthogonal (V^T V = I)
 
-The singular values sigma_1 >= sigma_2 >= ... >= sigma_r > 0
+奇异值满足 sigma_1 >= sigma_2 >= ... >= sigma_r > 0
 where r = rank(A)
 ```
 
@@ -79,8 +79,8 @@ SVD 的三个部分各自对应清晰的几何含义。
 ```text
 A * v_i = sigma_i * u_i
 
-The matrix A takes the i-th right singular vector v_i,
-scales it by sigma_i, and maps it to the i-th left singular vector u_i.
+A 会把第 i 个右奇异向量 v_i
+按 sigma_i 缩放，并映射到第 i 个左奇异向量 u_i。
 ```
 
 这给了你一幅按坐标逐个理解矩阵作用的图景。
@@ -92,8 +92,8 @@ SVD 可以写成若干个秩 1 矩阵的和：
 ```text
 A = sigma_1 * u_1 * v_1^T + sigma_2 * u_2 * v_2^T + ... + sigma_r * u_r * v_r^T
 
-Each term sigma_i * u_i * v_i^T is a rank-1 matrix (an outer product).
-The full matrix is the sum of r such matrices, where r is the rank.
+每一项 sigma_i * u_i * v_i^T 都是秩 1 矩阵（外积）。
+完整矩阵是这 r 个秩 1 矩阵之和，其中 r 是秩。
 ```
 
 这也是低秩近似的基础。每一项都在增加一层结构。第一项抓住最重要的模式，第二项抓住次重要的模式，以此类推。把这个和式截断，就能得到某个秩下的最佳近似。
@@ -156,7 +156,7 @@ Approximation error = sigma_{k+1}  (in spectral norm)
 
 这不只是“一个不错的近似”，而是能证明的最佳秩 k 近似。没有别的秩 k 矩阵能比它更接近原矩阵。
 
-| Component | Relative magnitude | Kept in rank-3 approx? |
+| 分量 | 相对大小 | 是否保留在秩 3 近似中 |
 |-----------|-------------------|------------------------|
 | sigma_1 | Largest | Yes |
 | sigma_2 | Large | Yes |
@@ -179,17 +179,17 @@ Approximation error = sigma_{k+1}  (in spectral norm)
 Original image: 800 x 600 = 480,000 values
 
 SVD with rank k:
-  U_k:      800 x k values
-  Sigma_k:  k values
-  V_k:      600 x k values
-  Total:    k * (800 + 600 + 1) = k * 1401 values
+      U_k:      800 x k 个数值
+  Sigma_k:  k 个数值
+  V_k:      600 x k 个数值
+  总计:     k * (800 + 600 + 1) = k * 1401 个数值
 
   k=10:   14,010 values   (2.9% of original)
   k=50:   70,050 values  (14.6% of original)
   k=100: 140,100 values  (29.2% of original)
 
-  The compression ratio improves as k gets smaller,
-  but visual quality degrades.
+  k 越小，压缩率越高，
+  但视觉质量会下降。
 ```
 
 关键点在于：自然图像的奇异值通常衰减得很快。前几个奇异值捕捉整体轮廓、形状和渐变，后面的项更多对应细节和噪声。截断到秩 50 往往能得到几乎看不出差别的图像，同时节省大约 85% 的存储。
@@ -251,7 +251,7 @@ LSA 是最早成功从原始文本中捕捉语义相似性的方法之一。它�
 
 **干净信号的奇异值：**
 
-| Component | Magnitude | Type |
+| 分量 | 大小 | 类型 |
 |-----------|-----------|------|
 | sigma_1 | Very large | Signal |
 | sigma_2 | Large | Signal |
@@ -261,7 +261,7 @@ LSA 是最早成功从原始文本中捕捉语义相似性的方法之一。它�
 
 **带噪信号的奇异值：**
 
-| Component | Magnitude | Type |
+| 分量 | 大小 | 类型 |
 |-----------|-----------|------|
 | sigma_1 | Very large | Signal |
 | sigma_2 | Large | Signal |
@@ -273,10 +273,10 @@ LSA 是最早成功从原始文本中捕捉语义相似性的方法之一。它�
 
 ```mermaid
 graph TD
-    A["All singular values"] --> B{"Clear gap?"}
-    B -->|"Above gap"| C["Signal: keep these (top k)"]
-    B -->|"Below gap"| D["Noise: discard these"]
-    C --> E["Reconstruct with A_k to get denoised version"]
+    A["所有奇异值"] --> B{"有明显间隔吗？"}
+    B -->|"间隔之上"| C["信号：保留这些（前 k 个）"]
+    B -->|"间隔之下"| D["噪声：丢掉这些"]
+    C --> E["用 A_k 重构，得到去噪版本"]
 ```
 
 这在信号处理、科学测量和数据清洗里都很常见。只要矩阵里混入了加性噪声，截断 SVD 都是分离信号和噪声的可靠方法。
@@ -286,7 +286,7 @@ graph TD
 Moore-Penrose 伪逆 A+ 把矩阵求逆推广到了非方阵和奇异矩阵。用 SVD 计算它非常直接。
 
 ```text
-If A = U * Sigma * V^T, then:
+如果 A = U * Sigma * V^T，那么：
 
 A+ = V * Sigma+ * U^T
 
@@ -295,8 +295,8 @@ where Sigma+ is formed by:
   2. Replace each non-zero diagonal entry sigma_i with 1/sigma_i
   3. Leave zeros as zeros
 
-For A (m x n):      A+ is (n x m)
-For Sigma (m x n):  Sigma+ is (n x m)
+对于 A（m x n）：      A+ 是（n x m）
+对于 Sigma（m x n）：  Sigma+ 是（n x m）
 ```
 
 伪逆可以求解最小二乘问题。如果 Ax = b 没有精确解（超定系统），那么 x = A+ b 就是最小二乘解，也就是使 ||Ax - b|| 最小的解。
@@ -310,9 +310,9 @@ Overdetermined system (more equations than unknowns):
 
   x_ls = A+ b = V * Sigma+ * U^T * b
 
-  This gives the x that minimizes the sum of squared residuals.
-  Same result as the normal equations (A^T A)^(-1) A^T b,
-  but numerically more stable.
+  这会得到使平方残差和最小的 x。
+  和正规方程 (A^T A)^(-1) A^T b 的结果相同，
+  但数值稳定性更好。
 ```
 
 ### 数值稳定性优势
@@ -327,9 +327,9 @@ Example:
   A^T A has eigenvalues [10^6, 1, 10^{-6}]
   Condition number of A^T A: 10^6 / 10^{-6} = 10^{12}
 
-  Computing SVD directly: works with condition number 10^6
-  Computing via A^T A:     works with condition number 10^{12}
-                           (6 extra digits of precision lost)
+  直接计算 SVD：处理条件数 10^6
+  通过 A^T A 计算：处理条件数 10^{12}
+                  （损失 6 位额外精度）
 ```
 
 现代 SVD 算法（例如 Golub-Kahan 双对角化）是直接作用在 A 上的，不会显式构造 A^T A。这也是为什么总是应该优先用 `np.linalg.svd(A)`，而不是 `np.linalg.eig(A.T @ A)`。
@@ -351,11 +351,11 @@ PCA finds eigenvectors of C. But:
 
   C = (1/(n-1)) * V * Sigma^2 * V^T
 
-So the principal components are exactly the right singular vectors V.
-The explained variance for each component is sigma_i^2 / (n-1).
+所以主成分正好就是右奇异向量 V。
+每个成分的解释方差是 sigma_i^2 / (n-1)。
 
-In sklearn, PCA is implemented using SVD, not eigendecomposition.
-It is faster and more numerically stable.
+在 sklearn 里，PCA 是用 SVD 实现的，不是特征分解。
+这样更快，也更稳定。
 ```
 
 这意味着你在第 10 课里学到的降维，本质上就是 SVD 在底层发挥作用。PCA 是机器学习中最常见的 SVD 应用之一。
@@ -428,11 +428,11 @@ A = np.random.randn(5, 4)
 U_ours, S_ours, V_ours = svd_from_scratch(A)
 U_np, S_np, Vt_np = np.linalg.svd(A, full_matrices=False)
 
-print("Our singular values:", np.round(S_ours, 4))
-print("NumPy singular values:", np.round(S_np, 4))
+print("我们算出的奇异值：", np.round(S_ours, 4))
+print("NumPy 的奇异值：", np.round(S_np, 4))
 
 A_reconstructed = U_ours @ np.diag(S_ours) @ V_ours.T
-print(f"Reconstruction error: {np.linalg.norm(A - A_reconstructed):.8f}")
+print(f"重构误差：{np.linalg.norm(A - A_reconstructed):.8f}")
 ```
 
 ### 第 3 步：图像压缩演示
@@ -453,7 +453,7 @@ for k in [1, 5, 10, 20, 50]:
     original_size = rows * cols
     compressed_size = k * (rows + cols + 1)
     ratio = compressed_size / original_size
-    print(f"k={k:>3d}  error={error:.4f}  storage={ratio:.1%}")
+print(f"k={k:>3d}  误差={error:.4f}  存储={ratio:.1%}")
 ```
 
 ### 第 4 步：降噪
@@ -468,9 +468,9 @@ noisy = clean + noise
 U, S, Vt = np.linalg.svd(noisy, full_matrices=False)
 denoised = U[:, :5] @ np.diag(S[:5]) @ Vt[:5, :]
 
-print(f"Noisy error:    {np.linalg.norm(noisy - clean):.4f}")
-print(f"Denoised error: {np.linalg.norm(denoised - clean):.4f}")
-print(f"Improvement:    {(1 - np.linalg.norm(denoised - clean) / np.linalg.norm(noisy - clean)):.1%}")
+print(f"带噪误差：    {np.linalg.norm(noisy - clean):.4f}")
+print(f"去噪误差：    {np.linalg.norm(denoised - clean):.4f}")
+print(f"提升：        {(1 - np.linalg.norm(denoised - clean) / np.linalg.norm(noisy - clean)):.1%}")
 ```
 
 ### 第 5 步：伪逆
@@ -487,9 +487,9 @@ x_svd = A_pinv @ b
 x_lstsq = np.linalg.lstsq(A, b, rcond=None)[0]
 x_pinv = np.linalg.pinv(A) @ b
 
-print(f"SVD pseudoinverse solution:  {x_svd}")
-print(f"np.linalg.lstsq solution:   {x_lstsq}")
-print(f"np.linalg.pinv solution:    {x_pinv}")
+print(f"SVD 伪逆解：  {x_svd}")
+print(f"np.linalg.lstsq 解：{x_lstsq}")
+print(f"np.linalg.pinv 解： {x_pinv}")
 ```
 
 ## 用起来
@@ -525,7 +525,7 @@ julia svd.jl
 
 ## 关键术语
 
-| Term | What people say | What it actually means |
+| 术语 | 常见说法 | 实际含义 |
 |------|----------------|------------------------|
 | SVD | "Factor any matrix" | 把 A 分解成 U Sigma V^T，其中 U 和 V 正交，Sigma 是非负对角矩阵。适用于任意形状的矩阵。 |
 | Singular value | "How important this component is" | Sigma 的第 i 个对角元，表示矩阵沿第 i 个主方向的伸缩程度；始终非负，并按降序排列。 |
