@@ -178,13 +178,13 @@ graph TD
         GD1["Start"] --> GD2["Step 1"]
         GD2 --> GD3["Step 2"]
         GD3 --> GD4["..."]
-        GD4 --> GD5["Step ~500: Converged"]
+        GD4 --> GD5["约 500 步：收敛"]
         GD_note["盲目沿梯度方向，小步前进"]
     end
     subgraph "牛顿法"
         NM1["Start"] --> NM2["Step 1"]
         NM2 --> NM3["..."]
-        NM3 --> NM4["Step ~5: Converged"]
+        NM3 --> NM4["约 5 步：收敛"]
         NM_note["用曲率选最优步"]
     end
 ```
