@@ -177,7 +177,7 @@ To solve Ax = b:
   Back substitute to get x.
 ```
 
-QR 在解最小二乘问题时通常比 LU 更稳定。Gram-Schmidt 过程可以逐列构造 Q：
+QR 在解最小二乘问题时通常比 LU 更稳定。Gram-Schmidt 过程能逐列构造 Q：
 
 ```
 Given columns a1, a2, ... of A:
