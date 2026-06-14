@@ -103,7 +103,7 @@ Phase 14 的每个框架都建立在这个 loop 之上。掌握它以后，选�
 
 ## 交付成果
 
-`outputs/skill-agent-loop.md` 是一个可复用 skill。你构建的任何 Agent 都可以加载它，用来解释 ReAct loop，并为任意语言或 runtime 生成正确的参考实现。
+`outputs/skill-agent-loop.md` 是一个可复用 skill。你构建的任何 Agent 都可以加载它，用于解释 ReAct loop，并为任意语言或 runtime 生成正确的参考实现。
 
 ## 练习
 
