@@ -79,7 +79,7 @@ Entropy = -(0.6 * log2(0.6) + 0.4 * log2(0.4))
         = 0.971 bits
 ```
 
-**信息增益**表示一次分裂后，不纯度下降了多少（可以是熵，也可以是 Gini）。
+**信息增益**表示一次分裂后，不纯度下降了多少（可以采用熵或 Gini）。
 
 ```text
 IG(S, feature, threshold) = Impurity(S) - weighted_avg(Impurity(S_left), Impurity(S_right))
