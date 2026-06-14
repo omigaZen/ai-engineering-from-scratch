@@ -30,18 +30,18 @@
 
 ```mermaid
 flowchart LR
-    subgraph Traditional["Traditional Programming"]
+    subgraph Traditional["传统编程"]
         direction LR
         R[Rules] --> P1[Program]
         D1[Data] --> P1
         P1 --> O1[Output]
     end
 
-    subgraph ML["Machine Learning"]
+    subgraph ML["机器学习"]
         direction LR
-        D2[Data] --> P2[Learning Algorithm]
-        O2[Expected Output] --> P2
-        P2 --> M[Model / Rules]
+        D2[数据] --> P2[学习算法]
+        O2[期望输出] --> P2
+        P2 --> M[模型 / 规则]
     end
 ```
 
@@ -55,18 +55,18 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    ML[Machine Learning] --> SL[Supervised Learning]
-    ML --> UL[Unsupervised Learning]
-    ML --> RL[Reinforcement Learning]
+    ML[机器学习] --> SL[监督学习]
+    ML --> UL[无监督学习]
+    ML --> RL[强化学习]
 
-    SL --> C[Classification]
-    SL --> R[Regression]
+    SL --> C[分类]
+    SL --> R[回归]
 
-    UL --> CL[Clustering]
-    UL --> DR[Dimensionality Reduction]
+    UL --> CL[聚类]
+    UL --> DR[降维]
 
-    RL --> PO[Policy Optimization]
-    RL --> VL[Value Learning]
+    RL --> PO[策略优化]
+    RL --> VL[价值学习]
 ```
 
 **监督学习（Supervised Learning）**：你有成对的“输入-输出”。模型学习把输入映射到输出。
@@ -182,22 +182,22 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    subgraph UF["Underfitting"]
-        U1["Model too simple"]
-        U2["High bias"]
-        U3["Misses patterns"]
+    subgraph UF["欠拟合"]
+        U1["模型太简单"]
+        U2["高偏差"]
+        U3["错过规律"]
     end
 
-    subgraph GF["Good Fit"]
-        G1["Right complexity"]
-        G2["Balanced"]
-        G3["Generalizes well"]
+    subgraph GF["拟合良好"]
+        G1["复杂度合适"]
+        G2["平衡"]
+        G3["泛化良好"]
     end
 
-    subgraph OF["Overfitting"]
-        O1["Model too complex"]
-        O2["High variance"]
-        O3["Memorizes noise"]
+    subgraph OF["过拟合"]
+        O1["模型太复杂"]
+        O2["高方差"]
+        O3["记住噪声"]
     end
 
     UF -->|Increase complexity| GF
