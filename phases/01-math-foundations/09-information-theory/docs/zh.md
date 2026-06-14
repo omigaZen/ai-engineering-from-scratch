@@ -2,12 +2,12 @@
 
 > 信息论在度量“惊奇感”；损失函数也都建立在这个思想上。
 
-**Type:** Learn
-**Languages:** Python
-**Prerequisites:** Phase 1, Lesson 06 (Probability and Distributions)
-**Time:** ~60 minutes
+**类型:** 学习
+**语言:** Python
+**先修:** 第 1 阶段，第 06 课（概率与分布）
+**时长:** ~60 分钟
 
-## Learning Objectives
+## 学习目标
 
 - 从零推导并计算熵、交叉熵和 KL 散度，理解三者关系
 - 推导为什么最小化交叉熵等价于最大化对数似然
