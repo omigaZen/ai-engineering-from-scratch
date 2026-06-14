@@ -259,7 +259,7 @@ The difference is significant.
                      recall, F1, latency, and fairness metrics.
 
 3. Variance:         Use cross-validation or bootstrap to estimate
-                     the variance of each metric, not just point estimates.
+                     the variance of each metric, rather than just single-point estimates.
 
 4. Data leakage:     If the test set was used during model selection,
                      your comparison is biased. Hold out a final test set.
