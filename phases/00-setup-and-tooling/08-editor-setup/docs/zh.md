@@ -26,11 +26,11 @@ AI 开发常用的编辑器配置可以分成五层：
 
 ```mermaid
 graph TD
-    L5["5. Remote Development<br/>SSH into GPU boxes, cloud VMs"] --> L4
-    L4["4. Terminal Integration<br/>Run scripts, debug, monitor GPU"] --> L3
-    L3["3. AI-Specific Settings<br/>Auto-format, type checking, rulers"] --> L2
-    L2["2. Extensions<br/>Python, Jupyter, Pylance, GitLens"] --> L1
-    L1["1. Base Editor<br/>VS Code — free, extensible, universal"]
+    L5["5. 远程开发<br/>SSH 到 GPU 机器和云主机"] --> L4
+    L4["4. 终端集成<br/>运行脚本、调试、监控 GPU"] --> L3
+    L3["3. AI 专用设置<br/>自动格式化、类型检查、标尺"] --> L2
+    L2["2. 扩展<br/>Python、Jupyter、Pylance、GitLens"] --> L1
+    L1["1. 基础编辑器<br/>VS Code - 免费、可扩展、通用"]
 ```
 
 ## 动手
@@ -139,7 +139,7 @@ VS Code 的集成终端是你运行训练脚本、监控 GPU 和管理环境的�
 3. 输入 `user@your-gpu-box-ip`
 4. VS Code 会自动在远端机器上安装 server 组件
 
-如果要免密登录，可以先配置 SSH key：
+如果要免密登录，可以先配置 SSH 密钥：
 
 ```bash
 ssh-keygen -t ed25519 -C "your-email@example.com"
@@ -166,7 +166,7 @@ Host gpu-box
 
 ### Windsurf
 
-[windsurf.com](https://windsurf.com) 是另一个 AI-first 的 VS Code 分支。它也能复用同样的扩展、同样的设置格式，并支持 Remote SSH。
+[windsurf.com](https://windsurf.com) 是另一个面向 AI 的 VS Code 分支。它也能复用同样的扩展、同样的设置格式，并支持 Remote SSH。
 
 ### Vim/Neovim
 
