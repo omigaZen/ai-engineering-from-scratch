@@ -32,14 +32,14 @@
 **集中趋势**回答“中间在哪里”：
 
 ```
-Mean:   sum of all values / count
+均值：  所有值之和 / 数量
         mu = (1/n) * sum(x_i)
 
-Median: middle value when sorted
+中位数：排序后处在中间的值
         Robust to outliers. If you have [1, 2, 3, 4, 1000], the mean is 202
         but the median is 3.
 
-Mode:   most frequent value
+众数：  出现频率最高的值
         适合类别数据；对连续数据来说，通常信息量不大。
 ```
 
@@ -48,17 +48,17 @@ Mode:   most frequent value
 **离散程度**回答“数据散得有多开”：
 
 ```
-Variance:   average squared deviation from the mean
+方差：  与均值偏差平方的平均值
             sigma^2 = (1/n) * sum((x_i - mu)^2)
 
-Standard deviation:  square root of variance
+标准差：方差的平方根
                      sigma = sqrt(sigma^2)
                      Same units as the data, so more interpretable.
 
-Range:      max - min
+极差：  最大值 - 最小值
             Sensitive to outliers. Almost never useful alone.
 
-IQR:        Q3 - Q1 (interquartile range)
+IQR：   Q3 - Q1（四分位距）
             The range of the middle 50% of the data.
             Robust to outliers. Used for box plots and outlier detection.
 ```
@@ -163,12 +163,12 @@ Properties:
 **基本设定：**
 
 ```
-Null hypothesis (H0):        the default assumption, usually "no effect"
-Alternative hypothesis (H1): what you are trying to show
+零假设（H0）：        默认假设，通常是“无效应”
+备择假设（H1）：      你试图证明的命题
 
 示例：
-  H0: Model A and Model B have the same accuracy
-  H1: Model B has higher accuracy than Model A
+  H0：模型 A 和模型 B 的准确率相同
+  H1：模型 B 的准确率高于模型 A
 ```
 
 **p 值**是在假设 H0 为真的前提下，观察到“像当前结果这么极端或更极端”的数据的概率。它不是 H0 为真的概率，这是统计学里最常见的误解之一。
@@ -215,8 +215,8 @@ degrees of freedom = n - 1
 ```
 t = (x_bar_1 - x_bar_2) / sqrt(s1^2/n1 + s2^2/n2)
 
-This is Welch's t-test, which does not assume equal variances.
-Always use Welch's unless you have a specific reason for equal variances.
+这是 Welch t 检验，它不要求两个样本的方差相等。
+除非你有明确理由假设方差相等，否则优先使用 Welch t 检验。
 ```
 
 **配对 t 检验：**当样本成对出现时使用（同一个模型在同一组数据切分上的评分）：
@@ -236,15 +236,15 @@ Then run a one-sample t-test on the d_i values against mu_0 = 0
 chi^2 = sum((observed - expected)^2 / expected)
 
 示例：语言模型的输出分布是否匹配
-training distribution across categories?
+训练分布在各类别上的占比是否一致？
 
-Category    Observed   Expected
+类别        观察值     期望值
 Positive       120        100
 Negative        80        100
 chi^2 = (120-100)^2/100 + (80-100)^2/100 = 4 + 4 = 8
 
-With 1 degree of freedom, chi^2 = 8 gives p < 0.005.
-The difference is significant.
+自由度为 1 时，chi^2 = 8 对应 p < 0.005。
+这个差异具有显著性。
 ```
 
 ### 面向机器学习模型的 A/B 测试
@@ -252,30 +252,30 @@ The difference is significant.
 机器学习里的 A/B 测试并不等同于网页 A/B 测试。模型比较有一些特殊挑战：
 
 ```
-1. Same test set:    Both models must be evaluated on identical data.
-                     Different test sets make comparison meaningless.
+1. 相同测试集：      两个模型必须在完全相同的数据上评估。
+                     不同测试集会让比较失去意义。
 
-2. Multiple metrics: Accuracy alone is not enough. You need precision,
-                     recall, F1, latency, and fairness metrics.
+2. 多个指标：        只看准确率不够。还需要 precision、
+                     recall、F1、延迟和公平性指标。
 
-3. Variance:         Use cross-validation or bootstrap to estimate
+3. 方差：            使用交叉验证或 bootstrap 来估计
                      每个指标的方差，而不只是单点估计。
 
-4. Data leakage:     If the test set was used during model selection,
-                     your comparison is biased. Hold out a final test set.
+4. 数据泄漏：        如果测试集参与了模型选择，
+                     比较结果就会有偏差。必须留出最终测试集。
 ```
 
 **流程：**
 
 ```
-1. Define your metric and significance level (alpha = 0.05)
-2. Run both models on the same k-fold cross-validation splits
-3. Collect paired scores: [(a1, b1), (a2, b2), ..., (ak, bk)]
-4. Compute differences: d_i = b_i - a_i
-5. Run a paired t-test on the differences
-6. Check: is the mean difference significantly different from 0?
-7. Compute a confidence interval for the mean difference
-8. Compute effect size (Cohen's d) to judge practical significance
+1. 定义指标和显著性水平（alpha = 0.05）
+2. 在相同的 k 折交叉验证划分上运行两个模型
+3. 收集配对分数：[(a1, b1), (a2, b2), ..., (ak, bk)]
+4. 计算差值：d_i = b_i - a_i
+5. 对差值做配对 t 检验
+6. 检查：均值差异是否显著不等于 0？
+7. 为均值差异计算置信区间
+8. 计算效应量（Cohen's d）判断实践意义
 ```
 
 ### 统计显著性 vs 实践显著性
@@ -289,9 +289,9 @@ The difference is significant.
   n = 1,000,000 test samples
   p-value = 0.001
 
-Statistically significant? Yes.
-Practically significant? A 0.03% improvement is not worth the
-engineering cost of deploying a new model.
+统计上显著吗？是。
+实践上显著吗？0.03% 的提升不足以抵消
+部署新模型的工程成本。
 ```
 
 **效应量**用来衡量差异有多大，不依赖样本量：
@@ -299,9 +299,9 @@ engineering cost of deploying a new model.
 ```
 Cohen's d = (mean_1 - mean_2) / pooled_std
 
-d = 0.2:  small effect
-d = 0.5:  medium effect
-d = 0.8:  large effect
+d = 0.2：小效应
+d = 0.5：中等效应
+d = 0.8：大效应
 ```
 
 一定要同时报告 p 值和效应量。p 值告诉你差异是否可信，效应量告诉你差异是否值得。
@@ -311,20 +311,20 @@ d = 0.8:  large effect
 当你同时检验很多假设时，总会有一些“显著”只是碰巧。假设你做 20 次检验，alpha = 0.05，即使什么都没发生，也期望会出现 1 个假阳性。
 
 ```
-P(at least one false positive) = 1 - (1 - alpha)^m
+P(至少一个假阳性) = 1 - (1 - alpha)^m
 
-m = 20 tests, alpha = 0.05:
-P(false positive) = 1 - 0.95^20 = 0.64
+m = 20 次检验，alpha = 0.05：
+P(假阳性) = 1 - 0.95^20 = 0.64
 
-You have a 64% chance of at least one false positive.
+至少出现一个假阳性的概率是 64%。
 ```
 
 **Bonferroni 校正：**把 alpha 除以检验次数。
 
 ```
-Adjusted alpha = alpha / m = 0.05 / 20 = 0.0025
+调整后的 alpha = alpha / m = 0.05 / 20 = 0.0025
 
-Only reject H0 if p-value < 0.0025.
+只有当 p-value < 0.0025 时才拒绝 H0。
 保守，但简单。适用于各检验相互独立的情况。
 ```
 
@@ -337,20 +337,20 @@ Bootstrap 通过“有放回重采样”来估计统计量的抽样分布，不�
 **算法：**
 
 ```
-1. You have n data points
-2. Draw n samples WITH replacement (some points appear multiple times,
-   some not at all)
-3. Compute your statistic on this bootstrap sample
-4. Repeat B times (typically B = 1000 to 10000)
-5. The distribution of bootstrap statistics approximates the
-   sampling distribution
+1. 你有 n 个数据点
+2. 有放回地抽取 n 个样本（有些点会重复出现，
+   有些一次都不会出现）
+3. 在这个 bootstrap 样本上计算统计量
+4. 重复 B 次（通常 B = 1000 到 10000）
+5. bootstrap 统计量的分布近似于
+   抽样分布
 ```
 
 **Bootstrap 置信区间（百分位法）：**
 
 ```
-Sort the B bootstrap statistics
-95% CI = [2.5th percentile, 97.5th percentile]
+将 B 个 bootstrap 统计量排序
+95% CI = [第 2.5 个百分位, 第 97.5 个百分位]
 ```
 
 **为什么它对机器学习有用：**
@@ -368,14 +368,14 @@ Sort the B bootstrap statistics
 **用于模型比较的 bootstrap：**
 
 ```
-1. You have predictions from Model A and Model B on the same test set
-2. For each bootstrap iteration:
-   a. Resample test indices with replacement
-   b. Compute metric_A and metric_B on the resampled set
-   c. Store diff = metric_B - metric_A
-3. 95% CI for the difference:
-   [2.5th percentile of diffs, 97.5th percentile of diffs]
-4. If the CI does not contain 0, the difference is significant
+1. 你有模型 A 和模型 B 在同一测试集上的预测结果
+2. 对每次 bootstrap 迭代：
+   a. 对测试索引有放回重采样
+   b. 在重采样集合上计算 metric_A 和 metric_B
+   c. 记录 diff = metric_B - metric_A
+3. 差值的 95% CI：
+   [差值的第 2.5 个百分位, 差值的第 97.5 个百分位]
+4. 如果 CI 不包含 0，则差异显著
 ```
 
 它比配对 t 检验更稳健，因为它不依赖分布假设。
@@ -385,35 +385,35 @@ Sort the B bootstrap statistics
 **参数检验**假设某种特定分布，通常是正态分布：
 
 ```
-t-test:         assumes normally distributed data (or large n by CLT)
-ANOVA:          assumes normality and equal variances
-Pearson r:      assumes bivariate normality
+t 检验：        假设数据近似正态分布（或在大样本下由 CLT 近似成立）
+ANOVA：         假设正态性和方差齐性
+Pearson r：     假设双变量正态
 ```
 
 **非参数检验**不做分布假设：
 
 ```
-Mann-Whitney U:     compares two groups (replaces independent t-test)
-Wilcoxon signed-rank: compares paired data (replaces paired t-test)
-Spearman rho:       correlation on ranks (replaces Pearson)
-Kruskal-Wallis:     compares multiple groups (replaces ANOVA)
+Mann-Whitney U：     比较两组（替代独立样本 t 检验）
+Wilcoxon signed-rank：比较配对数据（替代配对 t 检验）
+Spearman rho：      基于秩的相关（替代 Pearson）
+Kruskal-Wallis：    比较多组（替代 ANOVA）
 ```
 
 **何时使用非参数检验：**
 
 ```
-- Small sample size (n < 30) and data is clearly non-normal
-- Ordinal data (ratings, rankings)
-- Heavy outliers you cannot remove
-- Skewed distributions
+- 样本量小（n < 30）且数据明显非正态
+- 序数数据（评分、排名）
+- 无法去除的强离群点
+- 偏斜分布
 ```
 
 **何时使用参数检验：**
 
 ```
-- Large sample size (CLT makes the test statistic approximately normal)
-- Data is roughly symmetric without extreme outliers
-- More statistical power (better at detecting real differences)
+- 样本量大（CLT 使检验统计量近似正态）
+- 数据大致对称，没有极端离群点
+- 统计功效更高（更容易检测到真实差异）
 ```
 
 在机器学习实验里，你通常只有很少的样本，比如 5 折或 10 折交叉验证，所以像 Wilcoxon signed-rank 这样的非参数检验往往比 t 检验更合适。
@@ -423,33 +423,31 @@ Kruskal-Wallis:     compares multiple groups (replaces ANOVA)
 中心极限定理说：随着 n 增大，样本均值的分布会趋近正态分布，而不管底层总体是什么分布。
 
 ```
-If X_1, X_2, ..., X_n are iid with mean mu and variance sigma^2:
+如果 X_1, X_2, ..., X_n 是独立同分布变量，均值为 mu，方差为 sigma^2：
 
-    X_bar ~ Normal(mu, sigma^2 / n)    as n -> infinity
+    X_bar ~ Normal(mu, sigma^2 / n)    当 n -> infinity
 
-Works for n >= 30 in most cases.
-For highly skewed distributions, you might need n >= 100.
+在大多数情况下，n >= 30 就能近似成立。
+对于高度偏斜的分布，可能需要 n >= 100。
 ```
 
 **它对机器学习意味着：**
 
 ```
 1. 为聚合指标上的置信区间和 t 检验提供依据
-2. Explains why averaging over cross-validation folds gives stable
-   estimates even when individual folds vary wildly
-3. Mini-batch gradient descent works because the average gradient
-   over a batch approximates the true gradient (CLT in action)
-4. Ensemble methods: averaging predictions from many models gives
-   more stable output than any single model
+2. 解释为什么对交叉验证折求平均，即使单个折波动很大，
+   结果依然稳定
+3. 小批量梯度下降之所以有效，是因为一个 batch 上的平均梯度
+   近似真实梯度（CLT 的作用）
+4. 集成方法：对多个模型的预测求平均，比任何单个模型都更稳定
 ```
 
 **中心极限定理不做什么：**
 
 ```
-- Does NOT make your data normal. It makes the MEAN of samples normal.
-- Does NOT work for heavy-tailed distributions with infinite variance
-  (Cauchy distribution).
-- Does NOT apply to dependent data (time series without correction).
+- 不会把你的原始数据变成正态分布。它让样本的均值趋近正态。
+- 不适用于方差无穷的重尾分布（例如 Cauchy 分布）。
+- 不适用于相关样本（例如未做修正的时间序列）。
 ```
 
 ### 机器学习论文里的常见统计错误
