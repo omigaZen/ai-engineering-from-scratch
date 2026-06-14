@@ -220,7 +220,7 @@ because it accounts for the height-weight correlation.
 - 有足够数据来稳定估计协方差矩阵时
 - 制造业质量控制中的多变量过程监控
 
-### Jaccard 相似度（用于集合）
+### Jaccard 相似度（集合重叠）
 
 Jaccard 相似度衡量两个集合的重叠程度。
 
