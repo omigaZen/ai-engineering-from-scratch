@@ -134,7 +134,7 @@ ai-engineering-from-scratch/
 
 ## pyproject.toml 速览
 
-每个 Python 项目都应该有 `setup.py`，它取代了 `setup.cfg`、`requirements.txt` 和 `pyproject.toml`。
+每个 Python 项目都应该有 `pyproject.toml`，它取代了 `setup.py`、`setup.cfg` 和 `requirements.txt`。
 
 ```toml
 [project]
@@ -259,8 +259,8 @@ bash phases/00-setup-and-tooling/06-python-environments/code/env_setup.sh
 
 | 术语 | 口语说法 | 实际含义 |
 |------|----------------|----------------------|
-| Virtual environment | “venv” | 与系统 Python 隔离的目录，内含独立解释器与包 |
-| Lockfile | “锁定依赖” | 列出每个包及精确版本的文件，保证跨机器安装一致 |
-| pyproject.toml | “新一代 setup.py” | Python 项目标准配置文件，取代 setup.py/setup.cfg/requirements.txt |
-| Transitive dependency | “依赖的依赖” | A 依赖 B，B 依赖 C，则 C 是 A 的间接依赖 |
-| CUDA mismatch | “GPU 不工作” | PyTorch 编译目标 CUDA 与驱动支持 CUDA 版本不一致 |
+| 虚拟环境 | “venv” | 与系统 Python 隔离的目录，内含独立解释器与包 |
+| 锁文件 | “锁定依赖” | 列出每个包及精确版本的文件，保证跨机器安装一致 |
+| pyproject.toml | “新一代配置文件” | Python 项目标准配置文件，取代 setup.py/setup.cfg/requirements.txt |
+| 传递依赖 | “依赖的依赖” | A 依赖 B，B 依赖 C，则 C 是 A 的间接依赖 |
+| CUDA 不匹配 | “GPU 不工作” | PyTorch 编译目标 CUDA 与驱动支持 CUDA 版本不一致 |
