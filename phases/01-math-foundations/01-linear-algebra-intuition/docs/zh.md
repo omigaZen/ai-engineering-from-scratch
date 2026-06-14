@@ -49,8 +49,8 @@ graph LR
         A["Point A"]
         B["Point B"]
     end
-    subgraph Matrix["Matrix Multiplication"]
-        M["M (transformation)"]
+    subgraph Matrix["矩阵乘法"]
+        M["M（变换）"]
     end
     subgraph After
         A2["Point A'"]
@@ -134,7 +134,7 @@ proj_b(a) = (a dot b / b dot b) * b
 
 ```mermaid
 graph LR
-    subgraph Projection["Projection of a onto b"]
+    subgraph Projection["a 到 b 的投影"]
         direction TB
         O["Origin"] --> |"b (direction)"| B["b"]
         O --> |"a (original)"| A["a"]
@@ -279,7 +279,7 @@ input_vector = Vector([1.0, 0.5, -0.3])
 output = weights @ input_vector
 print(f"Input (3D): {input_vector}")
 print(f"Output (2D): {output}")
-print("This is what a neural network layer does -- matrix multiplication.")
+print("这就是神经网络一层做的事情 -- 矩阵乘法。")
 ```
 
 ### 步骤 4：Julia 版本
@@ -293,11 +293,11 @@ println("a · b = ", a ⋅ b)       # Julia supports unicode operators
 println("|a| = ", √(a ⋅ a))
 println("cosine = ", (a ⋅ b) / (√(a ⋅ a) * √(b ⋅ b)))
 
-# Matrix-vector multiplication
+# 矩阵-向量乘法
 W = [0.1 -0.2 0.3; 0.4 0.5 -0.1]
 x = [1.0, 0.5, -0.3]
 println("Wx = ", W * x)
-println("This is a neural network layer.")
+println("这就是神经网络的一层。")
 ```
 
 ### 步骤 5：从零实现线性无关和投影（Python）
@@ -390,7 +390,7 @@ print(f"Rank: {np.linalg.matrix_rank(A)}")
 a = np.array([3, 4])
 b = np.array([1, 0])
 proj = (np.dot(a, b) / np.dot(b, b)) * b
-print(f"Projection of {a} onto {b}: {proj}")
+print(f"{a} 投影到 {b} 上：{proj}")
 
 Q, R = np.linalg.qr(np.random.randn(3, 3))
 print(f"Q is orthogonal: {np.allclose(Q @ Q.T, np.eye(3))}")
