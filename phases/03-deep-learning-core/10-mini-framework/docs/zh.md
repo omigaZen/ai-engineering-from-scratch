@@ -57,36 +57,36 @@ Dropout 在训练时随机屏蔽神经元，评估时则完整透传；BatchNorm
 ```mermaid
 graph TD
     subgraph "Modules"
-        Linear["Linear<br/>W*x + b"]
+        Linear["线性层<br/>W*x + b"]
         ReLU["ReLU<br/>max(0, x)"]
         Sigmoid["Sigmoid<br/>1/(1+e^-x)"]
-        Dropout["Dropout<br/>random zero mask"]
-        BatchNorm["BatchNorm<br/>normalize activations"]
+        Dropout["Dropout<br/>随机置零掩码"]
+        BatchNorm["BatchNorm<br/>归一化激活"]
     end
 
     subgraph "Containers"
-        Sequential["Sequential<br/>chains modules"]
+        Sequential["Sequential<br/>串联模块"]
     end
 
     subgraph "Loss Functions"
         MSE["MSELoss<br/>(pred - target)^2"]
-        BCE["BCELoss<br/>binary cross-entropy"]
+        BCE["BCELoss<br/>二元交叉熵"]
     end
 
     subgraph "Optimizers"
         SGD["SGD<br/>param -= lr * grad"]
-        Adam["Adam<br/>adaptive moments"]
+        Adam["Adam<br/>自适应动量"]
     end
 
     subgraph "Data"
-        DataLoader["DataLoader<br/>batching + shuffle"]
+        DataLoader["DataLoader<br/>批处理 + 打乱"]
     end
 
-    Sequential --> |"contains"| Linear
-    Sequential --> |"contains"| ReLU
-    Sequential --> |"forward/backward"| MSE
-    SGD --> |"updates"| Sequential
-    DataLoader --> |"feeds"| Sequential
+    Sequential --> |"包含"| Linear
+    Sequential --> |"包含"| ReLU
+    Sequential --> |"前向/反向"| MSE
+    SGD --> |"更新"| Sequential
+    DataLoader --> |"输入"| Sequential
 ```
 
 ### 训练循环
