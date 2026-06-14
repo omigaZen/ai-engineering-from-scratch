@@ -288,7 +288,7 @@ for inputs, expected in data:
     if predicted == expected:
         correct += 1
 
-print(f"Accuracy with random weights: {correct}/{len(data)} ({100*correct/len(data):.1f}%)")
+print(f"随机权重下的准确率：{correct}/{len(data)}（{100*correct/len(data):.1f}%）")
 ```
 
 随机权重通常只能得到很差的准确率，甚至可能比猜多数类还差。训练完成后（第 03 课），同样的 8 隐藏神经元结构就能学出一条曲线边界，把圆内和圆外分开。
