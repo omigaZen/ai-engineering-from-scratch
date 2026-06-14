@@ -114,10 +114,10 @@ Bound: M such that p(x) <= M * q(x) for all x
 Algorithm:
   1. Sample x ~ q(x)
   2. Sample u ~ Uniform(0, 1)
-  3. If u < p(x) / (M * q(x)), accept x
-  4. Otherwise, reject and go to step 1
+  3. 如果 u < p(x) / (M * q(x))，接受 x
+  4. 否则拒绝，并回到步骤 1
 
-Acceptance rate = 1/M
+接受率 = 1/M
 ```
 
 `M` 越紧，接受率越高。低维时（1 到 3 维）通常很好用；高维时，接受率会指数级下降，这就是拒绝采样的维度灾难。
