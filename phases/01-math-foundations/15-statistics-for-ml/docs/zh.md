@@ -186,14 +186,14 @@ p-value = P(数据达到这么极端 | H0 为真)
 **置信区间**给参数提供一个合理取值范围：
 
 ```
-95% confidence interval for the mean:
+均值的 95% 置信区间：
     x_bar +/- z * (s / sqrt(n))
 
-where z = 1.96 for 95% confidence
+其中，95% 置信水平下 z = 1.96。
 
-Interpretation: if you repeated this experiment many times, 95% of the
-computed intervals would contain the true mean. It does NOT mean there
-is a 95% probability the true mean is in this specific interval.
+解释：如果你重复很多次这个实验，算出来的区间里大约有 95%
+会包含真实均值。这并不意味着真实均值有 95% 的概率落在这一个
+特定区间里。
 ```
 
 置信区间越窄，不确定性越低；越宽，不确定性越高。宽区间说明估计不稳定，窄区间说明估计更精确，但如果数据本身有偏，精确也不等于准确。
