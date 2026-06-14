@@ -329,7 +329,7 @@ Dual problem: maximize d(λ) subject to λ >= 0
 
 对偶为何重要：
 - 有时对偶更容易解
-- SVM 常在对偶形式下求解，能用点积表达（实现 kernel trick）
+- SVM 常在对偶形式下求解，能用点积表达（实现核技巧）
 - 对偶给出原问题最优值下界，方便检验解质量
 
 SVM 例子：
