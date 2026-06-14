@@ -29,15 +29,15 @@
 ```mermaid
 graph LR
     subgraph Before["Standard Basis"]
-        e1["e1 = [1, 0] (along x)"]
-        e2["e2 = [0, 1] (along y)"]
+        e1["e1 = [1, 0]（沿 x 轴）"]
+        e2["e2 = [0, 1]（沿 y 轴）"]
     end
     subgraph Transform["Matrix M"]
-        M["M = columns are new basis vectors"]
+        M["M = 列向量就是新的基向量"]
     end
     subgraph After["After Transformation M"]
-        e1p["e1' = new x-basis"]
-        e2p["e2' = new y-basis"]
+        e1p["e1' = 新的 x 基向量"]
+        e2p["e2' = 新的 y 基向量"]
     end
     e1 --> M
     e2 --> M
@@ -287,7 +287,7 @@ input_vector = [1.0, 0.5, -0.3]
 output = weights @ input_vector
 print(f"Input (3D): {input_vector}")
 print(f"Output (2D): {output}")
-print("This is what a neural network layer does -- matrix multiplication.")
+print("这就是神经网络一层做的事情 -- 矩阵乘法。")
 ```
 
 ### 步骤 6：Julia 版本
@@ -304,7 +304,7 @@ println("cosine = ", (a ⋅ b) / (√(a ⋅ a) * √(b ⋅ b)))
 W = [0.1 -0.2 0.3; 0.4 0.5 -0.1]
 x = [1.0, 0.5, -0.3]
 println("Wx = ", W * x)
-println("This is a neural network layer.")
+println("这就是神经网络的一层。")
 ```
 
 ## 使用
@@ -318,7 +318,7 @@ print(f"Rank: {np.linalg.matrix_rank(A)}")
 a = np.array([3, 4])
 b = np.array([1, 0])
 proj = (np.dot(a, b) / np.dot(b, b)) * b
-print(f"Projection of {a} onto {b}: {proj}")
+print(f"{a} 投影到 {b} 上：{proj}")
 
 Q, R = np.linalg.qr(np.random.randn(3, 3))
 print(f"Q is orthogonal: {np.allclose(Q @ Q.T, np.eye(3))}")
