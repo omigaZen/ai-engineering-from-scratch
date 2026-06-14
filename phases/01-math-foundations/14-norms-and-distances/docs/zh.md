@@ -87,8 +87,8 @@ L2 distance = sqrt((4-1)^2 + (5-1)^2) = sqrt(9 + 16) = sqrt(25) = 5.0
 与损失函数的关系：均方误差（MSE）是 L2 距离平方的平均。平方会让大误差受到更重的惩罚。
 
 ```
-MAE (L1 loss):  |y - y_hat|         Linear penalty. Robust to outliers.
-MSE (L2 loss):  (y - y_hat)^2       Quadratic penalty. Sensitive to outliers.
+MAE (L1 loss):  |y - y_hat|         线性惩罚，对异常值不敏感。
+MSE (L2 loss):  (y - y_hat)^2       二次惩罚，对异常值敏感。
 ```
 
 ### Lp 范数：一般形式
