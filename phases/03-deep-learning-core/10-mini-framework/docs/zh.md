@@ -616,7 +616,7 @@ def train():
         accuracy = total_correct / total_samples * 100
 
         if epoch % 10 == 0 or epoch == 99:
-            print(f"Epoch {epoch:3d} | Loss: {avg_loss:.6f} | Train Accuracy: {accuracy:.1f}%")
+            print(f"第 {epoch:3d} 轮 | 损失：{avg_loss:.6f} | 训练准确率：{accuracy:.1f}%")
 
     model.eval()
     correct = 0
