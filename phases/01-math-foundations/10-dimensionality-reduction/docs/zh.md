@@ -335,7 +335,7 @@ for k in [10, 30, 50, 100, 200]:
     acc = accuracy_score(y_test, clf.predict(X_te))
     var_captured = sum(pca_k.explained_variance_ratio_)
     results[k] = (acc, var_captured)
-    print(f"k={k:>3d}  accuracy={acc:.4f}  variance={var_captured:.4f}")
+    print(f"k={k:>3d}  准确率={acc:.4f}  方差保留={var_captured:.4f}")
 ```
 
 性能通常会远早于 784 维就进入平台期。那个平台点就是你的工作点。
