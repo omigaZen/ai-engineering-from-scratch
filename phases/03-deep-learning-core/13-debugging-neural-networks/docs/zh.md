@@ -435,7 +435,7 @@ for name, param in model.named_parameters():
 python phases/00-setup-and-tooling/12-debugging-and-profiling/code/debug_tools.py
 ```
 
-你也可以参考 `cProfile` 相关的提示词，用于定位 AI 特有的 bug。
+你还可参考 `cProfile` 相关的提示词，用于定位 AI 特有的 bug。
 
 ## 练习
 
