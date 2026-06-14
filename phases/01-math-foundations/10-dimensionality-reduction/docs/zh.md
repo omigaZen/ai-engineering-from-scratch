@@ -60,7 +60,7 @@
 
 ```mermaid
 graph LR
-    A["Original data (2D)\nData spread in both\nx and y directions"] -->|"PCA rotation"| B["After PCA\nPC1 captures the elongated spread\nPC2 captures the narrow spread\nDrop PC2 and you lose little info"]
+    A["原始数据（2D）\n数据在 x 和 y 两个方向上都较分散"] -->|"PCA 旋转"| B["PCA 之后\nPC1 捕捉长轴方向的分布\nPC2 捕捉窄轴方向的分布\n丢掉 PC2，信息损失很小"]
 ```
 
 - **PCA 之前：** 点云在 x、y 两个方向上都比较分散
@@ -142,7 +142,7 @@ Kernel PCA 会把 PCA 放到核函数诱导的高维特征空间里执行，但�
 
 常见核函数：
 
-| Kernel | Formula | Good for |
+| Kernel | 公式 | 适用场景 |
 |--------|---------|----------|
 | RBF (Gaussian) | exp(-gamma * ||x - y||^2) | 大多数非线性数据、平滑流形 |
 | Polynomial | (x . y + c)^d | 多项式关系 |
@@ -150,7 +150,7 @@ Kernel PCA 会把 PCA 放到核函数诱导的高维特征空间里执行，但�
 
 标准 PCA 和 kernel PCA 的取舍：
 
-| Criterion | Standard PCA | Kernel PCA |
+| Criterion | 标准 PCA | Kernel PCA |
 |-----------|-------------|------------|
 | Data structure | Linear subspace | Nonlinear manifold |
 | Speed | O(min(n^2 d, d^2 n)) | O(n^2 d + n^3) |
@@ -286,15 +286,15 @@ from sklearn.manifold import TSNE
 sklearn_pca = SklearnPCA(n_components=2)
 X_sklearn_pca = sklearn_pca.fit_transform(X_mnist)
 
-print(f"\nOur PCA explained variance:     {pca_2d.explained_variance_ratio_}")
-print(f"Sklearn PCA explained variance: {sklearn_pca.explained_variance_ratio_}")
+print(f"\n我们的 PCA 解释方差：     {pca_2d.explained_variance_ratio_}")
+print(f"Sklearn PCA 解释方差：{sklearn_pca.explained_variance_ratio_}")
 
 diff = np.abs(np.abs(X_pca2d) - np.abs(X_sklearn_pca))
 print(f"Max absolute difference: {diff.max():.10f}")
 
 tsne = TSNE(n_components=2, perplexity=30, random_state=42)
 X_tsne = tsne.fit_transform(X_mnist)
-print(f"\nt-SNE output shape: {X_tsne.shape}")
+print(f"\nt-SNE 输出形状：{X_tsne.shape}")
 ```
 
 ### 第 5 步：对比 UMAP
@@ -305,9 +305,9 @@ try:
 
     reducer = UMAP(n_components=2, n_neighbors=15, min_dist=0.1, random_state=42)
     X_umap = reducer.fit_transform(X_mnist)
-    print(f"UMAP output shape: {X_umap.shape}")
+    print(f"UMAP 输出形状：{X_umap.shape}")
 except ImportError:
-    print("Install umap-learn: pip install umap-learn")
+    print("安装 umap-learn：pip install umap-learn")
 ```
 
 ## 用起来
@@ -355,7 +355,7 @@ for k in [10, 30, 50, 100, 200]:
 
 ## 关键术语
 
-| Term | What people say | What it actually means |
+| 术语 | 常见说法 | 实际含义 |
 |------|----------------|------------------------|
 | Curse of dimensionality | "Too many features" | 维度升高后，距离、体积和数据密度的行为都会变得反直觉；模型需要指数级更多的数据来补偿。 |
 | PCA | "Reduce dimensions" | 旋转坐标系，让坐标轴对齐最大方差方向，然后丢掉低方差轴。 |
