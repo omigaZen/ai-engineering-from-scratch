@@ -30,15 +30,15 @@
 
 ```mermaid
 flowchart LR
-    subgraph IN["Input (H x W)"]
+    subgraph IN["输入 (H x W)"]
         direction LR
         I1["5 x 5 image"]
     end
-    subgraph K["Kernel (3 x 3)"]
-        K1["learned<br/>weights"]
+    subgraph K["卷积核 (3 x 3)"]
+        K1["学习到的<br/>权重"]
     end
-    subgraph OUT["Output (H-2 x W-2)"]
-        O1["3 x 3 map"]
+    subgraph OUT["输出 (H-2 x W-2)"]
+        O1["3 x 3 特征图"]
     end
     I1 --> |"slide kernel<br/>compute dot product<br/>at each position"| O1
     K1 --> O1
@@ -80,7 +80,7 @@ H_out = floor( (H - K + 2P) / S ) + 1
 
 这个公式要记熟。你在设计网络时会反复用到。
 
-| Scenario | H | K | P | S | H_out |
+| 场景 | H | K | P | S | H_out |
 |----------|---|---|---|---|-------|
 | Valid conv, no padding | 32 | 3 | 0 | 1 | 30 |
 | Same conv (preserves size) | 32 | 3 | 1 | 1 | 32 |
@@ -95,7 +95,7 @@ H_out = floor( (H - K + 2P) / S ) + 1
 如果不加填充，每做一次卷积，特征图都会变小。连续堆 20 层之后，224x224 的图像会变成 184x184，边缘信息浪费了计算，也会让需要对齐形状的残差连接变得麻烦。
 
 ```
-Zero padding (P = 1) on a 5 x 5 input:
+5 x 5 输入上的零填充（P = 1）：
 
   0  0  0  0  0  0  0
   0  1  2  0  1  2  0
@@ -113,7 +113,7 @@ Zero padding (P = 1) on a 5 x 5 input:
 步幅就是滑动时每次跨出的距离。`stride=1` 是默认值。`stride=2` 会让空间尺寸减半，是 CNN 里经典的下采样方式之一，能无需依赖独立的池化层完成下采样 - 现代架构（ResNet、ConvNeXt、MobileNet）都会在某些地方用带步幅的卷积替代 max-pool。
 
 ```
-Stride 1 on a 5 x 5 input, 3 x 3 kernel:
+5 x 5 输入、3 x 3 卷积核、步幅 1：
 
   starts: (0,0) (0,1) (0,2)        -> output row 0
           (1,0) (1,1) (1,2)        -> output row 1
@@ -121,7 +121,7 @@ Stride 1 on a 5 x 5 input, 3 x 3 kernel:
 
   Output: 3 x 3
 
-Stride 2 on the same input:
+同样输入、步幅 2：
 
   starts: (0,0) (0,2)              -> output row 0
           (2,0) (2,2)              -> output row 1
@@ -155,9 +155,9 @@ Parameter count: C_out * C_in * K * K + C_out   (the + C_out is biases)
 ```mermaid
 flowchart LR
     X["Input<br/>(C_in, H, W)"] --> IM2COL["im2col<br/>(extract patches)"]
-    IM2COL --> COLS["Cols matrix<br/>(C_in * K * K, H_out * W_out)"]
-    W["Weight<br/>(C_out, C_in, K, K)"] --> FLAT["Flatten<br/>(C_out, C_in * K * K)"]
-    FLAT --> MM["matmul"]
+    IM2COL --> COLS["列矩阵<br/>(C_in * K * K, H_out * W_out)"]
+    W["权重<br/>(C_out, C_in, K, K)"] --> FLAT["展平<br/>(C_out, C_in * K * K)"]
+    FLAT --> MM["矩阵乘法"]
     COLS --> MM
     MM --> OUT["Output<br/>(C_out, H_out * W_out)<br/>reshape to (C_out, H_out, W_out)"]
 
