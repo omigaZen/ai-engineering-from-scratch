@@ -463,4 +463,3 @@ print(f"Cluster B: {group_b}")
 ```text
 H^(l+1) = sigma(D_hat^(-1/2) * A_hat * D_hat^(-1/2) * H^(l) * W^(l))
 ```
- `outputs/skill-graph-analysis.md`
