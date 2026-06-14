@@ -24,8 +24,8 @@
 sequenceDiagram
     participant C as Your Code
     participant S as API Server
-    C->>S: HTTP Request (with API key)
-    S->>C: HTTP Response (JSON)
+    C->>S: HTTP 请求（带 API key）
+    S->>C: HTTP 响应（JSON）
 ```
 
 每次 API 调用都包含：
@@ -62,7 +62,7 @@ client = anthropic.Anthropic()
 response = client.messages.create(
     model="claude-sonnet-4-20250514",
     max_tokens=256,
-    messages=[{"role": "user", "content": "What is a neural network in one sentence?"}]
+    messages=[{"role": "user", "content": "用一句话解释什么是神经网络？"}]
 )
 
 print(response.content[0].text)
@@ -78,7 +78,7 @@ const client = new Anthropic();
 const response = await client.messages.create({
   model: "claude-sonnet-4-20250514",
   max_tokens: 256,
-  messages: [{ role: "user", content: "What is a neural network in one sentence?" }],
+  messages: [{ role: "user", content: "用一句话解释什么是神经网络？" }],
 });
 
 console.log(response.content[0].text);
