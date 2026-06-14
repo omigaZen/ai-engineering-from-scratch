@@ -2,25 +2,25 @@
 
 > 在 CPU 上学习可以，但真正训练时通常需要 GPU。
 
-**Type:** Build
-**Languages:** Python
-**Prerequisites:** Phase 0, Lesson 01
-**Time:** ~45 minutes
+**类型:** 构建
+**语言:** Python
+**先修:** 第 0 阶段，第 01 课
+**时长:** ~45 分钟
 
-## Learning Objectives
+## 学习目标
 
 - 用 `nvidia-smi` 和 PyTorch 的 CUDA 接口确认本地 GPU 是否可用
 - 在 Google Colab 上配置 T4 GPU，做免费云端实验
 - 对比 CPU 和 GPU 的矩阵乘法性能，并计算加速比
 - 用 fp16 的经验法则估算显存能容纳的最大模型参数量
 
-## 问题
+## 问题是什么
 
 第 1 到 3 阶段的大多数课程都可以在 CPU 上运行。但一旦开始训练 CNN、Transformer 或 LLM（第 4 阶段及以后），就需要 GPU 加速。CPU 上跑 8 小时的训练，在 GPU 上可能只要 10 分钟。
 
 你有三种选择：本地 GPU、云 GPU，或者 Google Colab（免费）。
 
-## 概念
+## 核心概念
 
 ```
 Your options:
