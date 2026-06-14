@@ -66,9 +66,9 @@ IQR：   Q3 - Q1（四分位距）
 **百分位数**把排序后的数据切成 100 份。第 25 百分位数（Q1）表示有 25% 的数据低于这个值；第 50 百分位数就是中位数；第 75 百分位数是 Q3。
 
 ```
-For latency monitoring:
-  P50 = median latency        (typical user experience)
-  P95 = 95th percentile       (bad but not worst case)
+用于延迟监控：
+  P50 = median latency        （典型用户体验）
+  P95 = 95th percentile       （很差，但还不是最坏情况）
   P99 = 99th percentile       (tail latency, often 10x the median)
 ```
 
