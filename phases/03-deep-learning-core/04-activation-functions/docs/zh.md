@@ -495,7 +495,7 @@ RNN 和 LSTM 的隐藏状态通常使用 tanh，门控通常使用 sigmoid。但
 ## 产出
 
 本课会产出：
-- `outputs/prompt-activation-selector.md` - 一个可复用的提示词，帮助你为任何架构选择合适的激活函数
+- `outputs/prompt-activation-selector.md` - 一个可复用的提示词，用于为任何架构选择合适的激活函数
 
 ## 练习
 
