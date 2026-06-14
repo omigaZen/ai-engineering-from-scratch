@@ -203,7 +203,7 @@ graph TD
 gradient-descent
 ```
 
-## 动手实践
+## 动手实现
 
 ### 步骤1：定义测试函数
 
@@ -319,7 +319,7 @@ for name, history in [("GD", gd_history), ("SGD+M", sgd_history), ("Adam", adam_
 
 预期结果：Adam 收敛最快，SGD+动量路径更平滑，vanilla GD 在狭窄谷道中更慢。
 
-## 实践使用
+## 实际使用
 
 工程实践中通常使用 PyTorch 或 JAX 的优化器，它们支持参数组、weight decay、梯度裁剪和 GPU 加速。
 
@@ -357,7 +357,7 @@ scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(adam, T_max=100)
 
 4. **实现学习率衰减。** 给 GradientDescent 加入指数衰减 lr = lr_0 * 0.999^step，比较有无衰减在 Rosenbrock 上的收敛差异。
 
-## 关键术语
+## 术语表
 
 | 术语 | 常见说法 | 实际含义 |
 |------|----------|---------|
@@ -380,3 +380,4 @@ scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(adam, T_max=100)
 - [Why Momentum Really Works (Distill)](https://distill.pub/2017/momentum/) - 交互式理解动量
 - [Adam: A Method for Stochastic Optimization (Kingma & Ba, 2014)](https://arxiv.org/abs/1412.6980) - Adam 原始论文
 - [Visualizing the Loss Landscape of Neural Nets (Li et al., 2018)](https://arxiv.org/abs/1712.09913) - 尖锐/平坦最小值讨论
+
