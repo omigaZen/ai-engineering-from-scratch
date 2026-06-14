@@ -184,7 +184,7 @@ Given columns a1, a2, ... of A:
 
 q1 = a1 / ||a1||
 
-q2 = a2 - (a2 . q1) * q1        (subtract projection onto q1)
+q2 = a2 - (a2 . q1) * q1        （减去在 q1 上的投影）
 q2 = q2 / ||q2||                (normalize)
 
 q3 = a3 - (a3 . q1) * q1 - (a3 . q2) * q2
