@@ -149,7 +149,7 @@ graph LR
 mlp-forward
 ```
 
-## 实现
+## 动手实现
 
 纯 Python，不用 numpy。所有矩阵运算都从零写。
 
@@ -293,7 +293,7 @@ print(f"Accuracy with random weights: {correct}/{len(data)} ({100*correct/len(da
 
 随机权重通常只能得到很差的准确率，甚至可能比猜多数类还差。训练完成后（第 03 课），同样的 8 隐藏神经元结构就能学出一条曲线边界，把圆内和圆外分开。
 
-## 使用方式
+## 实际使用
 
 PyTorch 用几行就能做完上面的事：
 
@@ -336,7 +336,7 @@ print(output)
 
 5. 把 sigmoid 替换成一个“漏斗阶跃”函数：当 `z < 0` 时返回 `0.01 * z`，否则返回 `1.0`。用第 4 步同样的手工权重在 XOR 上跑前向传播。它还有效吗？为什么平滑的 sigmoid 比硬截断更好？
 
-## 关键术语
+## 术语表
 
 | 术语 | 大家常说 | 实际含义 |
 |------|----------------|----------------------|
@@ -357,3 +357,4 @@ print(output)
 - Cybenko, "Approximation by Superpositions of a Sigmoidal Function" (1989) - 原始通用近似定理论文，出乎意料地好读
 - 3Blue1Brown, "But what is a neural network?" (https://www.youtube.com/watch?v=aircAruvnKk) - 20 分钟的层、权重、前向传播视觉讲解，能帮你建立正确直觉
 - Goodfellow, Bengio, Courville, "Deep Learning", Chapter 6 (https://www.deeplearningbook.org/) - 多层网络的标准参考，在线可读
+
