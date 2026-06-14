@@ -154,11 +154,11 @@ where * is convolution and . is element-wise multiplication
 
 ```mermaid
 graph LR
-    subgraph "Time Domain"
-        TA["Signal x[n]"] -->|"convolve (slow: O(NM))"| TC["Output y[n]"]
-        TB["Filter h[n]"] -->|"convolve"| TC
+    subgraph "时域"
+        TA["信号 x[n]"] -->|"卷积（慢：O(NM)）"| TC["输出 y[n]"]
+        TB["滤波器 h[n]"] -->|"卷积"| TC
     end
-    subgraph "Frequency Domain"
+    subgraph "频域"
         FA["FFT(x)"] -->|"multiply (fast: O(N))"| FC["FFT(x) * FFT(h)"]
         FB["FFT(h)"] -->|"multiply"| FC
         FC -->|"IFFT"| FD["y[n]"]
