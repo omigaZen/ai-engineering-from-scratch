@@ -97,7 +97,7 @@ tanh'(x) = 1 - tanh(x)^2
 
 ### ReLU：真正的突破
 
-Rectified Linear Unit。Nair 和 Hinton 在 2010 年把它推广到深度学习中（虽然这个函数可以追溯到 Fukushima 1969 年的工作），它改变了一切。
+Rectified Linear Unit。Nair 和 Hinton 在 2010 年把它推广到深度学习中（虽然这个函数可追溯到 Fukushima 1969 年的工作），它改变了一切。
 
 ```
 relu(x) = max(0, x)
