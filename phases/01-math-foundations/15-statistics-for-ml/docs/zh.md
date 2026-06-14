@@ -358,11 +358,11 @@ Sort the B bootstrap statistics
 ```
 - 测试集准确率只是一个点估计。Bootstrap 会给你
   置信区间。
-- You cannot assume metric distributions are normal (especially
-  for AUC, F1, precision at k).
-- Bootstrap works for ANY statistic: median, ratio of two means,
-  difference in AUC between two models.
-- No closed-form formula needed.
+- 不能假设各项指标的分布一定是正态的（尤其是
+  AUC、F1、precision@k 这类指标）。
+- Bootstrap 适用于任意统计量：中位数、两个均值之比、
+  两个模型 AUC 的差值。
+- 不需要闭式公式。
 ```
 
 **用于模型比较的 bootstrap：**
