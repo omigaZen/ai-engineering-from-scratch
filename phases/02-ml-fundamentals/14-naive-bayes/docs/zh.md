@@ -410,7 +410,7 @@ proba = calibrated_nb.predict_proba(X_test)
 ## 落地
 
 本课产出：
-- `outputs/skill-naive-bayes-chooser.md`：一个帮助你选择 NB 变体的决策 skill
+- `outputs/skill-naive-bayes-chooser.md`：一个用于选择 NB 变体的决策 skill
 - `code/naive_bayes.py`：从零实现 MultinomialNB 与 GaussianNB，并附 sklearn 对照
 
 ### 朴素贝叶斯可能失败的场景
