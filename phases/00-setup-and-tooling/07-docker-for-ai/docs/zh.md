@@ -42,7 +42,7 @@ graph TD
 ### 为什么 AI 项目比别的项目更需要 Docker
 
 1. **GPU 驱动很脆弱。** CUDA 12.4 的代码通常不能直接在 CUDA 11.8 上运行。Docker 通过 NVIDIA Container Toolkit 让容器共享宿主机 GPU 驱动，而把 CUDA toolkit 放在容器内部管理。
-2. **模型权重很大。** 一个 7B 参数模型在 fp16 下大约 14 GB。你不会想每次重建容器都重新下载它。Docker 卷可以把 models 目录挂载到主机上。
+2. **模型权重很大。** 一个 7B 参数模型在 fp16 下大约 14 GB。你不会想每次重建容器都重新下载它。Docker 卷能把 models 目录挂载到主机上。
 3. **多服务架构很常见。** 真实的 AI 应用不只是一个 Python 脚本。它可能还包括推理服务、用于 RAG 的向量数据库，也可能有一个 Web 前端。Docker Compose 能用一条命令把它们都编排好。
 
 ### 常用术语
