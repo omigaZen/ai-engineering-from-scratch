@@ -244,7 +244,7 @@ from transformers import AutoModel
 model = AutoModel.from_pretrained("/models/llama-7b")
 ```
 
-模型会保存在主机文件系统里。你可以随时重建容器，不用重新下载。
+模型会保存在主机文件系统里。你能随时重建容器，不用重新下载。
 
 ### 步骤 6：用 Docker Compose 编排多服务 AI 应用
 
