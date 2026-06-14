@@ -138,7 +138,7 @@ graph LR
         R1["随机 N(0,1)：到第 5 层就爆炸"]
         R2["随机 N(0,0.01)：到第 10 层就消失"]
         R3["Xavier + Sigmoid：到第 50 层约为 1.0"]
-        R4["Kaiming + ReLU: ~1.0 at layer 50"]
+    R4["Kaiming + ReLU：第 50 层约为 1.0"]
     end
 ```
 
@@ -146,14 +146,14 @@ graph LR
 
 ```mermaid
 flowchart TD
-    Start["What activation?"] --> Act{"Activation type?"}
+    Start["用的是什么激活函数？"] --> Act{"激活类型？"}
 
     Act -->|"Sigmoid / Tanh"| Xavier["Xavier/Glorot<br/>Var = 2/(fan_in + fan_out)"]
     Act -->|"ReLU / Leaky ReLU"| Kaiming["Kaiming/He<br/>Var = 2/fan_in"]
     Act -->|"GELU / Swish"| Kaiming2["Kaiming/He<br/>(same as ReLU)"]
-    Act -->|"Transformer residual"| GPT["Scale by 1/sqrt(2N)<br/>N = num layers"]
+    Act -->|"Transformer 残差"| GPT["按 1/sqrt(2N) 缩放<br/>N = 层数"]
 
-    Xavier --> Check["Verify: activation magnitudes<br/>stay between 0.5 and 2.0<br/>through all layers"]
+    Xavier --> Check["验证：各层激活幅度<br/>始终保持在 0.5 到 2.0 之间"]
     Kaiming --> Check
     Kaiming2 --> Check
     GPT --> Check
