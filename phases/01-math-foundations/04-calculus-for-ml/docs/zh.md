@@ -570,9 +570,9 @@ for epoch in range(200):
     w -= lr * dw
     b -= lr * db
     if epoch % 40 == 0 or epoch == 199:
-        print(f"epoch {epoch:3d}  w={w:.4f}  b={b:.4f}  loss={total_loss:.6f}")
+        print(f"第 {epoch:3d} 轮  w={w:.4f}  b={b:.4f}  loss={total_loss:.6f}")
 
-print(f"\nLearned: y = {w:.2f}x + {b:.2f}")
+print(f"\n学到的函数：y = {w:.2f}x + {b:.2f}")
 print(f"Actual:  y = 2x + 1")
 ```
 
