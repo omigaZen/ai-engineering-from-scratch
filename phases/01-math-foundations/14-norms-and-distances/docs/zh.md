@@ -325,14 +325,14 @@ W_1(P, Q) = integral |CDF_P(x) - CDF_Q(x)| dx
 - 这个特性让它成为 Wasserstein GAN（WGAN）的核心，也缓解了原始 GAN 的训练不稳定问题
 
 ```
-Distributions with no overlap:
+没有重叠的分布：
 
 P: [1, 0, 0, 0, 0]    Q: [0, 0, 0, 0, 1]
 
-KL divergence: infinity (log of zero)
-Wasserstein: 4 (move all mass 4 bins)
+KL 散度：无穷大（对数里出现 0）
+Wasserstein：4（把所有质量移动 4 个桶）
 
-Wasserstein gives a meaningful gradient. KL does not.
+Wasserstein 会给出有意义的梯度，KL 不会。
 ```
 
 何时使用 Wasserstein：
@@ -407,16 +407,13 @@ Elastic Net:                  loss + lambda_1 * ||w||_1 + lambda_2 * ||w||_2^2
 近似最近邻（ANN）算法会用少量精度损失换取巨大的速度提升：
 
 ```
-Algorithm         Approach                      Used by
-KD-trees          Axis-aligned space partition   scikit-learn (low-dim)
-Ball trees        Nested hyperspheres            scikit-learn (medium-dim)
-LSH               Random hash projections        Near-duplicate detection
-HNSW              Hierarchical navigable         FAISS, Qdrant, Weaviate
-                  small-world graph
-IVF               Inverted file index with       FAISS (billion-scale)
-                  cluster-based search
-Product quant.    Compress vectors, search       FAISS (memory-constrained)
-                  in compressed space
+算法               思路                          被谁用
+KD-trees          按轴分割空间                   scikit-learn（低维）
+Ball trees        嵌套超球                       scikit-learn（中维）
+LSH               随机哈希投影                   近重复检测
+HNSW              分层可导航小世界图             FAISS、Qdrant、Weaviate
+IVF               倒排文件索引 + 聚类检索        FAISS（十亿级）
+Product quant.    压缩向量，在压缩空间中搜索      FAISS（内存受限）
 ```
 
 HNSW（Hierarchical Navigable Small World）是现代向量数据库里的主流算法。它构建多层图，每个节点连接到近似最近邻。搜索从最上层开始（稀疏、跳跃远），再逐层下降到底层（稠密、跳跃短）。
