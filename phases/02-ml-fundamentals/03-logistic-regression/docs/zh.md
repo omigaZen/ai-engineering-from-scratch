@@ -325,9 +325,9 @@ class ClassificationMetrics:
 
     def print_report(self):
         self.print_confusion_matrix()
-        print(f"\n  Accuracy:  {self.accuracy():.4f}")
-        print(f"  Precision: {self.precision():.4f}")
-        print(f"  Recall:    {self.recall():.4f}")
+        print(f"\n  准确率：   {self.accuracy():.4f}")
+        print(f"  精确率：   {self.precision():.4f}")
+        print(f"  召回率：   {self.recall():.4f}")
         print(f"  F1 Score:  {self.f1():.4f}")
 
 
