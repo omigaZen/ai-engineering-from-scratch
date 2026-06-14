@@ -2,12 +2,12 @@
 
 > 卷积就是一个在图像上滑动的小型全连接层，并且在每个位置共享同一组权重。
 
-**Type:** Build
-**Languages:** Python
-**Prerequisites:** Phase 3 (Deep Learning Core), Phase 4 Lesson 01 (Image Fundamentals)
-**Time:** ~75 minutes
+**类型:** 构建
+**语言:** Python
+**先修:** 第 3 阶段（深度学习核心），第 4 阶段第 01 课（图像基础）
+**时长:** ~75 分钟
 
-## Learning Objectives
+## 学习目标
 
 - 使用纯 NumPy 从零实现二维卷积，包括朴素的嵌套循环版本和向量化的 `im2col` 版本
 - 计算任意输入尺寸、卷积核尺寸、填充和步幅组合下的输出空间尺寸，并解释 `(H - K + 2P) / S + 1` 公式
