@@ -155,22 +155,22 @@ Focal loss 最初由 Lin 等人提出，用于目标检测，因为候选区域�
 
 ```mermaid
 flowchart TD
-    Start["What is your task?"] --> Reg{"Regression?"}
-    Start --> Cls{"Classification?"}
-    Start --> Emb{"Learning embeddings?"}
+    Start["你的任务是什么？"] --> Reg{"回归？"}
+    Start --> Cls{"分类？"}
+    Start --> Emb{"学习嵌入表示？"}
 
-    Reg -->|"Yes"| Outliers{"Outlier sensitive?"}
-    Outliers -->|"Yes, penalize outliers"| MSE["Use MSE"]
-    Outliers -->|"No, robust to outliers"| MAE["Use MAE / Huber"]
+    Reg -->|"是"| Outliers{"对离群点敏感？"}
+    Outliers -->|"是，重罚离群点"| MSE["使用 MSE"]
+    Outliers -->|"否，想要更抗离群点"| MAE["使用 MAE / Huber"]
 
-    Cls -->|"Binary"| BCE["Use Binary CE"]
-    Cls -->|"Multi-class"| CCE["Use Categorical CE"]
-    Cls -->|"Imbalanced"| FL["Use Focal Loss"]
-    CCE -->|"Overconfident?"| LS["Add Label Smoothing"]
+    Cls -->|"二分类"| BCE["使用二元交叉熵"]
+    Cls -->|"多分类"| CCE["使用分类交叉熵"]
+    Cls -->|"类别不平衡"| FL["使用 Focal Loss"]
+    CCE -->|"过度自信？"| LS["加入标签平滑"]
 
-    Emb -->|"Paired data"| CL["Use Contrastive Loss"]
-    Emb -->|"Triplets available"| TL["Use Triplet Loss"]
-    Emb -->|"Large batch self-supervised"| NCE["Use InfoNCE"]
+    Emb -->|"有成对数据"| CL["使用对比损失"]
+    Emb -->|"有三元组"| TL["使用三元组损失"]
+    Emb -->|"大批量自监督"| NCE["使用 InfoNCE"]
 ```
 
 ### 损失曲面
@@ -178,13 +178,13 @@ flowchart TD
 ```mermaid
 graph LR
     subgraph "Loss Surface Shape"
-        MSE_S["MSE<br/>Smooth parabola<br/>Single minimum<br/>Easy to optimize"]
-        CE_S["Cross-Entropy<br/>Steep near wrong answers<br/>Flat near correct answers<br/>Strong gradients where needed"]
-        CL_S["Contrastive<br/>Many local minima<br/>Depends on batch composition<br/>Temperature controls sharpness"]
+        MSE_S["MSE<br/>平滑抛物面<br/>单一极小值<br/>容易优化"]
+        CE_S["交叉熵<br/>在错误答案附近很陡<br/>在正确答案附近较平<br/>在最需要的地方梯度更强"]
+        CL_S["对比损失<br/>局部极小值较多<br/>依赖 batch 组成<br/>温度控制尖锐程度"]
     end
-    MSE_S -->|"Best for"| Reg2["Regression"]
-    CE_S -->|"Best for"| Cls2["Classification"]
-    CL_S -->|"Best for"| Emb2["Representation learning"]
+    MSE_S -->|"最适合"| Reg2["回归"]
+    CE_S -->|"最适合"| Cls2["分类"]
+    CL_S -->|"最适合"| Emb2["表征学习"]
 ```
 
 ```figure
