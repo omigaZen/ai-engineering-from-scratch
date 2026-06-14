@@ -69,7 +69,7 @@ if torch.cuda.is_available():
 2. 进入 `Runtime > Change runtime type > T4 GPU`
 3. 运行 `!nvidia-smi` 验证
 
-你可以把本课的 notebook 直接上传到 Colab。
+可将本课的 notebook 直接上传到 Colab。
 
 ### 方案 3：云 GPU
 
