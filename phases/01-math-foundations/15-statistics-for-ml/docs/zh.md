@@ -325,7 +325,7 @@ You have a 64% chance of at least one false positive.
 Adjusted alpha = alpha / m = 0.05 / 20 = 0.0025
 
 Only reject H0 if p-value < 0.0025.
-Conservative but simple. Works when tests are independent.
+保守，但简单。适用于各检验彼此独立的情况。
 ```
 
 在机器学习里，这个问题会出现在你比较多个指标、测试很多超参数配置，或者在多个数据集上评估模型时。
