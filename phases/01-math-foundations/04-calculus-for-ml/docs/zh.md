@@ -121,13 +121,13 @@ grad f = [ df/dx, df/dy, df/dz ]
 数值法：根据定义做近似。取很小的 `h` 计算 `f(x+h)` 和 `f(x-h)`。
 
 ```text
-Numerical (central difference):
+数值法（中心差分）：
 
 f'(x) ~= f(x + h) - f(x - h)
           -----------------------
                   2h
 
-h = 0.0001 works well in practice
+h = 0.0001 在实践中通常很好用
 ```
 
 数值导数适用范围广，但速度较慢。解析导数更快，但你得先推公式。神经网络框架会用第三种方式：自动微分，它会机械地算出精确导数。第三阶段会专门讲。
@@ -166,8 +166,8 @@ f(x) = x^2    f'(x) = 2x
 ```text
 f(w) = 3w + 1    f'(w) = 3
 
-The derivative with respect to w is just x.
-If x is big, a small change in w causes a big change in output.
+w 对应的导数就是 x。
+如果 x 很大，w 的一点点变化就会让输出变化很大。
 ```
 
 ### 链式法则
@@ -175,9 +175,9 @@ If x is big, a small change in w causes a big change in output.
 当函数嵌套在一起时，链式法则告诉你怎么求导。
 
 ```text
-If y = f(g(x)), then dy/dx = f'(g(x)) * g'(x)
+如果 y = f(g(x))，那么 dy/dx = f'(g(x)) * g'(x)
 
-Example: y = (3x + 1)^2
+例子：y = (3x + 1)^2
   outer: f(u) = u^2       f'(u) = 2u
   inner: g(x) = 3x + 1    g'(x) = 3
   dy/dx = 2(3x + 1) * 3 = 6(3x + 1)
@@ -219,8 +219,8 @@ d^2f/dx^2 = 2    d^2f/dy^2 = -2    d^2f/dxdy = 0
 H = | 2   0 |
     | 0  -2 |
 
-Eigenvalues: 2 and -2 (one positive, one negative)
---> Saddle point at (0, 0)
+特征值：2 和 -2（一个正，一个负）
+--> (0, 0) 处是鞍点
 ```
 
 对比 `f(x, y) = x^2 + y^2`（碗形函数）：
@@ -229,8 +229,8 @@ Eigenvalues: 2 and -2 (one positive, one negative)
 H = | 2  0 |
     | 0  2 |
 
-Eigenvalues: 2 and 2 (both positive)
---> Local minimum at (0, 0)
+特征值：2 和 2（都为正）
+--> (0, 0) 处是局部最小值
 ```
 
 **Hessian 为什么重要：**
@@ -238,8 +238,8 @@ Eigenvalues: 2 and 2 (both positive)
 牛顿法会用 Hessian 来比梯度下降做出更好的步长决策。它不只是跟着斜率走，还会考虑曲率：
 
 ```text
-Newton's update:    w_new = w_old - H^(-1) * gradient
-Gradient descent:   w_new = w_old - lr * gradient
+牛顿法更新：    w_new = w_old - H^(-1) * gradient
+梯度下降：      w_new = w_old - lr * gradient
 ```
 
 牛顿法通常收敛更快，因为 Hessian 会对梯度做“重标定” - 陡峭方向步子更小，平坦方向步子更大。
@@ -273,12 +273,12 @@ f(x + h) = f(x) + f'(x)*h + (1/2)*f''(x)*h^2 + (1/6)*f'''(x)*h^3 + ...
 - **损失函数设计。** MSE 和交叉熵通常是光滑的，所以泰勒展开行为稳定。这不是偶然。光滑损失会让优化更可预测。
 
 ```text
-Approximation order    What it captures    Optimization method
--------------------    -----------------   -------------------
-0th order (constant)   Just the value      Random search
-1st order (linear)     Slope               Gradient descent
-2nd order (quadratic)  Curvature           Newton's method
-Higher orders          Finer structure     Rarely used in ML
+近似阶数                捕捉什么            优化方法
+-------------------     -----------------   -------------------
+0 阶（常数项）          只有函数值          随机搜索
+1 阶（线性项）          斜率                梯度下降
+2 阶（二次项）          曲率                牛顿法
+更高阶                  更细的结构          在 ML 中较少使用
 ```
 
 关键点：所有基于梯度的优化，本质上都是先对损失做局部近似，再朝这个近似的最小值走一步。
@@ -376,14 +376,14 @@ graph RL
 
 ```mermaid
 graph LR
-    subgraph Forward["Forward Pass"]
+    subgraph Forward["前向传播"]
         I["input"] --> W1["W1"] --> R["relu"] --> W2["W2"] --> S["softmax"] --> L["loss"]
     end
 ```
 
 ```mermaid
 graph RL
-    subgraph Backward["Backward Pass"]
+    subgraph Backward["反向传播"]
         dL["dL/dloss"] --> dW2["dL/dW2"] --> d2["..."] --> dW1["dL/dW1"]
     end
 ```
@@ -511,8 +511,8 @@ def bowl(x, y):
 
 H_saddle = hessian_2d(saddle, 0.0, 0.0)
 H_bowl = hessian_2d(bowl, 0.0, 0.0)
-print(f"Saddle Hessian: {H_saddle}")  # [[2, 0], [0, -2]] -- mixed signs
-print(f"Bowl Hessian:   {H_bowl}")    # [[2, 0], [0, 2]]  -- both positive
+print(f"鞍点 Hessian：{H_saddle}")  # [[2, 0], [0, -2]] -- mixed signs
+print(f"碗形 Hessian：{H_bowl}")    # [[2, 0], [0, 2]]  -- both positive
 ```
 
 鞍点函数的 Hessian 特征值是 2 和 -2，说明它是鞍点。碗形函数的 Hessian 特征值都是 2，说明它是最小点。
