@@ -109,7 +109,7 @@ a = sigmoid(z)           (activation)
 
 跟踪维度是深度学习里最重要的调试能力。以 2-3-1 网络为例：
 
-| Step | Operation | Dimensions | Result Shape |
+| 步骤 | 操作 | 维度 | 输出形状 |
 |------|-----------|------------|-------------|
 | Input | x | -- | (2,) |
 | Hidden linear | W1 * x + b1 | W1: (3, 2), b1: (3,) | (3,) |
