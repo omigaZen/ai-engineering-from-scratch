@@ -236,7 +236,7 @@ PE(pos, 2i+1) = cos(pos / 10000^(2i/d_model))
 
 单次 FFT 给全局频谱，但无法给出“在什么时间出现”。线性调频信号和同时含多频分量的和弦，可能有相同全局幅值谱。
 
-短时傅里叶变换（STFT）在重叠窗口上做 FFT，得到 spectrogram：时间-频率二维矩阵。
+短时傅里叶变换（STFT）在重叠窗口上做 FFT，得到频谱图（spectrogram）：一个时间-频率二维矩阵。
 
 ```
 STFT procedure:
@@ -249,7 +249,7 @@ STFT procedure:
    d. 把幅度谱作为频谱图的一列存起来
 ```
 
-音频模型标准输入通常是 spectrogram。语音模型（Whisper、DeepSpeech）常用 mel-spectrogram（符合人耳感知的频率刻度）。
+音频模型的标准输入通常是频谱图。语音模型（Whisper、DeepSpeech）常用 mel 频谱图（mel-spectrogram，符合人耳感知的频率刻度）。
 
 ### 混叠
 
@@ -257,13 +257,13 @@ STFT procedure:
 
 ```
 示例：
-  True signal: 90 Hz sine wave
-  Sampling rate: 100 Hz
-  Apparent frequency: 100 - 90 = 10 Hz
+  真实信号：90 Hz 正弦波
+  采样率：100 Hz
+  表观频率：100 - 90 = 10 Hz
 
-  The samples from the 90 Hz signal at 100 Hz sampling rate
-  are identical to the samples from a 10 Hz signal.
-  No amount of math can recover the original 90 Hz.
+  以 100 Hz 采样率采到的 90 Hz 信号样本
+  与 10 Hz 信号的样本完全一致。
+  再多的数学也无法还原原始的 90 Hz。
 ```
 
 因此 ADC 必须加抗混叠滤波，先去掉奈奎斯特以上频率。ML 里也类似：下采样特征图若无低通滤波，会产生伪高频别名，别的架构会用抗混叠池化缓解。
@@ -429,7 +429,7 @@ spectrogram 矩阵形状为 \((n_frequencies, n_time_frames)\)，每列是某时
 
 3. **卷积定理示例验证。** 取 \(x=[1,2,3,4,0,0,0,0]\)，\(h=[1,1,1,0,0,0,0,0]\)。先直接循环计算循环卷积，再通过 FFT（变换-乘法-逆变换）验证一致。再按零填充做线性卷积。
 
-4. **窗口效应。** 构造 10Hz 与 12Hz 两个接近频率正弦和（采样 128Hz，1 秒），比较未窗、Hann、Hamming 的功率谱，哪个更易分辨两个峰？为什么？
+4. **窗口效应。** 构造 10Hz 与 12Hz 两个接近频率的正弦和（采样 128Hz，时长 1 秒），比较未加窗、Hann、Hamming 的功率谱，哪个更容易分辨两个峰？为什么？
 
 5. **位置编码分析。** 生成 \(d_model=128, max_pos=512\) 的正弦位置编码。取多个位置对 \((p1,p2)\)，计算其编码点积，验证点积只与 \(|p1-p2|\) 相关，不依赖绝对位置。距离变大时点积如何变化？
 
