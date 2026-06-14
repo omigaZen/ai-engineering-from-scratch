@@ -270,7 +270,7 @@ w = (X^T X)^(-1) X^T y
 w = (X^T X + lambda * I)^(-1) X^T y
 ```
 
-正则化可以改善条件数，让矩阵更容易精确求逆，同时通过把权重往 0 拉来抑制过拟合。只要 `lambda > 0`，`X^T X + lambda * I` 就是对称正定的，因此可以用 Cholesky 求解。
+正则化能改善条件数，让矩阵更容易精确求逆，同时通过把权重往 0 拉来抑制过拟合。只要 `lambda > 0`，`X^T X + lambda * I` 就是对称正定的，因此可以用 Cholesky 求解。
 
 ### 伪逆（Moore-Penrose）
 
