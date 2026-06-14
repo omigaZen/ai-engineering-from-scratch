@@ -530,6 +530,6 @@ RNN 和 LSTM 的隐藏状态通常使用 tanh，门控通常使用 sigmoid。但
 
 - Nair & Hinton, "Rectified Linear Units Improve Restricted Boltzmann Machines" (2010) - 提出 ReLU 并推动深层网络训练的论文
 - Hendrycks & Gimpel, "Gaussian Error Linear Units (GELUs)" (2016) - 提出后来成为 Transformer 默认激活函数的 GELU
-- Ramachandran et al., "Searching for Activation Functions" (2017) - 通过自动搜索发现 Swish，说明激活函数设计也可以自动化
+- Ramachandran et al., "Searching for Activation Functions" (2017) - 通过自动搜索发现 Swish，说明激活函数设计也能自动化
 - Glorot & Bengio, "Understanding the difficulty of training deep feedforward neural networks" (2010) - 诊断梯度消失/爆炸并提出 Xavier 初始化的论文
 - Goodfellow, Bengio, Courville, "Deep Learning" Chapter 6.3 (https://www.deeplearningbook.org/) - 对隐藏单元和激活函数的系统性讲解
