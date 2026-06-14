@@ -483,7 +483,7 @@ print(f"df/dc = {c.grad}")  #  1.0
 
 这一课会产出：
 - `outputs/skill-autodiff.md` -- 一个用于构建和调试自动微分系统的 skill
-- `code/autodiff.py` -- 一个可以继续扩展的最小自动微分引擎
+- `code/autodiff.py` -- 一个可继续扩展的最小自动微分引擎
 
 这里实现的 `Value` 类，是 Phase 3 中神经网络训练循环的基础。
 
