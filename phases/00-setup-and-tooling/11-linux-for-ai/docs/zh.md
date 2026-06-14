@@ -149,7 +149,7 @@ sudo apt update && sudo apt install -y \
 
 ## 用户与 sudo
 
-训练卡住时可以先看这些：
+训练卡住时先看这些：
 
 ```bash
 whoami                      # 查看当前用户
