@@ -166,7 +166,7 @@ Properties:
 Null hypothesis (H0):        the default assumption, usually "no effect"
 Alternative hypothesis (H1): what you are trying to show
 
-Example:
+示例：
   H0: Model A and Model B have the same accuracy
   H1: Model B has higher accuracy than Model A
 ```
