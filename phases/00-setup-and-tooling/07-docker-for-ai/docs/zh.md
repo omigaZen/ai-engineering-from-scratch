@@ -294,7 +294,7 @@ cd phases/00-setup-and-tooling/07-docker-for-ai/code
 docker compose up -d
 ```
 
-现在，AI 开发容器可以通过服务名 `qdrant` 访问向量数据库：`http://qdrant:6333`。Docker Compose 会自动创建共享网络。
+现在，AI 开发容器能通过服务名 `qdrant` 访问向量数据库：`http://qdrant:6333`。Docker Compose 会自动创建共享网络。
 
 在 AI 容器内测试连接：
 
