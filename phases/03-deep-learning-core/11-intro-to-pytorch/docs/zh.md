@@ -435,8 +435,8 @@ def main():
         )
 
     torch.save(model.state_dict(), "mnist_mlp.pt")
-    print(f"\nModel saved to mnist_mlp.pt")
-    print(f"Final test accuracy: {test_acc:.4f}")
+    print(f"\n模型已保存到 mnist_mlp.pt")
+    print(f"最终测试准确率：{test_acc:.4f}")
 ```
 
 10 个 epoch 后，测试准确率大约能到 97.8%。CPU 训练时间约 30 秒。GPU 上约 5 秒。用你自己的迷你框架跑同样的结构，大概需要 45 分钟。
