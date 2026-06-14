@@ -374,7 +374,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
 
 clf = NearestCentroid()
 clf.fit(X_train, y_train)
-print(f"Accuracy: {clf.score(X_test, y_test):.3f}")
+print(f"准确率：{clf.score(X_test, y_test):.3f}")
 ```
 
 ## 交付
