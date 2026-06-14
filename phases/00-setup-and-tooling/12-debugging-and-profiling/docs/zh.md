@@ -26,9 +26,9 @@ AI 调试通常分三层：
 
 ```mermaid
 graph TD
-    L3["3. Training Dynamics<br/>Loss curves, gradient norms, activations"] --> L2
-    L2["2. Tensor Operations<br/>Shapes, dtypes, devices, NaN/Inf values"] --> L1
-    L1["1. Standard Python<br/>Breakpoints, logging, profiling, memory"]
+    L3["3. 训练动态<br/>损失曲线、梯度范数、激活值"] --> L2
+    L2["2. 张量运算<br/>形状、dtype、设备、NaN/Inf 值"] --> L1
+    L1["1. 标准 Python<br/>断点、日志、性能分析、内存"]
 ```
 
 很多人会直接从第 3 层（盯着 TensorBoard）开始，但约 80% 的 AI Bug 实际发生在第 1 层和第 2 层。
@@ -95,8 +95,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 logger.info("Starting training: lr=%.4f, batch_size=%d", lr, batch_size)
-logger.warning("Loss spike detected: %.4f at step %d", loss.item(), step)
-logger.error("NaN loss at step %d, stopping", step)
+logger.warning("检测到 loss 激增：第 %d 步 %.4f", loss.item(), step)
+logger.error("第 %d 步出现 NaN loss，停止训练", step)
 ```
 
 日志有时间戳、级别、文件输出。训练在半夜 3 点挂掉时，你需要的是日志文件，而不是已经滚上天际线的终端输出。
@@ -187,8 +187,8 @@ from memory_profiler import profile
 
 @profile
 def load_data():
-    raw = read_csv("data.csv")       # watch memory jump here
-    processed = preprocess(raw)       # and here
+    raw = read_csv("data.csv")       # 留意这里内存上涨
+    processed = preprocess(raw)       # 这里也是
     return processed
 ```
 
@@ -389,3 +389,4 @@ python phases/00-setup-and-tooling/12-debugging-and-profiling/code/debug_tools.p
 3. 用 tracemalloc 找出数据加载流水线中哪一行分配内存最多
 4. 给一个简单训练任务配置 TensorBoard，并判断模型是否过拟合
 5. 在训练循环里用 breakpoint() 练习，从调试提示中查看张量形状、设备和梯度值
+
