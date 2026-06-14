@@ -345,7 +345,7 @@ multi_model.fit(X_scaled, y_scaled, epochs=1000, print_every=200)
 
 print(f"\nWeights (standardized): {[round(w, 4) for w in multi_model.weights]}")
 print(f"Bias (standardized): {multi_model.bias:.4f}")
-print(f"R-squared: {multi_model.r_squared(X_scaled, y_scaled):.4f}")
+print(f"R²：{multi_model.r_squared(X_scaled, y_scaled):.4f}")
 ```
 
 ### 步骤 5：多项式回归
@@ -405,12 +405,12 @@ print("True relationship: y = 0.5x^2 - 2x + 3")
 print("\nDegree 2:")
 poly2 = PolynomialRegression(degree=2, learning_rate=0.1)
 poly2.fit(X_poly_norm, y_poly_norm, epochs=2000, print_every=500)
-print(f"  R-squared: {poly2.r_squared(X_poly_norm, y_poly_norm):.4f}")
+print(f"  R²：{poly2.r_squared(X_poly_norm, y_poly_norm):.4f}")
 
 print("\nDegree 5:")
 poly5 = PolynomialRegression(degree=5, learning_rate=0.1)
 poly5.fit(X_poly_norm, y_poly_norm, epochs=2000, print_every=500)
-print(f"  R-squared: {poly5.r_squared(X_poly_norm, y_poly_norm):.4f}")
+print(f"  R²：{poly5.r_squared(X_poly_norm, y_poly_norm):.4f}")
 
 print("\nDegree 2 fits the true curve well. Degree 5 fits training data slightly better")
 print("but risks overfitting on new data.")
@@ -486,7 +486,7 @@ y_pred = lr.predict(X_test)
 print("=== Scikit-learn Linear Regression ===")
 print(f"Coefficient (w): {lr.coef_[0]:.4f}")
 print(f"Intercept (b): {lr.intercept_:.4f}")
-print(f"R-squared (test): {r2_score(y_test, y_pred):.4f}")
+print(f"测试集 R²：{r2_score(y_test, y_pred):.4f}")
 print(f"MSE (test): {mean_squared_error(y_test, y_pred):.4f}")
 
 poly = PolynomialFeatures(degree=2, include_bias=False)
@@ -495,7 +495,7 @@ X_poly_test = poly.transform(X_test)
 
 lr_poly = SklearnLR()
 lr_poly.fit(X_poly_sk, y_train)
-print(f"\nPolynomial degree 2 R-squared: {r2_score(y_test, lr_poly.predict(X_poly_test)):.4f}")
+print(f"\n二次多项式模型 R²：{r2_score(y_test, lr_poly.predict(X_poly_test)):.4f}")
 
 scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
@@ -503,7 +503,7 @@ X_test_scaled = scaler.transform(X_test)
 
 ridge = Ridge(alpha=1.0)
 ridge.fit(X_train_scaled, y_train)
-print(f"Ridge R-squared: {r2_score(y_test, ridge.predict(X_test_scaled)):.4f}")
+print(f"岭回归 R²：{r2_score(y_test, ridge.predict(X_test_scaled)):.4f}")
 print(f"Ridge coefficient: {ridge.coef_[0]:.4f}")
 ```
 
