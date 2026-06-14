@@ -134,7 +134,7 @@ flowchart TD
     T1 --> E1[在外层测试评估]
 ```
 
-在 `sklearn` 中可直接用 `GridSearchCV`、`RandomizedSearchCV`，但真正生产里常见的是 `optuna`。
+在 `sklearn` 中可直接用 `GridSearchCV`、`RandomizedSearchCV`，但实际生产中更常见的是 `optuna`。
 
 ## 动手实现
 
