@@ -144,9 +144,9 @@ class Perceptron:
                         self.weights[i] += self.lr * error * inputs[i]
                     self.bias += self.lr * error
             if errors == 0:
-                print(f"在第 {epoch + 1} 个 epoch 收敛")
+                print(f"在第 {epoch + 1} 轮收敛")
                 return
-        print(f"{epochs} 个 epoch 后仍未收敛")
+        print(f"{epochs} 轮后仍未收敛")
 ```
 
 ### 步骤 2：训练逻辑门
