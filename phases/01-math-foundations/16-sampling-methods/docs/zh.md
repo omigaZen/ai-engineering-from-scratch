@@ -295,9 +295,9 @@ Algorithm:
   4. Keep only those k tokens
   5. Renormalize and sample
 
-p = 0.9:  keeps tokens covering 90% of probability mass
-p = 1.0:  no filtering
-p = 0.1:  very restrictive, nearly greedy
+p = 0.9：保留覆盖 90% 概率质量的 token
+p = 1.0：不筛选
+p = 0.1：限制非常严格，几乎等同贪心
 ```
 
 模型很自信时，nucleus 只保留很少的 token，也许 2 到 3 个；模型不确定时，它会保留更多，也许几百个。这种自适应行为，通常比 top-k 更适合生成文本。
