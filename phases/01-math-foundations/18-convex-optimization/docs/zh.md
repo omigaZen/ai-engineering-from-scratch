@@ -516,7 +516,7 @@ from sklearn.svm import SVC
 
 svm = SVC(kernel='rbf', C=1.0)
 svm.fit(X_train, y_train)
-print(f"Support vectors: {svm.n_support_}")
+print(f"支持向量：{svm.n_support_}")
 ```
 
 ## 练习
