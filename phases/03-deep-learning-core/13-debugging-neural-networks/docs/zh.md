@@ -307,7 +307,7 @@ def overfit_one_batch(model, optimizer, criterion, x_batch, y_batch, steps=100):
         if step % 10 == 0 or step == steps - 1:
             pred = outputs.argmax(dim=1)
             acc = (pred == y_batch).float().mean().item()
-            print(f"  Step {step:3d} | loss={loss.item():.6f} | acc={acc:.1%}")
+            print(f"  步骤 {step:3d} | 损失={loss.item():.6f} | 准确率={acc:.1%}")
     final_loss = losses[-1]
     if final_loss > 0.01:
         print(f"\n  FAILED: loss did not get low enough ({final_loss:.4f}); the model or training loop likely has a bug.")
