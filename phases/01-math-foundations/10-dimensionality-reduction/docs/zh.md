@@ -49,11 +49,11 @@
 算法流程：
 
 ```text
-1. Center the data        (subtract the mean from each feature)
-2. Compute covariance     (how features move together)
-3. Eigendecomposition     (find the principal directions)
-4. Sort by eigenvalue     (biggest variance first)
-5. Project                (keep top k eigenvectors, drop the rest)
+1. 对数据中心化        （每个特征减去均值）
+2. 计算协方差          （看特征如何一起变化）
+3. 做特征分解          （找出主方向）
+4. 按特征值排序        （方差最大的排在前面）
+5. 投影                （保留前 k 个特征向量，去掉其余部分）
 ```
 
 为什么要做特征分解？因为协方差矩阵是对称且半正定的。它的特征向量是特征空间里互相正交的方向，特征值告诉你每个方向能解释多少方差。最大特征值对应的特征向量，就是最大方差方向。
