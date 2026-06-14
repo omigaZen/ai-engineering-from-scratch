@@ -101,20 +101,20 @@ Phase 2 (T/2 to T):    lr ramps from lr_max to lr_max/10000
 
 ```mermaid
 graph LR
-    subgraph "Constant"
+    subgraph "恒定"
         C1["lr"] --- C2["lr"] --- C3["lr"]
     end
 
-    subgraph "Step Decay"
+    subgraph "步进衰减"
         S1["0.1"] --- S2["0.1"] --- S3["0.01"] --- S4["0.001"]
     end
 
-    subgraph "Cosine Annealing"
-        CS1["lr_max"] --> CS2["gradual"] --> CS3["steep"] --> CS4["lr_min"]
+    subgraph "余弦退火"
+        CS1["lr_max"] --> CS2["平缓"] --> CS3["陡峭"] --> CS4["lr_min"]
     end
 
-    subgraph "Warmup + Cosine"
-        WC1["0"] --> WC2["lr_max"] --> WC3["cosine"] --> WC4["lr_min"]
+    subgraph "预热 + 余弦"
+        WC1["0"] --> WC2["lr_max"] --> WC3["余弦"] --> WC4["lr_min"]
     end
 ```
 
@@ -122,14 +122,14 @@ graph LR
 
 ```mermaid
 flowchart TD
-    Start["Choosing a LR schedule"] --> Know{"Know total<br/>training steps?"}
+    Start["选择哪种学习率计划？"] --> Know{"知道总训练步数吗？"}
 
     Know -->|"Yes"| Budget{"Compute budget?"}
-    Know -->|"No"| Constant["Use constant LR<br/>with manual decay"]
+    Know -->|"否"| Constant["使用恒定学习率<br/>并手动衰减"]
 
-    Budget -->|"Large (days/weeks)"| WarmCos["Warmup + Cosine Decay<br/>(Llama/GPT default)"]
-    Budget -->|"Small (hours)"| OneCycle["1cycle Policy<br/>(fastest convergence)"]
-    Budget -->|"Moderate"| Cosine["Cosine Annealing<br/>(safe default)"]
+    Budget -->|"大（天/周）"| WarmCos["预热 + 余弦衰减<br/>(Llama/GPT 默认)"]
+    Budget -->|"小（小时）"| OneCycle["1cycle 策略<br/>(收敛最快)"]
+    Budget -->|"中等"| Cosine["余弦退火<br/>(安全默认值)"]
 
     WarmCos --> Warmup["Warmup = 1-5% of steps"]
     OneCycle --> FindLR["Find lr_max with LR range test"]
@@ -141,10 +141,10 @@ flowchart TD
 ```mermaid
 graph TD
     subgraph "Published LR Configs"
-        L3["Llama 3 (405B)<br/>Peak: 3e-4<br/>Warmup: 2000 steps<br/>Schedule: Cosine to 3e-5"]
-        G3["GPT-3 (175B)<br/>Peak: 6e-4<br/>Warmup: 375M tokens<br/>Schedule: Cosine to 0"]
-        R50["ResNet-50<br/>Peak: 0.1<br/>Warmup: none<br/>Schedule: Step decay x0.1 at 30,60,90"]
-        B["BERT (340M)<br/>Peak: 1e-4<br/>Warmup: 10K steps<br/>Schedule: Linear decay"]
+        L3["Llama 3 (405B)<br/>峰值：3e-4<br/>预热：2000 步<br/>计划：余弦衰减到 3e-5"]
+        G3["GPT-3 (175B)<br/>峰值：6e-4<br/>预热：375M tokens<br/>计划：余弦衰减到 0"]
+        R50["ResNet-50<br/>峰值：0.1<br/>预热：无<br/>计划：在 30、60、90 轮按 0.1 倍步进衰减"]
+        B["BERT (340M)<br/>峰值：1e-4<br/>预热：1 万步<br/>计划：线性衰减"]
     end
 ```
 
