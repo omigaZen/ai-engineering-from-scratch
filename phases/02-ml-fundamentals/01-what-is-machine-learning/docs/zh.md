@@ -128,8 +128,8 @@ flowchart LR
     C --> D[Split Data]
     D --> E[Train Model]
     E --> F[Evaluate]
-    F -->|Not good enough| C
-    F -->|Good enough| G[Deploy]
+    F -->|还不够好| C
+    F -->|足够好| G[部署]
     G --> H[Monitor]
     H -->|Performance drops| A
 ```
