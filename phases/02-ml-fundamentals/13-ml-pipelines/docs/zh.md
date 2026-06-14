@@ -55,7 +55,7 @@ flowchart LR
 - 全流程可序列化为一个 artifact
 - CV 中每折都重新拟合变换器，避免跨折泄漏
 
-### sklearn Pipeline
+### scikit-learn 的 Pipeline
 
 ```python
 from sklearn.pipeline import Pipeline
@@ -73,7 +73,7 @@ preds = pipe.predict(X_test)
 
 `fit` 时，scaler 用训练集 `fit_transform`；`predict` 时只 `transform`。
 
-### ColumnTransformer：分类型处理
+### ColumnTransformer：按列分别处理
 
 ```python
 from sklearn.compose import ColumnTransformer
@@ -148,7 +148,7 @@ def set_seed(seed=42):
         pass
 ```
 
-### 从 notebook 到生产
+### 从 notebook 到生产环境
 
 1. Notebook 探索  
 2. 抽取函数（特征、训练、评估）  
@@ -207,13 +207,13 @@ class PipelineFromScratch:
         return model.predict(X_current)
 ```
 
-### 步骤 3：带有 pipeline 的交叉验证
+### 第 3 步：带有 pipeline 的交叉验证
 
 展示了标准化器在每折都只基于该折训练集拟合，避免泄漏。
 
-### 步骤 4：生产级流水线
+### 第 4 步：生产级流水线
 
-结合 `ColumnTransformer` 与 `sklearn` 全流程 estimator，形成可直接导出的训练脚本。
+结合 `ColumnTransformer` 与 `scikit-learn` 全流程 estimator，形成可直接导出的训练脚本。
 
 ## 使用方法
 
@@ -240,11 +240,11 @@ class PipelineFromScratch:
 
 | 术语 | 常见说法 | 实际含义 |
 |------|----------|----------|
-| Pipeline | “变换 + 模型” | 一组按序拟合/预测的对象 |
+| Pipeline | “变换 + 模型” | 一组按顺序拟合和预测的对象 |
 | 数据泄漏 | “测试信息进训练” | 训练时看到不该见的信息 |
 | ColumnTransformer | “按列不同处理” | 对数值/类别列施加不同变换后拼接 |
 | 实验追踪 | “记录每次训练” | 记录参数、指标、模型和环境 |
-| MLflow | “模型跟踪平台” | 提供实验管理和模型注册 |
+| MLflow | “实验跟踪平台” | 提供实验管理和模型注册 |
 | DVC | “数据版本控制” | 大文件版本管理，不进 git 大对象 |
 | 可复现 | “同条件同结果” | 固定种子/依赖/配置下结果稳定 |
 
