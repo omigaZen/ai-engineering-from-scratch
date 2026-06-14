@@ -93,7 +93,7 @@ python3 code/main.py
 
 Phase 14 的每个框架都建立在这个 loop 之上。掌握它以后，选择框架主要是在比较工程体验和运行形态（持久状态、actor 模型、角色模板、消息通道），而不是盯着不同的控制流。
 
-学习这些框架时可以参考它们的文档：
+学习这些框架时可参考它们的文档：
 
 - Claude Agent SDK（Lesson 17）：内置工具、子代理、生命周期钩子。
 - OpenAI Agents SDK（Lesson 16）：Handoffs、Guardrails、Session、Tracing（接管、护栏、会话、链路追踪）。
