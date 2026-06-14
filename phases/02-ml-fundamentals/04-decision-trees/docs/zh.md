@@ -1,59 +1,77 @@
 # 决策树与随机森林
 
-> 决策树像一张流程图，随机森林把多棵树放在一起后，往往会成为表格数据里非常强大的算法工具�?
-**类型:** 构建 **语言:** Python  
-**先修:** �?1 期（信息论（课程 09）、概率（课程 06�? 
+> 决策树就像一张流程图。但把很多棵树放在一起，就是机器学习里最强的工具之一。
+
+**类型:** 构建
+**语言:** Python
+**先修:** 第 1 阶段（信息论第 09 课、概率第 06 课）
 **时长:** ~90 分钟
 
 ## 学习目标
 
-- 从头实现决策树分裂标准：Gini、熵、信息增益�?- 使用前剪枝参数（最大深度、最小样本量）训练分类树�?- 用自助采样与特征随机化搭建随机森林，理解它为何能降噪�?- 对比 MDI 与置换重要性，并理�?MDI 的偏置来源�?
-## 问题背景
+- 从零实现 Gini 不纯度、熵和信息增益，找出最优的决策树分裂
+- 从零构建带前剪枝控制的决策树分类器（最大深度、最小样本数）
+- 使用自助采样和特征随机化搭建随机森林，并解释它为什么能降方差
+- 对比 MDI 特征重要性与置换重要性，并识别 MDI 的偏置来源
 
-表格型数据里，每一行是样本、每一列是特征，并有一个目标列要预测。你当然可以直接上神经网络，但在结构化数据任务中，基于树的模型（决策树、随机森林、梯度提升树）往往表现更稳，Kaggle 上结构化赛题通常�?XGBoost / LightGBM 为主，Transformer 很少占优�?
-原因很直接：
+## 问题是什么
 
-- 决策树天然支持数值和类别混合特征，预处理负担小�?- 能捕捉非线性关系，减少人工构造特征�?- 可解释：树路径天然给出“为什么这么预测”的理由�?- 随机森林通过“多数投�?平均”显著抑制过拟合�?
-本课先从零实现决策树的递归分裂，再叠加随机森林。你会实现分裂指标（Gini、熵、信息增益）的数学逻辑，并理解“弱学习器集成”如何变强�?
-## 核心思路
+你手里有表格数据。每一行是样本，每一列是特征，还有一列是你想预测的目标。你当然可以直接把神经网络扔上去。但在表格数据上，树模型（决策树、随机森林、梯度提升树）通常更强。Kaggle 上的结构化数据比赛，也往往是 XGBoost 和 LightGBM 的主场，而不是 Transformer。
 
-### 决策树在做什�?
-决策树通过一连串“是/否”问题，把特征空间切成多个矩形区域�?
+为什么？树可以原生处理数值特征和类别特征，不需要额外预处理。树可以直接拟合非线性关系，不依赖特征工程。树还很可解释：你可以沿着路径看清楚模型为什么会做出这个预测。随机森林则通过对很多棵树取平均，在中等规模数据上非常抗过拟合。
+
+这一课会先从递归分裂开始，从零实现决策树，再在此基础上搭建随机森林。你会实现分裂准则背后的数学逻辑（Gini 不纯度、熵、信息增益），并理解为什么一组弱学习器能组合成强模型。
+
+## 核心概念
+
+### 决策树在做什么
+
+决策树通过一连串“是/否”问题，把特征空间切成多个矩形区域。
+
 ```mermaid
 graph TD
-    A["Age < 30?"] -->|是| B["Income > 50k?"]
-    A -->|否| C["Credit Score > 700?"]
-    B -->|是| D["Approve"]
-    B -->|否| E["Deny"]
-    C -->|是| F["Approve"]
-    C -->|否| G["Deny"]
+    A["Age < 30?"] -->|Yes| B["Income > 50k?"]
+    A -->|No| C["Credit Score > 700?"]
+    B -->|Yes| D["Approve"]
+    B -->|No| E["Deny"]
+    C -->|Yes| F["Approve"]
+    C -->|No| G["Deny"]
 ```
 
-每个内部节点对某个特征设阈值判断；每个叶节点输出类别。分类新样本时，从根节点开始沿边走到叶节点得到预测�?
-树自上而下构造：每个节点都尝试选出“最有区分度”的特征和阈值。所谓“最有区分度”由分裂准则定义�?
-### 分裂准则：如何衡量纯�?
-在某个节点，我们拿到一个样本集合，目标是让子节点尽量“纯”，即每个子节点尽量只含同一类�?
-**Gini 不纯�?*表示：在该节点按真实类别分布随机抽样时，分类错的概率�?
+每个内部节点都会对某个特征做阈值判断；每个叶节点都会输出一个预测。分类新样本时，从根节点开始一路走到叶子，最终得到结果。
+
+树是自上而下构建的：在每个节点，都会挑出最能把数据分开的特征和阈值。“最能分开”由分裂准则来定义。
+
+### 分裂准则：衡量不纯度
+
+在某个节点上，我们有一批样本。目标是把它们分成更“纯”的子节点，也就是让每个子节点尽量只包含一类样本。
+
+**Gini 不纯度**衡量的是：如果按照该节点里的类别分布随机抽样并贴标签，样本被分错的概率有多大。
+
 ```text
 Gini(S) = 1 - sum(p_k^2)
 
-其中 p_k 为集�?S 中类�?k 的比例�?```
+where p_k is the proportion of class k in set S.
+```
 
-纯节点（单一类别）时，Gini = 0；二分类 50/50 �?Gini = 0.5。值越小越好�?
+纯节点（全是同一类）时，Gini = 0。二分类且比例 50/50 时，Gini = 0.5。越小越好。
+
 ```text
-示例�? 只猫�? 只狗
+Example: 6 cats, 4 dogs
 
 Gini = 1 - (0.6^2 + 0.4^2) = 1 - (0.36 + 0.16) = 0.48
 ```
 
-**�?*衡量节点的“信息含�?混乱度”，课程 1-09 已介绍过�?
+**熵**衡量的是节点里的信息含量和混乱程度。第 1 阶段第 09 课已经讲过。
+
 ```text
 Entropy(S) = -sum(p_k * log2(p_k))
 ```
 
-纯节点熵�?0�?0/50 二分类熵�?1.0。越小越好�?
+纯节点的熵为 0。50/50 的二分类节点熵为 1.0。越小越好。
+
 ```text
-示例�? 只猫�? 只狗
+Example: 6 cats, 4 dogs
 
 Entropy = -(0.6 * log2(0.6) + 0.4 * log2(0.4))
         = -(0.6 * -0.737 + 0.4 * -1.322)
@@ -61,373 +79,303 @@ Entropy = -(0.6 * log2(0.6) + 0.4 * log2(0.4))
         = 0.971 bits
 ```
 
-**信息增益**表示分裂后不纯度（熵�?Gini）下降的程度�?
+**信息增益**表示一次分裂后，不纯度下降了多少（可以是熵，也可以是 Gini）。
+
 ```text
 IG(S, feature, threshold) = Impurity(S) - weighted_avg(Impurity(S_left), Impurity(S_right))
 
-其中权重是左右子节点样本占比�?```
+where the weights are the proportions of samples in each child.
+```
 
-每个节点都采用贪心策略：穷举特征和阈值，挑信息增益最高的那个�?
-### 分裂过程怎么�?
-对一个当前节点上的数据（�?\(n\) 个特征、\(m\) 个样本）�?
-1. 对每个特�?\(j\in[1,n]\)�?   - 按特�?\(j\) 排序样本
-   - 取每一对相邻不同取值的中点作为候选阈�?   - 计算每个阈值的信息增益
-2. 选出增益最大的一组（特征，阈值）
-3. 划分数据为左子树（特�?<= 阈值）和右子树（特�?> 阈值）
-4. 对左右子树递归处理
+每个节点都采用贪心策略：把所有特征、所有可能阈值都试一遍，选信息增益最大的那个。
 
-贪心不能保证全局最优树；最优树搜索�?NP-hard，但工程里这个近似通常够用�?
+### 分裂是怎么工作的
+
+对于当前节点上的一个数据集，如果有 n 个特征、m 个样本：
+
+1. 对每个特征 j（j = 1 到 n）：
+   - 按特征 j 对样本排序
+   - 把相邻不同取值之间的中点都试一遍，作为候选阈值
+   - 计算每个阈值的信息增益
+2. 选出信息增益最高的特征和阈值
+3. 把数据分成左子树（特征 <= 阈值）和右子树（特征 > 阈值）
+4. 对每个子节点递归执行
+
+这种贪心方法不能保证全局最优树。寻找最优决策树是 NP-hard 问题。不过在实践里，贪心分裂通常已经足够好。
+
 ### 停止条件
 
-不加停止条件会一直长到每个叶子纯净（每�?1 个样本）——训练集拟合过好，但泛化很差�?
-**前剪�?*在树未长全之前停止：
-- 最大深度：到达设定深度后停分裂
-- 叶节点最小样本数：少�?\(k\) 的节点不再分�?- 最小信息增益：若最佳增益低于阈值则�?- 最大叶子节点数：限制总叶�?
-**后剪�?*先长满再回头剪：
-- 成本复杂度剪枝（scikit-learn）：对叶子数量加惩罚，惩罚越大树越小
-- 误差减少剪枝：验证集误差不变时删掉子�?
-前剪枝简单且快；后剪枝常常更稳，因为它保留了可能有价值的后续分裂机会�?
-### 用于回归的决策树
+如果不加停止条件，树会一直长到每个叶子都纯净为止（每个叶子只剩一个样本）。这会把训练集记得死死的，但泛化会很差。
 
-回归树在叶节点上输出该叶内目标值均值。分裂准则也随之变化�?
-**方差下降（Variance Reduction�?* 替代信息增益�?
+**前剪枝**会在树长满之前停下来：
+- 最大深度：当树达到设定深度时停止分裂
+- 每个叶子的最小样本数：如果节点样本少于 k，就不再继续分裂
+- 最小信息增益：如果最佳分裂带来的改进低于阈值，就停止
+- 最大叶子数：限制总叶子数量
+
+**后剪枝**先把整棵树长出来，再往回裁：
+- 代价复杂度剪枝（scikit-learn 采用）：给叶子数量加惩罚项，惩罚越大树越小
+- 简化误差剪枝：如果删掉一个子树后验证集误差没有变差，就删掉它
+
+前剪枝更简单也更快。后剪枝常常更好，因为它不会太早停止那些本来可能继续长出有用分裂的节点。
+
+### 回归树
+
+在回归任务里，叶节点输出的是该叶里目标值的平均数。分裂准则也要改。
+
+**方差下降**取代信息增益：
+
 ```text
 VR(S, feature, threshold) = Var(S) - weighted_avg(Var(S_left), Var(S_right))
 ```
 
-选择让方差下降最大的切分，树会把输入空间划成若干区域，每个区域输出一个常数（均值）�?
-### 随机森林：集成学习的威力
+选择让方差下降最大的分裂。树会把输入空间切成多个区域，并在每个区域输出一个常数，也就是均值。
 
-单棵决策树的方差很高：训练样本一丁点变化可能得到完全不同的树。随机森林通过“多棵树取平均”来降方差�?
+### 随机森林：集成的力量
+
+单棵决策树的方差很高。数据轻微变化一下，树的形状就可能完全不同。随机森林通过对很多棵树取平均来解决这个问题。
+
 ```mermaid
 graph TD
-    D["训练数据"] --> B1["Bootstrap 采样 1"]
-    D --> B2["Bootstrap 采样 2"]
-    D --> B3["Bootstrap 采样 3"]
-    D --> BN["Bootstrap 采样 N"]
-    B1 --> T1["�?1<br>(随机特征子集)"]
-    B2 --> T2["�?2<br>(随机特征子集)"]
-    B3 --> T3["�?3<br>(随机特征子集)"]
-    BN --> TN["�?N<br>(随机特征子集)"]
-    T1 --> V["聚合预测<br>(多数投票或均�?"]
+    D["Training Data"] --> B1["Bootstrap Sample 1"]
+    D --> B2["Bootstrap Sample 2"]
+    D --> B3["Bootstrap Sample 3"]
+    D --> BN["Bootstrap Sample N"]
+    B1 --> T1["Tree 1<br/>(random feature subset)"]
+    B2 --> T2["Tree 2<br/>(random feature subset)"]
+    B3 --> T3["Tree 3<br/>(random feature subset)"]
+    BN --> TN["Tree N<br/>(random feature subset)"]
+    T1 --> V["Aggregate Predictions<br/>(majority vote or average)"]
     T2 --> V
     T3 --> V
     TN --> V
 ```
 
-树之间差异来自两种随机性：
+让树彼此不同的随机性主要来自两处：
 
-**Bagging（自助采样）**：每棵树用一�?bootstrap 样本训练，约 63% 样本会被采中，剩下用于袋外验证�? 
-**特征随机�?*：每次分裂只在一个随机特征子集上找最佳阈值。分类任务通常�?\(\sqrt{n\_features}\)，回归任务用 \(n\_features/3\)。这样可避免所有树总往同一强特征上靠拢�?
-关键点：聚合多个去相关的树，能够降方差、几乎不提高偏差。单树可能一般，但集成往往更强�?
-### 特征重要�?
-随机森林天然给出特征重要性。常见做法有两种�?
-**MDI（Mean Decrease in Impurity，平均不纯度下降�?*  
-对每个特征，统计该特征在所有树节点上带来的不纯度（impurity）下降总量�?
+**Bagging（自助聚合）：** 每棵树都在一个 bootstrap 样本上训练，也就是从训练集里有放回地随机抽样。每次 bootstrap 大约会覆盖原始样本的 63%，剩下的样本就是袋外样本，可以拿来验证。
+
+**特征随机化：** 每次分裂时，只在一个随机特征子集里找最优切分。分类任务默认是 sqrt(n_features)，回归任务默认是 n_features/3。这样可以避免所有树都总盯着同一个最强特征。
+
+核心结论是：对很多彼此去相关的树取平均，可以显著降低方差，而不会明显增加偏差。单棵树可能一般，但集成结果会很强。
+
+### 特征重要性
+
+随机森林天然能给出特征重要性。最常见的方法是：
+
+**MDI（Mean Decrease in Impurity，平均不纯度下降）：** 对每个特征，统计它在所有树、所有节点里带来的不纯度下降总量。能在更早分裂中带来更大不纯度下降的特征，重要性更高。
+
 ```text
 importance(feature_j) = sum over all nodes where feature_j is used:
     (n_samples_at_node / n_total_samples) * impurity_decrease
 ```
 
-速度快（训练时顺便算），但偏向高基数特征和可切分点多的特征�? 
-**置换重要�?*：将某特征打乱，再看模型精度下降多少。更稳定，但计算更慢�?
-### 为什么树常常比神经网络更�?
-在表格数据上，树模型经常优于神经网络，常见场景如下：
+它速度很快（训练时顺手就能算），但会偏向高基数特征和可切分点很多的特征。
 
-| 因素 | 树模�?| 神经网络 |
+**置换重要性**是另一种方法：把某个特征打乱，再观察模型准确率下降了多少。更可靠，但计算更慢。
+
+### 为什么树经常比神经网络更强
+
+在表格数据上，树和随机森林经常比神经网络更强，原因有很多：
+
+| 因素 | 树 | 神经网络 |
 |--------|-------|----------------|
-| 混合类型特征（数�?类别�?| 原生支持 | 需要编�?|
-| 小规模数据（< 10k 行） | 表现稳健 | 容易过拟�?|
-| 特征交互 | 分裂可自动发�?| 常需设计结构 |
-| 可解释�?| 一眼可追踪 | 黑盒 |
-| 训练时间 | 分钟�?| 小时�?|
-| 超参敏感�?| 较低 | 往往较高 |
+| 混合类型特征（数值 + 类别） | 原生支持 | 需要编码 |
+| 小数据集（< 10k 行） | 表现好 | 容易过拟合 |
+| 特征交互 | 靠分裂自动发现 | 往往需要设计结构 |
+| 可解释性 | 完全透明 | 黑盒 |
+| 训练时间 | 分钟级 | 小时级 |
+| 超参数敏感性 | 较低 | 较高 |
 
-神经网络通常在有明确结构的任务上更强（图像、文本、音频）；但平铺特征表里，树仍是默认首选�?
+当数据具有空间结构或序列结构时，神经网络更有优势，比如图像、文本、音频。但如果只是平铺的特征表，树通常是默认首选。
+
 ```figure
 decision-tree-depth
 ```
 
-## 实践
+## 动手实现
 
-### 步骤 1：Gini 与熵分裂
+### 第 1 步：Gini 不纯度和熵
 
-从零实现两种分裂准则，并验证它们对“好的分裂”判断是否一致�?
+从零实现这两个分裂准则，并验证它们对“好分裂”的判断是否一致。
+
 ```python
-from collections import Counter
-from typing import List, Tuple
 import math
-import random
 
-
-def gini(samples: List[int]) -> float:
-    total = len(samples)
-    if total == 0:
+def gini_impurity(labels):
+    n = len(labels)
+    if n == 0:
         return 0.0
-    counts = Counter(samples)
-    return 1.0 - sum((c / total) ** 2 for c in counts.values())
+    counts = {}
+    for label in labels:
+        counts[label] = counts.get(label, 0) + 1
+    return 1.0 - sum((c / n) ** 2 for c in counts.values())
 
-
-def entropy(samples: List[int]) -> float:
-    total = len(samples)
-    if total == 0:
+def entropy(labels):
+    n = len(labels)
+    if n == 0:
         return 0.0
-    counts = Counter(samples)
-    ent = 0.0
-    for c in counts.values():
-        p = c / total
-        if p > 0:
-            ent -= p * math.log2(p)
-    return ent
-
-
-def split_dataset(X: List[List[float]], y: List[int], feature_idx: int, threshold: float):
-    left_X, right_X = [], []
-    left_y, right_y = [], []
-    for i in range(len(X)):
-        if X[i][feature_idx] <= threshold:
-            left_X.append(X[i])
-            left_y.append(y[i])
-        else:
-            right_X.append(X[i])
-            right_y.append(y[i])
-    return left_X, left_y, right_X, right_y
+    counts = {}
+    for label in labels:
+        counts[label] = counts.get(label, 0) + 1
+    return -sum(
+        (c / n) * math.log2(c / n) for c in counts.values() if c > 0
+    )
 ```
 
-### 步骤 2：从零实现分类树
+### 第 2 步：寻找最佳分裂
 
-先写递归节点结构，再加停止条件和投票预测�?
+尝试每个特征和每个阈值，返回信息增益最高的那个。
+
 ```python
-class DecisionTreeNode:
-    def __init__(self, depth=0):
-        self.depth = depth
-        self.feature_idx = None
-        self.threshold = None
-        self.left = None
-        self.right = None
-        self.prediction = None
-        self.is_leaf = True
+def information_gain(parent_labels, left_labels, right_labels, criterion="gini"):
+    measure = gini_impurity if criterion == "gini" else entropy
+    n = len(parent_labels)
+    n_left = len(left_labels)
+    n_right = len(right_labels)
+    if n_left == 0 or n_right == 0:
+        return 0.0
+    parent_impurity = measure(parent_labels)
+    child_impurity = (
+        (n_left / n) * measure(left_labels) +
+        (n_right / n) * measure(right_labels)
+    )
+    return parent_impurity - child_impurity
+```
 
-    def predict_one(self, x):
-        if self.is_leaf:
-            return self.prediction
-        if x[self.feature_idx] <= self.threshold:
-            return self.left.predict_one(x)
-        return self.right.predict_one(x)
+### 第 3 步：构建 `DecisionTree` 类
 
+实现递归分裂、预测和特征重要性跟踪。
 
+```python
 class DecisionTree:
-    def __init__(self, max_depth=5, min_samples_split=5, min_gain=1e-7, criterion="gini"):
+    def __init__(self, max_depth=None, min_samples_split=2,
+                 min_samples_leaf=1, criterion="gini",
+                 max_features=None):
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
-        self.min_gain = min_gain
+        self.min_samples_leaf = min_samples_leaf
         self.criterion = criterion
-        self.root = None
-        self.metric = {"gini": gini, "entropy": entropy}[criterion]
+        self.max_features = max_features
+        self.tree = None
+        self.feature_importances_ = None
 
     def fit(self, X, y):
-        self.n_classes = len(set(y))
-        self.root = self._build(X, y, depth=0)
-        return self
-
-    def _build(self, X, y, depth):
-        node = DecisionTreeNode(depth=depth)
-        node.prediction = max(set(y), key=y.count)
-        if self._should_stop(X, y, depth):
-            return node
-
-        best_gain = -1
-        best = None
-        current_impurity = self.metric(y)
-
-        for j in range(len(X[0])):
-            values = sorted(set(row[j] for row in X))
-            for a, b in zip(values, values[1:]):
-                t = (a + b) / 2.0
-                lx, ly, rx, ry = split_dataset(X, y, j, t)
-                if len(lx) < self.min_samples_split or len(rx) < self.min_samples_split:
-                    continue
-                weighted = (len(ly) / len(y)) * self.metric(ly) + (len(ry) / len(y)) * self.metric(ry)
-                gain = current_impurity - weighted
-                if gain > best_gain:
-                    best_gain = gain
-                    best = (j, t, lx, ly, rx, ry)
-
-        if best is None or best_gain < self.min_gain:
-            return node
-
-        j, t, lx, ly, rx, ry = best
-        node.is_leaf = False
-        node.feature_idx = j
-        node.threshold = t
-        node.left = self._build(lx, ly, depth + 1)
-        node.right = self._build(rx, ry, depth + 1)
-        return node
-
-    def _should_stop(self, X, y, depth):
-        if depth >= self.max_depth:
-            return True
-        if len(set(y)) == 1:
-            return True
-        if len(y) < self.min_samples_split:
-            return True
-        return False
+        self.n_features = len(X[0])
+        self.feature_importances_ = [0.0] * self.n_features
+        self.n_samples = len(X)
+        self.tree = self._build(X, y, depth=0)
+        total = sum(self.feature_importances_)
+        if total > 0:
+            self.feature_importances_ = [
+                fi / total for fi in self.feature_importances_
+            ]
 
     def predict(self, X):
-        return [self.root.predict_one(x) for x in X]
-
-
-X_clf = [[random.random() * 6 + i % 3 for i in range(2)] for _ in range(120)]
-y_clf = [1 if x[0] + x[1] > 6 else 0 for x in X_clf]
-
-split = int(0.8 * len(X_clf))
-X_tr, X_te = X_clf[:split], X_clf[split:]
-y_tr, y_te = y_clf[:split], y_clf[split:]
-
-tree = DecisionTree(max_depth=5, min_samples_split=8, criterion="gini")
-tree.fit(X_tr, y_tr)
-pred = tree.predict(X_te)
-
-acc = sum(1 for i in range(len(y_te)) if pred[i] == y_te[i]) / len(y_te)
-print(f"Tree depth={tree.max_depth} acc={acc:.4f}")
+        return [self._predict_one(x, self.tree) for x in X]
 ```
 
-### 步骤 3：随机森�?
-我们再用基于上面树实现的随机森林，看看在同一数据上的表现�?
+### 第 4 步：构建 `RandomForest` 类
+
+实现 bootstrap 采样、特征随机化和多数投票。
+
 ```python
-import random
-from statistics import mode
-
-
 class RandomForest:
-    def __init__(self, n_estimators=25, max_depth=6, min_samples_split=6, m_features="sqrt", random_state=42):
-        self.n_estimators = n_estimators
+    def __init__(self, n_trees=100, max_depth=None,
+                 min_samples_split=2, max_features="sqrt",
+                 criterion="gini"):
+        self.n_trees = n_trees
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
-        self.m_features = m_features
-        self.random_state = random_state
+        self.max_features = max_features
+        self.criterion = criterion
         self.trees = []
-        random.seed(random_state)
 
     def fit(self, X, y):
-        random.seed(self.random_state)
         n = len(X)
-        n_feat = len(X[0])
-        if self.m_features == "sqrt":
-            k = max(1, int(math.sqrt(n_feat)))
-        elif self.m_features == "third":
-            k = max(1, int(n_feat / 3))
-        else:
-            k = n_feat
-
-        for _ in range(self.n_estimators):
-            idx = [random.randint(0, n - 1) for _ in range(n)]
-            X_s = [X[i] for i in idx]
-            y_s = [y[i] for i in idx]
-            tree = DecisionTree(max_depth=self.max_depth, min_samples_split=self.min_samples_split, criterion="entropy")
-            tree.feature_subset = random.sample(range(n_feat), k)
-            tree.fit(X_s, y_s)
+        for _ in range(self.n_trees):
+            indices = [random.randint(0, n - 1) for _ in range(n)]
+            X_boot = [X[i] for i in indices]
+            y_boot = [y[i] for i in indices]
+            tree = DecisionTree(
+                max_depth=self.max_depth,
+                min_samples_split=self.min_samples_split,
+                max_features=self.max_features,
+                criterion=self.criterion,
+            )
+            tree.fit(X_boot, y_boot)
             self.trees.append(tree)
-        return self
 
     def predict(self, X):
-        all_pred = [[tree.predict_one(x) for x in X] if False else [] for _ in X]
-        final = []
+        all_preds = [tree.predict(X) for tree in self.trees]
+        predictions = []
         for i in range(len(X)):
-            votes = []
-            for t in self.trees:
-                votes.append(t.predict([X[i]])[0])
-            final.append(mode(votes))
-        return final
-
-
-rf = RandomForest(n_estimators=20, max_depth=8, min_samples_split=6, m_features="sqrt")
-rf.fit(X_tr, y_tr)
-rf_pred = rf.predict(X_te)
-acc_rf = sum(1 for i in range(len(y_te)) if rf_pred[i] == y_te[i]) / len(y_te)
-print(f"Random Forest (n={rf.n_estimators}) acc={acc_rf:.4f}")
+            votes = {}
+            for preds in all_preds:
+                v = preds[i]
+                votes[v] = votes.get(v, 0) + 1
+            predictions.append(max(votes, key=votes.get))
+        return predictions
 ```
 
-### 步骤 4：特征重要性与对比
+完整实现和辅助方法都在 `code/trees.py` 中。
 
-这里用置换法近似观测特征的重要性变化，展示实现思路�?
+## 用起来
+
+用 scikit-learn 训练随机森林只要三行：
+
 ```python
-def permutation_importance(model, X, y, feature_idx, n_repeats=5):
-    base_pred = model.predict(X)
-    base_acc = sum(1 for i in range(len(y)) if base_pred[i] == y[i]) / len(y)
-    drops = []
-    for _ in range(n_repeats):
-        X_perm = [row[:] for row in X]
-        col = [row[feature_idx] for row in X_perm]
-        random.shuffle(col)
-        for i in range(len(X_perm)):
-            X_perm[i][feature_idx] = col[i]
-        pred = model.predict(X_perm)
-        acc = sum(1 for i in range(len(y)) if pred[i] == y[i]) / len(y)
-        drops.append(base_acc - acc)
-    return sum(drops) / len(drops)
-
-
-for i in range(len(X[0])):
-    drop = permutation_importance(rf, X_te, y_te, i)
-    print(f"Feature {i} permutation importance drop: {drop:.6f}")
-```
-
-### 关键观察
-
-随机森林训练中每棵树都在 bootstrap 样本和随机特征子集上生长。训练集上的“完美拟合”并不一定是目标，关键是控制方差并提升泛化�?
-## 使用
-
-回头再用 scikit-learn �?`DecisionTreeClassifier` �?`RandomForestClassifier` 验证思路�?
-```python
-from sklearn.datasets import make_classification
-from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, classification_report
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
 
-X_s, y_s = make_classification(
-    n_samples=300,
-    n_features=10,
-    n_informative=6,
-    n_redundant=2,
-    random_state=42,
-)
+X, y = load_iris(return_X_y=True)
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
 
-X_train, X_test, y_train, y_test = train_test_split(X_s, y_s, test_size=0.2, random_state=42)
-
-dt = DecisionTreeClassifier(max_depth=6, min_samples_leaf=5, random_state=42)
-dt.fit(X_train, y_train)
-rf = RandomForestClassifier(n_estimators=100, max_depth=8, random_state=42)
+rf = RandomForestClassifier(n_estimators=100, random_state=42)
 rf.fit(X_train, y_train)
-
-for name, model in [("DecisionTree", dt), ("RandomForest", rf)]:
-    pred = model.predict(X_test)
-    print(f"{name} Accuracy:", accuracy_score(y_test, pred))
-    print(classification_report(y_test, pred, digits=4))
+print(f"Accuracy: {rf.score(X_test, y_test):.4f}")
+print(f"Feature importances: {rf.feature_importances_}")
 ```
 
-随机森林通常比单棵树更稳、泛化更好。树的深度可控，避免单树那种“全靠一条路径记忆训练样本”的行为�?
-## 交付产物
+实际工程里，梯度提升树（XGBoost、LightGBM、CatBoost）经常比随机森林更强，因为它们是顺序建树，每棵树都在修正前一棵树的错误。但随机森林更不容易配错参数，几乎不需要调参。
 
-本课会产出：
+## 上线交付
 
-- `code/decision_trees.py`：包�?`DecisionTree` �?`RandomForest` 的从零实�?- `code/decision_trees_sklearn.py`：对�?`scikit-learn` 的实现版�?
+本课产出 `outputs/prompt-tree-interpreter.md`，这是一个用于向业务方解释决策树分裂的 prompt。把训练好的树结构（深度、特征、分裂阈值、准确率）喂给它，它会把模型翻译成自然语言规则，排序特征重要性，标出过拟合或数据泄漏风险，并给出下一步建议。只要你需要向不看代码的人解释树模型，就可以用它。
+
 ## 练习
 
-1. 在一个可控噪声的数据集上，比较不剪枝树与前剪枝树的泛化差异�?2. 修改 `m_features` �?`sqrt`、`n/3`、全部特征，观察随机森林在验证集上的方差与偏差变化�?3. �?`permutation_importance` 打乱关键特征与次要特征，观察准确率下降是否符合“重要性”预期�?4. 自己生成一个类别极度不平衡的数据集，加�?class_weight 或采样策略，比较树和随机森林对少数类的召回率变化�?
-## 术语
+1. 在一个 2D、3 分类数据集上训练单棵决策树。手动追踪每次分裂，并画出矩形决策边界。对比 max_depth=2 和 max_depth=10 时边界的差异。
 
-| 术语 | 常见表述 | 准确定义 |
-|------|----------------|----------------|
-| 决策�?| “流程树�?| 按特征阈值递归分裂特征空间的树模型 |
-| 随机森林 | “树的集成�?| 许多随机化树的集合，靠投�?平均提升泛化 |
-| Gini 不纯�?| “纯度衡量值�?| \(1-\sum p_k^2\) |
-| �?| “信息量�?| 反映节点中类别混乱程�?|
-| 信息增益 | “分裂收益�?| 母节点熵（或 Gini）与加权子节点熵（或 Gini）差�?|
-| Bagging | 自助聚合 | 在多次有放回抽样上训练多个模型并聚合 |
-| OOB ���� | �������� | ĳ���� bootstrap û�ɵ��������������ڲ���֤ |
-| MDI | ��Ҫ�Ծ�ֵ�½� | �� impurity �½��������������� |
-| �û���Ҫ�� | ����������Ҫ�� | ���������������½����ȵ������Ҫ�Զ��� |
-| ��֦ | ��ǰͣ | ��������ǰ������ֵֹͣ���� |
-| ���֦ | ��ͷ�޼� | ����������ٲõ�����Ҫ������ |
+2. 为回归树实现方差下降分裂。生成 200 个点的 y = sin(x) + noise 数据，并拟合你的回归树。把树的分段常数预测和真实曲线画在一起。
+
+3. 分别构建包含 1、5、10、50、200 棵树的随机森林。画出训练准确率和测试准确率随树数变化的曲线。观察测试准确率会进入平台期，但不会明显下降（随机森林抗过拟合）。
+
+4. 在 5 个不同数据集上比较 Gini 不纯度和熵作为分裂准则的差异。衡量准确率和树深度。多数情况下，两者结果几乎一样。解释为什么。
+
+5. 实现置换重要性。把它和 MDI 在一个“某个特征是高基数随机噪声”的数据集上对比。MDI 往往会把这个噪声特征排得很高，而置换重要性不会。
+
+## 关键术语
+
+| Term | What people say | What it actually means |
+|------|----------------|----------------------|
+| Decision tree | "A flowchart for predictions" | 一种模型，通过学习一串 if/else 分裂，把特征空间切成多个矩形区域 |
+| Gini impurity | "How mixed the node is" | 节点中随机抽一个样本并按节点分布分类时被分错的概率。0 表示纯节点，0.5 是二分类下的最大不纯度 |
+| Entropy | "The disorder in a node" | 节点中的信息量。0 表示纯节点，1.0 是二分类下的最大不确定性，来自信息论 |
+| Information gain | "How good a split is" | 一次分裂后不纯度下降多少。是选择分裂的贪心准则 |
+| Pre-pruning | "Stop the tree early" | 通过设置最大深度、最小样本数或最小增益阈值，提前停止树的生长 |
+| Post-pruning | "Trim the tree after" | 先长满整棵树，再删掉那些无法提升验证集表现的子树 |
+| Bagging | "Train on random subsets" | Bootstrap aggregating。对不同的随机有放回样本训练每个模型 |
+| Random forest | "A bunch of trees" | 决策树集成；每棵树都在 bootstrap 样本上训练，并且每次分裂时只看随机特征子集 |
+| Feature importance (MDI) | "Which features matter" | 每个特征在所有树和节点里贡献的不纯度下降总量 |
+| Permutation importance | "Shuffle and check" | 把某个特征随机打乱后准确率下降多少；对噪声特征比 MDI 更可靠 |
+| Variance reduction | "The regression version of info gain" | 回归树版的信息增益，选择能最大程度降低目标方差的分裂 |
+| Bootstrap sample | "Random sample with repeats" | 从原始数据集中有放回抽样得到的随机样本，样本数相同但有重复 |
+
+## 延伸阅读
+
+- [Breiman: Random Forests (2001)](https://link.springer.com/article/10.1023/A:1010933404324) - 原始随机森林论文
+- [Grinsztajn et al.: Why do tree-based models still outperform deep learning on tabular data? (2022)](https://arxiv.org/abs/2207.08815) - 表格任务上树模型与神经网络的严谨对比
+- [scikit-learn Decision Trees documentation](https://scikit-learn.org/stable/modules/tree.html) - 带可视化工具的实用指南
+- [XGBoost: A Scalable Tree Boosting System (Chen & Guestrin, 2016)](https://arxiv.org/abs/1603.02754) - Kaggle 里很强势的梯度提升论文
