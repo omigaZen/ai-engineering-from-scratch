@@ -35,12 +35,12 @@
 做 \(n\) 步后位置是 \(n\) 个 \(\pm1\) 的和。期望位置是 0，但期望到原点距离是 \(\sqrt n\)。
 
 ```
-Step 0:  Position = 0
-Step 1:  Position = +1 or -1
-Step 2:  Position = +2, 0, or -2
+步骤 0：位置 = 0
+步骤 1：位置 = +1 或 -1
+步骤 2：位置 = +2、0 或 -2
 ...
-Step 100: Expected distance from origin ~ 10 (sqrt(100))
-Step 10000: Expected distance from origin ~ 100 (sqrt(10000))
+步骤 100：到原点的期望距离 ~ 10（sqrt(100)）
+步骤 10000：到原点的期望距离 ~ 100（sqrt(10000)）
 ```
 
 二维随机游走（上下左右）同理，距离原点仍按 \(\sqrt n\) 增长。路径看上去像“分形样”扩散。
