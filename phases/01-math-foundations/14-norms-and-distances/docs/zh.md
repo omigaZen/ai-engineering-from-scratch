@@ -307,7 +307,7 @@ D_KL(P || Q) != D_KL(Q || P)
 
 ### Wasserstein 距离（Earth Mover’s Distance）
 
-Wasserstein 距离衡量把一个概率分布变成另一个分布所需的最小“工作量”。可以把它理解为：如果一个分布是一堆土，另一个分布是一个坑，那么你需要搬多少土、搬多远。
+Wasserstein 距离衡量把一个概率分布变成另一个分布所需的最小“工作量”。可将其理解为：如果一个分布是一堆土，另一个分布是一个坑，那么你需要搬多少土、搬多远。
 
 ```
 W(P, Q) = inf over all transport plans gamma of E[d(x, y)]
