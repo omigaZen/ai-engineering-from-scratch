@@ -83,7 +83,7 @@ open /Applications/Docker.app
 # Ubuntu
 curl -fsSL https://get.docker.com | sh
 sudo usermod -aG docker $USER
-# Log out and back in for group change to take effect
+# 退出并重新登录，让组权限变更生效
 ```
 
 验证：
@@ -320,22 +320,22 @@ docker compose down -v
 ### 步骤 7：AI 工作里常用的 Docker 命令
 
 ```bash
-# List running containers
+# 列出正在运行的容器
 docker ps
 
-# List all images and their sizes
+# 列出所有镜像及其大小
 docker images
 
-# Remove unused images (reclaim disk space)
+# 删除未使用的镜像，回收磁盘空间
 docker system prune -a
 
-# Check GPU usage inside a running container
+# 在运行中的容器里查看 GPU 使用情况
 docker exec -it <container_id> nvidia-smi
 
-# Copy a file from container to host
+# 从容器复制文件到宿主机
 docker cp <container_id>:/workspace/results.csv ./results.csv
 
-# View container logs
+# 查看容器日志
 docker logs -f <container_id>
 ```
 
