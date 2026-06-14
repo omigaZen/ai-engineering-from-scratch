@@ -388,7 +388,7 @@ class LossComparisonNetwork:
             accuracy = correct / len(data) * 100
             losses.append((avg_loss, accuracy))
             if epoch % 50 == 0 or epoch == epochs - 1:
-                print(f"    Epoch {epoch:3d}: loss={avg_loss:.4f}, accuracy={accuracy:.1f}%")
+                print(f"    第 {epoch:3d} 轮：损失={avg_loss:.4f}，准确率={accuracy:.1f}%")
         return losses
 ```
 
