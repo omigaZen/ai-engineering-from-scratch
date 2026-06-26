@@ -2,19 +2,19 @@
 
 > Self-Refine（Madaan 等，2023）让同一个 LLM 分饰三角 - 生成、反馈、修正 - 并在循环中不断改进。平均来看，7 个任务上绝对提升 20 分。CRITIC（Gou 等，2023）则把验证步骤接到外部工具上，让反馈更扎实。到 2026 年，这一模式已经以“evaluator-optimizer”（Anthropic）或 guardrail loop（OpenAI Agents SDK）的名字出现在几乎所有框架里。
 
-**Type:** Build
-**Languages:** Python (stdlib)
-**Prerequisites:** Phase 14 · 01 (Agent Loop), Phase 14 · 03 (Reflexion)
-**Time:** ~60 分钟
+**类型:** 构建
+**语言:** Python (stdlib)
+**先修:** 第 14 阶段第 01 课（Agent Loop）, 第 14 阶段第 03 课（Reflexion）
+**时长:** ~60 分钟
 
-## Learning Objectives
+## 学习目标
 
 - 说清 Self-Refine 的三个提示词阶段（generate、feedback、refine），并解释为什么 refine 提示词需要历史记录。
 - 解释 CRITIC 的核心洞见：如果没有外部落地，LLM 自我验证并不可靠。
 - 实现一个仅用标准库的 Self-Refine 循环，支持历史记录和可选的外部验证器。
 - 将这一模式对应到 Anthropic 的 “evaluator-optimizer” 工作流，以及 OpenAI Agents SDK 的输出 guardrails。
 
-## The Problem
+## 问题是什么
 
 agent 产出了一个几乎正确的答案。也许是一段代码里有个语法错误。也许是一段总结太长。也许一个计划漏掉了边界情况。你真正想要的是：agent 先批判自己的输出，再把它修好。
 
@@ -22,7 +22,7 @@ Self-Refine 证明了这件事可以只靠一个模型完成，不需要训练�
 
 这两篇论文合在一起，定义了 2026 年迭代式改进的默认流程：生成、验证（能外部验证就外部验证）、修正，然后在验证通过时停止。
 
-## The Concept
+## 核心概念
 
 ### Self-Refine（Madaan 等，NeurIPS 2023）
 
@@ -83,7 +83,7 @@ OpenAI Agents SDK 把这个模式做成了 “output guardrails”。guardrail �
 - **过度修正。** 每次修正都会增加延迟和 token。通常保留 1 到 3 次；超过就该升级给人工。
 - **在简单任务上使用 CRITIC。** 如果没有外部验证器，CRITIC 会退化成 Self-Refine；这种情况下就不要为了一个空壳验证器多付延迟。
 
-## Build It
+## 动手实现
 
 `code/main.py` 在一个玩具任务上实现了 Self-Refine 和 CRITIC：给定一个主题，生成一段简短要点列表。验证器检查格式（3 个 bullet，每个不超过 60 个字符）。CRITIC 额外加入了一个外部“事实验证器”，用于惩罚已知幻觉。
 
@@ -103,15 +103,15 @@ python3 code/main.py
 
 比较 Self-Refine 和 CRITIC 的运行结果。CRITIC 能抓到一个 Self-Refine 漏掉的事实错误，因为外部验证器有落地依据，而自我批评没有。
 
-## Use It
+## 使用方式
 
 Anthropic 的 evaluator-optimizer 用 Claude 友好的说法描述的就是这个模式。OpenAI Agents SDK 的 output guardrails 也是 CRITIC 形状的（guardrail 可以调用工具）。LangGraph 也提供了一个 reflection 节点，读起来就像 Self-Refine。Google 的 Gemini 2.5 Computer Use 增加了逐步安全评估器，也是 CRITIC 的一个变体：每个动作在提交前都要先验证。
 
-## Ship It
+## 交付物
 
 `outputs/skill-refine-loop.md` 会根据任务形态、验证器可用性和迭代预算，配置一个 evaluator-optimizer 循环。它会输出 generator、evaluator/verifier、optimizer 的提示词，以及停止策略。
 
-## Exercises
+## 练习
 
 1. 把玩具程序的 `max_iterations` 设为 1 运行。CRITIC 还能带来帮助吗？
 2. 把外部验证器换成一个有噪声的版本（随机 30% 误报）。循环会怎么反应？这就是 2026 年大多数 guardrail 栈的现实。
@@ -119,10 +119,10 @@ Anthropic 的 evaluator-optimizer 用 Claude 友好的说法描述的就是这�
 4. 阅读 CRITIC 第 3 节（arXiv:2305.11738 v4）。说出三类验证工具，并分别举一个例子。
 5. 把 OpenAI Agents SDK 的 `output_guardrails` 映射到 CRITIC 的 verifier 角色。这个 SDK 做对了什么，又漏掉了什么？
 
-## Key Terms
+## 关键术语
 
-| Term | What people say | What it actually means |
-|------|----------------|------------------------|
+| Term | 常见说法 | 实际含义 |
+|------|----------|----------|
 | Self-Refine | “会自己修正的 LLM” | 同一个模型里的 generate -> feedback -> refine 循环，并带历史 |
 | CRITIC | “基于工具的验证” | 用外部验证器替换 feedback（搜索、代码、计算器、测试） |
 | Evaluator-Optimizer | “Anthropic 工作流模式” | 两个角色 - evaluator 打分，optimizer 重写 - 循环到收敛 |
@@ -132,7 +132,7 @@ Anthropic 的 evaluator-optimizer 用 Claude 友好的说法描述的就是这�
 | Rubber-stamp loop | “自我认同失败” | 同风格批评只会说“看起来不错”；要靠结构不同的提示词修正 |
 | Stop condition | “收敛测试” | 验证器通过，或者没有反馈且达到迭代上限；不要只靠一个条件 |
 
-## Further Reading
+## 延伸阅读
 
 - [Madaan et al., Self-Refine (arXiv:2303.17651)](https://arxiv.org/abs/2303.17651) - 经典论文
 - [Gou et al., CRITIC (arXiv:2305.11738)](https://arxiv.org/abs/2305.11738) - 基于工具的验证
