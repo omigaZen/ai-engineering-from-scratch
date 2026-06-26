@@ -2,19 +2,19 @@
 
 > 在 Faster R-CNN 检测器上加一个很小的 mask 分支，你就得到了实例分割。难点在 RoIAlign，而且它比看起来更难。
 
-**Type:** Build + Learn
-**Languages:** Python
-**Prerequisites:** Phase 4 Lesson 06 (YOLO), Phase 4 Lesson 07 (U-Net)
-**Time:** ~75 分钟
+**类型:** 构建 + 学习
+**语言:** Python
+**先修:** 第 4 阶段第 06 课（YOLO）, 第 4 阶段第 07 课（U-Net）
+**时长:** ~75 分钟
 
-## Learning Objectives
+## 学习目标
 
 - 端到端梳理 Mask R-CNN 的架构：backbone、FPN、RPN、RoIAlign、box head、mask head。
 - 从零实现 RoIAlign，并解释为什么 RoIPool 现在不再使用。
 - 用 torchvision 的 `maskrcnn_resnet50_fpn_v2` 预训练模型做生产级实例掩膜，并正确读取它的输出格式。
 - 在一个小型自定义数据集上微调 Mask R-CNN：替换 box head 和 mask head，同时冻结 backbone。
 
-## The Problem
+## 问题是什么
 
 语义分割给你的是“每个类别一张 mask”。实例分割给你的是“每个物体一张 mask”，即使两个物体属于同一类别。计数、跨帧跟踪，以及度量东西的形状（比如墙里每块砖的框、显微镜下每个细胞的轮廓），都需要实例分割。
 
@@ -22,7 +22,7 @@ Mask R-CNN（He 等，2017）把实例分割重写成“检测 + 一张 mask”�
 
 真正难的工程问题在采样：当 proposal box 的四个角都不对齐像素边界时，怎么从里面裁出一个固定大小的特征区域？这一步如果做错，会让全局的 mAP 掉好几十分之一。答案就是 RoIAlign。
 
-## The Concept
+## 核心概念
 
 ### 架构
 
@@ -112,7 +112,7 @@ L = L_rpn_cls + L_rpn_box + L_box_cls + L_box_reg + L_mask
 
 mask 已经是整张图的分辨率了。`28x28` 的 head 输出内部已经被上采样过。
 
-## Build It
+## 动手实现
 
 ### 第 1 步：从零实现 RoIAlign
 
@@ -242,7 +242,7 @@ print(f"trainable after freeze: {trainable:,}")
 
 在 500 张图的数据集上，这一步往往就是“能收敛”和“过拟合”的差别。
 
-## Use It
+## 使用方式
 
 torchvision 里 Mask R-CNN 的完整训练循环大约 40 行，而且换任务时基本不用改 - 换数据集就行。
 
@@ -261,23 +261,23 @@ def train_step(model, images, targets, optimizer):
 
 `pycocotools` evaluator 会同时给 box 和 mask 算 mAP@IoU=0.5:0.95；这两个数都要看，才能知道是 box head 卡住了，还是 mask head 卡住了。
 
-## Ship It
+## 交付物
 
 这一课会产出：
 
 - `outputs/prompt-instance-vs-semantic-router.md` - 一个提示词，问三个问题后决定用实例分割、语义分割还是全景分割，并给出该从哪个模型开始。
 - `outputs/skill-mask-rcnn-head-swapper.md` - 一个 skill，给定新的 `num_classes`，就能自动生成替换任意 torchvision 检测模型 head 所需的 10 行代码。
 
-## Exercises
+## 练习
 
 1. **（Easy）** 用 100 个随机框，把你的 RoIAlign 和 `torchvision.ops.roi_align` 比较一下。报告最大绝对误差。另外再跑一次 RoIPool（2017 年前的行为），展示它在靠近边界的框上会偏离 feature map 大约 1-2 个像素。
 2. **（Medium）** 在一个 50 张图的自定义数据集上微调 `maskrcnn_resnet50_fpn_v2`（任意两个类别：气球、鱼、坑洞、logo 都行）。冻结 backbone，训练 20 个 epoch，报告 mask AP@0.5。
 3. **（Hard）** 把 Mask R-CNN 的 mask head 改成输出 56x56 而不是 28x28。比较修改前后在 mAP@IoU=0.75 上的变化。解释这个提升（或没有提升）为什么符合“边界精度 / 显存”之间的权衡。
 
-## Key Terms
+## 关键术语
 
-| Term | What people say | What it actually means |
-|------|----------------|------------------------|
+| Term | 常见说法 | 实际含义 |
+|------|----------|----------|
 | Mask R-CNN | “检测加 mask” | Faster R-CNN + 一个小型 FCN head，为每个 proposal、每个类别预测 28x28 mask |
 | FPN | “特征金字塔” | 自顶向下 + lateral connection，让每个 stride 层都有 C 通道的语义特征 |
 | RPN | “proposal 生成器” | 一个小卷积 head，每张图产生大约 1000 个 object / no-object proposal |
@@ -287,7 +287,7 @@ def train_step(model, images, targets, optimizer):
 | Binary mask head | “按类 mask” | 为每个 proposal 的每个类别预测一个二值 mask；最后只保留预测类别对应的通道 |
 | Background class | “类别 0” | “没有物体”的兜底类别；真实类别从 1 开始编号 |
 
-## Further Reading
+## 延伸阅读
 
 - [Mask R-CNN (He et al., 2017)](https://arxiv.org/abs/1703.06870) - 原始论文；第 3 节关于 RoIAlign 的内容是必须精读的
 - [FPN: Feature Pyramid Networks (Lin et al., 2017)](https://arxiv.org/abs/1612.03144) - FPN 论文；几乎所有现代 detector 都在用
