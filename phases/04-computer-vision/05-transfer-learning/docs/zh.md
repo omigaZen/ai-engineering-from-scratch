@@ -2,19 +2,19 @@
 
 > 别人已经花了上百万 GPU 小时教会网络什么是边缘、纹理和物体部件。你应该先借用这些特征，再开始训练自己的模型。
 
-**Type:** Build
-**Languages:** Python
-**Prerequisites:** Phase 4 Lesson 03 (CNNs), Phase 4 Lesson 04 (Image Classification)
-**Time:** ~75 分钟
+**类型:** 构建
+**语言:** Python
+**先修:** 第 4 阶段第 03 课（CNNs）, 第 4 阶段第 04 课（Image Classification）
+**时长:** ~75 分钟
 
-## Learning Objectives
+## 学习目标
 
 - 区分 feature extraction 和 fine-tuning，并根据数据集大小、领域距离和算力预算选对方法。
 - 加载一个预训练 backbone，替换分类头，并在 20 行以内只训练头部，跑出一个可用基线。
 - 通过 discriminative learning rates 逐步解冻层，让早期的通用特征更新更小，后期的任务特定特征更新更大。
 - 诊断三种常见失败：对解冻 block 学习率过高导致 feature drift、小数据集上 BN 统计量崩坏、以及 catastrophic forgetting。
 
-## The Problem
+## 问题是什么
 
 在 ImageNet 上训练一个 ResNet-50，大约要花 2000 个 GPU 小时。绝大多数团队没有这个预算去给每个任务都从头训练。现实里，几乎所有团队交付的都是：一个预训练 backbone，加一个在几百到几千张任务图像上训练出来的新 head。
 
@@ -22,9 +22,9 @@
 
 迁移学习里有三个坑等着你：学习率太高把预训练特征毁掉、冻结太多导致模型学不到新信息、以及 BatchNorm 的 running statistics 被带偏到一个网络从没在上面学过的小数据分布。我们会把这三个坑都故意走一遍。
 
-## The Concept
+## 核心概念
 
-### Feature extraction vs fine-tuning
+### Feature extraction 与 fine-tuning
 
 根据你对预训练特征的信任程度，以及你手头有多少数据，分成两种模式。
 
@@ -115,7 +115,7 @@ lr_layer_k = base_lr * decay^(L - k)
 
 如果 fine-tuned 比 pretrained-only 还差，说明你在学习率或者 BN 上有 bug。两个数都要打印。
 
-## Build It
+## 动手实现
 
 ### 第 1 步：加载一个预训练 backbone 并检查它
 
@@ -279,7 +279,7 @@ def progressive_unfreeze_schedule(model):
 
 在第一个 epoch 前调用一次 `start()`。每个 epoch 开头调用 `unfreeze(epoch)`。当可训练参数集合变化时，记得重建 optimizer；否则被冻结参数里缓存的 moment 还在，会把它搞乱。
 
-## Use It
+## 使用方式
 
 对大多数真实任务来说，`torchvision.models` 加三行就够了。上面这些更重的机制，只有在你碰到库默认值解决不了的问题时才有价值。
 
@@ -296,23 +296,23 @@ optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4, weight_decay=1e-4)
 - `timm` 提供了大约 800 个预训练视觉 backbone，API 也统一（`timm.create_model("resnet50", pretrained=True, num_classes=10)`）。只要你的 fine-tune 超出 torchvision 自带 zoo，`timm` 就是标准选择。
 - 对 transformer 来说，`transformers.AutoModelForImageClassification.from_pretrained(name, num_labels=N)` 会给你 ViT / BEiT / DeiT，加载语义和文本模型一样。
 
-## Ship It
+## 交付物
 
 这一课会产出：
 
 - `outputs/prompt-fine-tune-planner.md` - 一个提示词，根据数据集大小、领域距离和算力预算，在 feature extraction、progressive fine-tuning 和 end-to-end fine-tuning 之间做选择。
 - `outputs/skill-freeze-inspector.md` - 一个 skill，给它一个 PyTorch 模型，就能报告哪些参数是可训练的、哪些 BatchNorm 层处于 eval mode，以及 optimizer 是否真的拿到了可训练参数。
 
-## Exercises
+## 练习
 
 1. **（Easy）** 在同一个 synthetic-CIFAR 数据集上，把 `ResNet18` 分别当作线性探针（backbone 冻结）和全量 fine-tune 训练。把两个准确率并排报出来。解释哪个差距说明特征迁移得很好，哪个差距说明它没有。
 2. **（Medium）** 故意引入一个 bug：把 backbone stage 的 `base_lr` 设成 `1e-1`，而不是 head 的学习率。展示训练 loss 如何爆炸，然后用 `discriminative_param_groups` 把它救回来。记录每个 stage 从哪个学习率开始发散。
 3. **（Hard）** 取一个医学影像数据集（例如 CheXpert-small、PatchCamelyon 或 HAM10000），比较三种模式：(a) ImageNet 预训练 + 冻结 backbone + linear head；(b) ImageNet 预训练 + 端到端 fine-tune；(c) 从头训练。报告每种模式的准确率和算力成本。数据量多大时，从头训练才开始有竞争力？
 
-## Key Terms
+## 关键术语
 
-| Term | What people say | What it actually means |
-|------|----------------|------------------------|
+| Term | 常见说法 | 实际含义 |
+|------|----------|----------|
 | Feature extraction | “冻结 backbone，只训 head” | backbone 参数冻结，只有新的 classifier head 接收梯度 |
 | Fine-tuning | “端到端重训” | 所有参数都可训练，通常学习率比从头训练小得多 |
 | Discriminative LR | “早期层更小的 LR” | optimizer 里按参数组设置不同学习率，早期 stage 的 LR 只是后期的一部分 |
@@ -322,7 +322,7 @@ optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4, weight_decay=1e-4)
 | Linear probe | “冻结 backbone + 线性头” | 对预训练特征的评估 - 冻结表示上最佳线性分类器的准确率 |
 | Catastrophic collapse | “全都预测成一个类” | fine-tune 时 LR 太高，特征被毁掉，head 的梯度还没稳住就塌了 |
 
-## Further Reading
+## 延伸阅读
 
 - [How transferable are features in deep neural networks? (Yosinski et al., 2014)](https://arxiv.org/abs/1411.1792) - 量化各层特征可迁移性的论文
 - [Universal Language Model Fine-tuning (ULMFiT, Howard & Ruder, 2018)](https://arxiv.org/abs/1801.06146) - 原始的 discriminative LR / progressive unfreezing 配方；这些想法可以直接迁移到视觉
