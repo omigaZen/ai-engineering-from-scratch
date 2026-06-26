@@ -2,19 +2,19 @@
 
 > Voyager（Wang 等，TMLR 2024）把可执行代码当作 skill。skill 是有名字、可检索、可组合、还能被环境反馈持续打磨的。这也是 Claude Agent SDK skills、skillkit，以及 2026 年 skill library 模式的参考架构。
 
-**Type:** Build
-**Languages:** Python (stdlib)
-**Prerequisites:** Phase 14 · 07 (MemGPT), Phase 14 · 08 (Letta Blocks)
-**Time:** ~75 分钟
+**类型:** 构建
+**语言:** Python (stdlib)
+**先修:** 第 14 阶段第 07 课（MemGPT）, 第 14 阶段第 08 课（Letta Blocks）
+**时长:** ~75 分钟
 
-## Learning Objectives
+## 学习目标
 
 - 说出 Voyager 的三个组成部分 - automatic curriculum、skill library、iterative prompting - 以及各自的作用。
 - 解释为什么 Voyager 把 action space 设计成代码，而不是原始命令。
 - 实现一个仅用标准库的 skill library，支持注册、检索、组合和失败驱动的修正。
 - 将 Voyager 的模式映射到 2026 年的 Claude Agent SDK skills 和 skillkit 生态。
 
-## The Problem
+## 问题是什么
 
 每次会话都从头重建全部能力的 agent，会犯三种错误：
 
@@ -24,7 +24,7 @@
 
 Voyager 的解法是：把每个可复用能力当作一段有名字的代码，存进库里；按相似度检索；和其他 skill 组合；再根据执行反馈持续修正。
 
-## The Concept
+## 核心概念
 
 ### 三个组成部分
 
@@ -88,7 +88,7 @@ Voyager 的 curriculum 模块会根据 agent 已经会什么、还没做过什�
 - **组合 skill 漂移。** 父 skill 依赖的子 skill 被修过。要给 skill 做版本管理；父 skill 绑定到 v1，不会自动吸收 v3。
 - **检索质量。** 当 skill 描述库超过几百条后，仅靠向量检索会退化。要再加标签过滤和硬约束（例如“只要 `category=tooling` 的 skill”）。
 
-## Build It
+## 动手实现
 
 `code/main.py` 实现了一个标准库版 skill library：
 
@@ -104,18 +104,18 @@ python3 code/main.py
 
 输出轨迹会展示写库、检索、组合、一次失败执行，以及 v2 修正 - 也就是 Voyager 的完整闭环。
 
-## Use It
+## 使用方式
 
 - **Claude Agent SDK skills**（Anthropic） - 2026 年的参考实现：每个 skill 都有 description、代码和指令；在 agent 会话中按需加载。
 - **skillkit**（npm: skillkit） - 面向 32+ 个 AI coding agent 的跨 agent skill 管理。
 - **自定义 skill library** - 面向具体领域（比如数据 agent 的 SQL skill、基础设施 agent 的 Terraform skill）。Voyager 模式是可以缩小的。
 - **OpenAI Agents SDK `tools`** - 更底层的形态；每个 tool 都是一种轻量 skill。
 
-## Ship It
+## 交付物
 
 `outputs/skill-skill-library.md` 会为任意目标运行时生成一套 Voyager 风格的 skill library，并接好注册、检索、版本化和修正。
 
-## Exercises
+## 练习
 
 1. 给 `compose()` 加一个依赖环检测器。当 skill A 依赖 B，而 B 又依赖 A 时，会发生什么？报错还是警告？
 2. 实现按 skill 版本固定。父 skill 组合子 skill `crafting@1` 后，`crafting@2` 的修正不能悄悄升级父 skill。
@@ -123,10 +123,10 @@ python3 code/main.py
 4. 增加一个“curriculum” agent：给定当前库和领域描述，提出 5 个缺失 skill。每周运行一次。
 5. 阅读 Anthropic 的 Claude Agent SDK skill 文档。把这个玩具库迁移到 SDK 的 skill schema。可发现性有什么变化？
 
-## Key Terms
+## 关键术语
 
-| Term | What people say | What it actually means |
-|------|----------------|------------------------|
+| Term | 常见说法 | 实际含义 |
+|------|----------|----------|
 | Skill | “可复用能力” | 有名字的代码块 + 描述，可按相似度检索 |
 | Skill library | “agent 的操作手册记忆” | 持久化存储 skill，可搜索、可组合 |
 | Curriculum | “任务提议器” | 由当前能力缺口驱动的自底向上目标生成器 |
@@ -135,7 +135,7 @@ python3 code/main.py
 | Action-space-as-code | “程序化动作” | 发函数，不发原始命令，用于时间跨度更长的行为 |
 | Dedup on write | “Skill 收缩” | 近重复描述合并成一个 canonical skill |
 
-## Further Reading
+## 延伸阅读
 
 - [Wang et al., Voyager (arXiv:2305.16291)](https://arxiv.org/abs/2305.16291) - 原始技能库论文
 - [Claude Agent SDK overview](https://platform.claude.com/docs/en/agent-sdk/overview) - 2026 年的技能产品化方式
