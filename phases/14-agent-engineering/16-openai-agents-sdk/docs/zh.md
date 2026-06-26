@@ -2,23 +2,23 @@
 
 > OpenAI Agents SDK 是基于 Responses API 做出来的轻量级多 agent 框架。五个原语：Agent、Handoff、Guardrail、Session、Tracing。Handoff 会被建模成名为 `transfer_to_<agent>` 的工具。Guardrail 可以在输入或输出时触发。Tracing 默认开启。
 
-**Type:** Learn + Build
-**Languages:** Python (stdlib)
-**Prerequisites:** Phase 14 · 01 (Agent Loop), Phase 14 · 06 (Tool Use)
-**Time:** ~75 分钟
+**类型:** 学习 + 实作
+**语言:** Python (stdlib)
+**先修:** 第 14 阶段第 01 课（Agent Loop）, 第 14 阶段第 06 课（Tool Use）
+**时长:** ~75 分钟
 
-## Learning Objectives
+## 学习目标
 
 - 说出 OpenAI Agents SDK 的五个原语。
 - 解释 handoff：为什么它被建模成工具、模型看到的名字长什么样，以及上下文如何转移。
 - 区分 input guardrail、output guardrail 和 tool guardrail；解释 `run_in_parallel` 与 blocking 模式的差异。
 - 用标准库实现一个带 handoff + guardrail + span 风格 tracing 的运行时。
 
-## The Problem
+## 问题是什么
 
 不会优雅分工的 agent，最后只能把所有东西都塞进一个 prompt 里。没有 guardrail 的 agent，则会把 PII、违反策略的输出，或者无限循环一起发出去。OpenAI 的 SDK 把多 agent 变得可操作的三个原语做了规范化。
 
-## The Concept
+## 核心概念
 
 ### 五个原语
 
@@ -67,7 +67,7 @@
 - **guardrail 绕过。** Tool guardrail 只对 function tool 生效；内置工具（文件读取、网页抓取）需要单独的策略。
 - **过度 tracing。** span 里可能带敏感内容。要配合第 23 课里的 OTel GenAI 内容采集规则 - 外部存储，只用 ID 引用。
 
-## Build It
+## 动手实现
 
 `code/main.py` 用标准库实现了 SDK 的形状：
 
@@ -84,18 +84,18 @@ python3 code/main.py
 
 trace 会显示两次成功 handoff、一次 input guardrail 触发，以及一棵和真实 SDK 类似的 span 树。
 
-## Use It
+## 使用方式
 
 - **OpenAI Agents SDK** 用于 OpenAI-first 产品。
 - **Claude Agent SDK**（第 17 课）用于 Claude-first 产品。
 - **LangGraph**（第 13 课）用于你想要显式 state 和持久恢复的时候。
 - **Custom** 用于你需要完全控制（语音、多提供方、联邦部署）的时候。
 
-## Ship It
+## 交付物
 
 `outputs/skill-agents-sdk-scaffold.md` 会搭一个 Agents SDK 应用骨架，包含 triage agent、handoff、input/output/tool guardrail、session store 和 trace processor。
 
-## Exercises
+## 练习
 
 1. 给 handoff 加一个 hop counter：超过 N 次转移就拒绝。把行为 trace 出来。
 2. 把 `nest_handoff_history` 做成一个可选项 - 在转移前先把前序消息压成一段摘要。
@@ -103,10 +103,10 @@ trace 会显示两次成功 handoff、一次 input guardrail 触发，以及一�
 4. 把 `add_trace_processor` 接到一个 JSON logger 上。它每个 span 会输出什么形状？
 5. 阅读 SDK 文档。把你的标准库玩具迁移到 `openai-agents-python`。你哪里建模错了？
 
-## Key Terms
+## 关键术语
 
-| Term | What people say | What it actually means |
-|------|----------------|------------------------|
+| Term | 常见说法 | 实际含义 |
+|------|----------|----------|
 | Agent | “LLM + instructions” | SDK 里的 Agent 类型；拥有 tools 和 handoffs |
 | Handoff | “Transfer” | 模型调用的、用于委派给另一个 agent 的工具 |
 | Guardrail | “Policy check” | 对输入 / 输出 / 工具调用的校验 |
@@ -116,7 +116,7 @@ trace 会显示两次成功 handoff、一次 input guardrail 触发，以及一�
 | Blocking guardrail | “串行检查” | Guardrail 先跑；触发时不浪费 token |
 | Parallel guardrail | “并行检查” | Guardrail 并行跑；延迟更低，但触发时会浪费 token |
 
-## Further Reading
+## 延伸阅读
 
 - [OpenAI Agents SDK docs](https://openai.github.io/openai-agents-python/) - 原语、handoff、guardrail、tracing
 - [Claude Agent SDK overview](https://platform.claude.com/docs/en/agent-sdk/overview) - Claude 风格对应实现
