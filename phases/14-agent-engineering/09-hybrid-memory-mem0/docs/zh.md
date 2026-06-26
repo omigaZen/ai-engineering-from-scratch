@@ -2,19 +2,19 @@
 
 > Mem0（Chhikara 等，2025）把记忆看成三套并行存储 - 向量库负责语义相似度，KV 负责快速事实检索，图存储负责实体关系推理。检索时再用评分层把三者融合起来。这就是 2026 年外部记忆的生产标准。
 
-**Type:** Build
-**Languages:** Python (stdlib)
-**Prerequisites:** Phase 14 · 07 (MemGPT), Phase 14 · 08 (Letta Blocks)
-**Time:** ~75 分钟
+**类型:** 构建
+**语言:** Python (stdlib)
+**先修:** 第 14 阶段第 07 课（MemGPT）, 第 14 阶段第 08 课（Letta Blocks）
+**时长:** ~75 分钟
 
-## Learning Objectives
+## 学习目标
 
 - 解释为什么单一存储（只用向量、只用图、只用 KV）不足以支撑 agent 记忆。
 - 说出 Mem0 的三套并行存储，以及它们各自优化什么。
 - 说明 Mem0 的融合评分 - relevance、importance、recency - 以及为什么它是加权和，而不是层级。
 - 用标准库实现一个玩具版三存储记忆，包含一个会把数据写入三处的 `add()` 和一个融合结果的 `search()`。
 
-## The Problem
+## 问题是什么
 
 单一存储对三类查询里的一类总是错的：
 
@@ -24,7 +24,7 @@
 
 生产级 agent 一次会用到这三类查询。单一存储总会在其中两类上出错。Mem0 的贡献就是把三者都包在一个 `add` / `search` 接口背后，再用一个评分函数把结果融合起来。
 
-## The Concept
+## 核心概念
 
 ### 三套并行存储
 
@@ -88,7 +88,7 @@ Mem0 按 scope 划分记忆：
 - **KV schema 膨胀。** `(user_id, type, entity)` 一开始看着很简单，直到每个团队都往 `type` 里塞自己的分类。最好每季度审计一次 type 集合。
 - **图爆炸。** 一个噪声抽取器每条消息能加 50 条边。每次 `add` 调用都要限制图写入数量，低置信度边直接丢掉。
 
-## Build It
+## 动手实现
 
 `code/main.py` 用标准库实现了三存储模式：
 
@@ -106,18 +106,18 @@ python3 code/main.py
 
 输出会展示三条不同的召回路径，以及融合后的 top-k。你可以改 `main()` 顶部的评分权重，观察排序如何变化。
 
-## Use It
+## 使用方式
 
 - **Mem0（Apache 2.0）** - 已经可以用于生产。可以自托管，后端用 Postgres + Qdrant + Neo4j，也可以直接用托管云。
 - **Letta** - 三层 core/recall/archival；向量和图后端都可以自己接。
 - **Zep** - 商业替代方案，带时间语义 KG 和事实抽取。
 - **Custom builds** - 当你需要对抽取器（合规）或融合权重（语音 agent 中 recency 更重要）做精确控制时。
 
-## Ship It
+## 交付物
 
 `outputs/skill-hybrid-memory.md` 会生成一套三存储记忆骨架，包含融合评分器、作用域分类和时间失效机制。
 
-## Exercises
+## 练习
 
 1. 把玩具向量相似度替换成真实 embedding 模型（sentence-transformers、Ollama、OpenAI embeddings）。在一个合成长对话上测 recall@10。跑到 1000 次写入后，排序会漂移吗？
 2. 增加一个时间查询：`search(query, as_of=timestamp)`。只返回在该时间点或之前有效的记录。哪个存储最需要改造？
@@ -125,10 +125,10 @@ python3 code/main.py
 4. 给融合评分器加一个 `user_feedback` 维度（对检索结果点踩/点赞）。你要怎么防止被刷分（agent 只返回自己已经喜欢的记录）？
 5. 阅读 Mem0 文档（`docs.mem0.ai`），把这个玩具实现迁移成 `mem0` 客户端调用。比较同样 20 个测试查询上的检索质量。
 
-## Key Terms
+## 关键术语
 
-| Term | What people say | What it actually means |
-|------|----------------|------------------------|
+| Term | 常见说法 | 实际含义 |
+|------|----------|----------|
 | Hybrid memory | “向量加图加 KV” | 三套存储并行写入，检索时融合 |
 | Fact extraction | “记忆摄取” | 把文本拆成 `(entity, relation, fact)` 元组的 LLM 步骤 |
 | Fusion scoring | “相关性排序” | relevance、importance、recency 的加权和 |
@@ -137,7 +137,7 @@ python3 code/main.py
 | Temporal invalidation | “软删除” | 把被推翻的边标记无效；绝不直接删除 |
 | Embedding drift | “检索腐化” | 语料变大后向量质量下降；需要定期重新 embedding |
 
-## Further Reading
+## 延伸阅读
 
 - [Chhikara et al., Mem0 (arXiv:2504.19413)](https://arxiv.org/abs/2504.19413) - 原始论文
 - [Mem0 docs](https://docs.mem0.ai/platform/overview) - 生产 API、SDK、托管云
