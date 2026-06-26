@@ -2,19 +2,19 @@
 
 > 检测本质上就是分类加回归，只不过是在特征图的每个位置都做一次，然后再用非极大值抑制清理重复框。
 
-**Type:** Build
-**Languages:** Python
-**Prerequisites:** Phase 4 Lesson 03 (CNNs), Phase 4 Lesson 04 (Image Classification), Phase 4 Lesson 05 (Transfer Learning)
-**Time:** ~75 分钟
+**类型:** 构建
+**语言:** Python
+**先修:** 第 4 阶段第 03 课（CNNs）, 第 4 阶段第 04 课（Image Classification）, 第 4 阶段第 05 课（Transfer Learning）
+**时长:** ~75 分钟
 
-## Learning Objectives
+## 学习目标
 
 - 解释 grid + anchor 的设计如何把检测变成稠密预测问题，并说清输出张量里每个数字分别代表什么。
 - 计算框之间的 Intersection-over-Union，并从零实现 non-maximum suppression。
 - 在一个预训练 backbone 上搭出一个最小 YOLO 风格 head，包括分类、objectness 和框回归损失。
 - 读懂检测指标行（precision@0.5、recall、mAP@0.5、mAP@0.5:0.95），并判断下一步该调哪个旋钮。
 
-## The Problem
+## 问题是什么
 
 分类是在说“这张图里有一只狗”。检测是在说“像素 (112, 40, 280, 210) 这里有一只狗，(400, 180, 560, 310) 这里有一只猫，画面里没有别的东西”。这种结构上的变化 - 预测的是一组带标签的框，而不是每张图一个标签 - 正是所有自动驾驶系统、监控产品、文档版面解析器和工厂视觉产线依赖的东西。
 
@@ -22,7 +22,7 @@
 
 YOLO（You Only Look Once，Redmon 等，2016）是第一个把这一切用一次卷积网络前向传播就跑到实时的设计，而今天现代检测器（YOLOv8、YOLOv9、YOLO-NAS、RT-DETR）沿用的，依然是同样的结构思路。学会核心之后，后面的所有变体都只是对同一套零件的重新排列。
 
-## The Concept
+## 核心概念
 
 ### 把检测看成稠密预测
 
@@ -135,7 +135,7 @@ Accuracy 不适用于检测。真正有用的四个数是：
 
 这四个都要报。如果一个 detector 在 mAP@0.5 上很强，但在 mAP@0.5:0.95 上很弱，说明它大概找到了位置，但框得不够紧；这时应该改进 box-regression loss。一个 detector 如果 precision 高、recall 低，说明它太保守；要降低 confidence threshold，或者提高 objectness 权重。
 
-## Build It
+## 动手实现
 
 ### 第 1 步：IoU
 
@@ -351,7 +351,7 @@ def postprocess(pred_tensor, anchors, stride, img_size, conf_threshold=0.25, iou
 
 这就是完整的评估路径：head -> decode -> threshold -> NMS。
 
-## Use It
+## 使用方式
 
 `torchvision.models.detection` 已经给你提供了生产级 detector，概念结构和上面完全一致。加载一个预训练模型只要三行。
 
@@ -371,23 +371,23 @@ print(f"labels: {predictions[0]['labels'].shape}")
 
 对于实时推理管线，`ultralytics`（YOLOv8/v9）是标准选择：`from ultralytics import YOLO; model = YOLO('yolov8n.pt'); model(img)`。模型内部会处理解码和 NMS，并返回你在上面自己搭出来的同样三元组：`boxes / scores / labels`。
 
-## Ship It
+## 交付物
 
 这一课会产出：
 
 - `outputs/prompt-detection-metric-reader.md` - 一个提示词，把 `precision, recall, AP, mAP@0.5:0.95` 这一行转成一句诊断，再给出下一步最有用的实验。
 - `outputs/skill-anchor-designer.md` - 一个 skill，给它 ground-truth box 数据集，它会对 `(w, h)` 做 k-means，返回每个 FPN 层的 anchor 集合，以及帮你决定 anchor 数量所需的覆盖统计。
 
-## Exercises
+## 练习
 
 1. **（Easy）** 实现 `box_iou`，并拿它和 `torchvision.ops.box_iou` 在 1000 对随机 box 上对比。验证最大绝对误差小于 `1e-6`。
 2. **（Medium）** 把 `yolo_loss` 改成使用 `CIoU` 框损失，而不是 MSE。用一个 100 张图的合成数据集说明：在相同 epoch 数下，CIoU 收敛出的最终 mAP@0.5:0.95 比 MSE 更好。
 3. **（Hard）** 实现多尺度推理：把同一张图以三种分辨率送进模型，合并所有框预测，最后只做一次 NMS。和单尺度推理相比，在留出的验证集上测 mAP 提升。
 
-## Key Terms
+## 关键术语
 
-| Term | What people say | What it actually means |
-|------|----------------|------------------------|
+| Term | 常见说法 | 实际含义 |
+|------|----------|----------|
 | Anchor | “框先验” | 预先定义好的框形状，模型在每个网格单元上预测的是偏移量，而不是绝对坐标 |
 | IoU | “重叠度” | 两个框的 intersection-over-union；检测里通用的相似度指标 |
 | NMS | “去重” | 贪心算法，保留最高分预测，删除所有超过阈值的重叠框 |
@@ -397,7 +397,7 @@ print(f"labels: {predictions[0]['labels'].shape}")
 | AP@0.5 | “PASCAL VOC AP” | IoU 阈值 0.5 下的 average precision；这个指标比较宽松 |
 | mAP@0.5:0.95 | “COCO AP” | 在 IoU 0.5..0.95、步长 0.05 上取平均；更严格，也是当前社区标准 |
 
-## Further Reading
+## 延伸阅读
 
 - [YOLOv1: You Only Look Once (Redmon et al., 2016)](https://arxiv.org/abs/1506.02640) - 奠基论文；后面的每个 YOLO 都是在这个结构上迭代
 - [YOLOv3 (Redmon & Farhadi, 2018)](https://arxiv.org/abs/1804.02767) - 引入多尺度 FPN 风格 head 的论文；到今天仍是最清楚的图
