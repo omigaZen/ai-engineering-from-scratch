@@ -2,25 +2,25 @@
 
 > 单条 CoT 推理轨迹没有回头路。ToT（Yao 等，2023）把推理变成一棵树，并在每个节点做自我评估。LATS（Zhou 等，2024）把 ToT、ReAct 和 Reflexion 统一进蒙特卡洛树搜索。24 点游戏从 4%（CoT）提升到 74%（ToT）；LATS 在 HumanEval 上的 pass@1 达到 92.7%。
 
-**Type:** Build
-**Languages:** Python (stdlib)
-**Prerequisites:** Phase 14 · 01 (Agent Loop), Phase 14 · 03 (Reflexion)
-**Time:** ~75 分钟
+**类型:** 构建
+**语言:** Python (stdlib)
+**先修:** 第 14 阶段第 01 课（Agent Loop）, 第 14 阶段第 03 课（Reflexion）
+**时长:** ~75 分钟
 
-## Learning Objectives
+## 学习目标
 
 - 将推理表述为搜索：节点是“思路”，边是“扩展”，价值是“有多值得继续探索”。
 - 实现一个仅用标准库的 ToT 风格 BFS 树搜索，并带自我评估打分。
 - 扩展为一个玩具版 LATS MCTS 循环，包含 select / expand / simulate / backpropagate。
 - 判断什么时候搜索值得付出额外 token 成本（24 点游戏、代码生成），什么时候单条轨迹就够了（简单问答）。
 
-## The Problem
+## 问题是什么
 
 Chain-of-thought 是一条线性行走的路径。如果第一步错了，后面的每一步都会建立在错误前提上。在 24 点游戏中（用 4 个数字和 + − × ÷ 拼出 24），GPT-4 的 CoT 准确率只有 4%。模型会过早选错子表达式，而且无法回头修正。
 
 推理真正需要的是：能提出多个候选，逐个评估，挑出更有希望的路径，并在走进死胡同时回溯。这就是搜索。Tree of Thoughts 和 LATS 就是两种经典表述。
 
-## The Concept
+## 核心概念
 
 ### Tree of Thoughts（Yao 等，NeurIPS 2023）
 
@@ -77,7 +77,7 @@ UCT 公式：`Q(s, a) + c * sqrt(ln N(s) / N(s, a))`。第一项是利用，第�
 
 AlphaEvolve（第 11 课）则是 2025 年的极端版本：对代码做进化搜索，用可机器检查的 fitness，拿到了前沿级增益（56 年来首次改进 4x4 矩阵乘法）。
 
-## Build It
+## 动手实现
 
 `code/main.py` 实现了：
 
@@ -93,15 +93,15 @@ python3 code/main.py
 
 输出轨迹会展示：ToT 在 BFS 中每个节点扩展 3 个候选，而 LATS 通过 MCTS 收敛到最优 rollout。两者的 token 统计也会一并打印。
 
-## Use It
+## 使用方式
 
 LangGraph 把 ToT 风格的探索做成了子图模式；LangChain 团队在 2024 年 5 月关于 LATS 的博客，是最值得看的入门教程。LlamaIndex 也提供了 `TreeOfThoughts` agent。到了 2026，大多数生产 agent 会把这套模式放进 `if task_complexity > threshold: use_search()` 这样的门控里——参考第 05 课的 evaluator-optimizer 模式。
 
-## Ship It
+## 交付物
 
 `outputs/skill-search-policy.md` 会根据任务形态、预算和 evaluator 的可靠性，在线性 ReAct、ToT、LATS 和进化搜索之间做选择。
 
-## Exercises
+## 练习
 
 1. 分别以 UCT 的 `c=0.1` 和 `c=2.0` 运行玩具版 LATS。轨迹有什么变化？
 2. 把 value function 换成更噪声的评分器（加一点随机抖动）。MCTS 还能找到最优叶子吗？它能容忍的最小信噪比是多少？
@@ -109,10 +109,10 @@ LangGraph 把 ToT 风格的探索做成了子图模式；LangChain 团队在 202
 4. 阅读 LATS 第 5.1 节。复现 HumanEval 的 trajectory 数：要多少次 rollout 才能达到文中报告的 pass@1？
 5. 阅读 LATS 论文里关于“什么时候 LATS 帮助较小”的讨论，写一段决策规则，把任务形态映射到搜索策略。
 
-## Key Terms
+## 关键术语
 
-| Term | What people say | What it actually means |
-|------|----------------|------------------------|
+| Term | 常见说法 | 实际含义 |
+|------|----------|----------|
 | Tree of Thoughts | “分支版 CoT” | Yao 等提出的思维节点树，并在节点上做自我评估 |
 | LATS | “给 LLM 用的 MCTS” | Zhou 等提出，把 ToT + ReAct + Reflexion 统一到 MCTS 里 |
 | UCT | “Upper confidence bound” | 在利用（Q）和探索（ln N / n）之间做平衡的选择公式 |
@@ -122,7 +122,7 @@ LangGraph 把 ToT 风格的探索做成了子图模式；LangChain 团队在 202
 | Backpropagate | “更新祖先节点” | 把叶子的奖励向上推回路径，更新访问次数和 Q 值 |
 | Search cost | “token 爆炸” | 24 点游戏里通常是 CoT 的 100-1000 倍；采用前先算预算 |
 
-## Further Reading
+## 延伸阅读
 
 - [Yao et al., Tree of Thoughts (arXiv:2305.10601)](https://arxiv.org/abs/2305.10601) - 经典论文
 - [Zhou et al., LATS (arXiv:2310.04406)](https://arxiv.org/abs/2310.04406) - 带 Reflexion 反馈的 MCTS
