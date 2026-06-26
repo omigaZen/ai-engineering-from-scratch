@@ -27,7 +27,7 @@
 
 解决办法是：每个项目都用自己的隔离环境。
 
-## 概念
+## 核心概念
 
 ```mermaid
 graph TD
@@ -45,7 +45,7 @@ graph TD
     end
 ```
 
-## 动手
+## 动手实现
 
 ### 方案 1：uv venv（推荐）
 
@@ -238,7 +238,7 @@ python -c "import torch; print(torch.version.cuda)"  # shows PyTorch CUDA versio
 # PyTorch CUDA version must be <= driver CUDA version.
 ```
 
-## 应用
+## 使用方式
 
 运行环境初始化脚本创建课程环境：
 
@@ -255,10 +255,10 @@ bash phases/00-setup-and-tooling/06-python-environments/code/env_setup.sh
 3. 为一个同时需要 PyTorch 和 Anthropic SDK 的项目编写 pyproject.toml
 4. 故意不激活环境全局安装一个包，观察安装位置，再将其卸载
 
-## 关键词
+## 关键术语
 
-| 术语 | 口语说法 | 实际含义 |
-|------|----------------|----------------------|
+| 术语 | 常见说法 | 实际含义 |
+|------|----------|----------|
 | 虚拟环境 | “venv” | 与系统 Python 隔离的目录，内含独立解释器与包 |
 | 锁文件 | “锁定依赖” | 列出每个包及精确版本的文件，保证跨机器安装一致 |
 | pyproject.toml | “新一代配置文件” | Python 项目标准配置文件，取代 setup.py/setup.cfg/requirements.txt |
