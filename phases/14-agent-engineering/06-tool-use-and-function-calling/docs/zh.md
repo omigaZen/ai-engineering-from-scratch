@@ -2,25 +2,25 @@
 
 > Toolformer（Schick 等，2023）开启了自监督式工具标注。Berkeley Function Calling Leaderboard V4（Patil 等，2025）定义了 2026 年的标杆：40% agentic、30% multi-turn、10% live、10% non-live、10% hallucination。单轮调用已经基本解决，真正棘手的是记忆、动态决策，以及长链路工具编排。
 
-**Type:** Build
-**Languages:** Python (stdlib)
-**Prerequisites:** Phase 14 · 01 (Agent Loop), Phase 13 · 01 (Function Calling Deep Dive)
-**Time:** ~60 分钟
+**类型:** 构建
+**语言:** Python (stdlib)
+**先修:** 第 14 阶段第 01 课（Agent Loop）, 第 13 阶段第 01 课（Function Calling Deep Dive）
+**时长:** ~60 分钟
 
-## Learning Objectives
+## 学习目标
 
 - 解释 Toolformer 的自监督训练信号：只有当执行工具能降低下一个 token 的 loss 时，才保留工具标注。
 - 说出 BFCL V4 的五类评测，并理解各自衡量什么。
 - 实现一个仅用标准库的工具注册表，支持 schema 校验、参数强制转换和执行沙箱。
 - 定位 2026 年的三个开放问题：长链路工具编排、动态决策、记忆。
 
-## The Problem
+## 问题是什么
 
 早期的工具使用问题是：模型能不能预测出一个正确的函数调用？现代工具使用的问题则是：模型能不能在 40 步之内串联多个工具，带着记忆，在部分可观测环境里运行，能从工具失败中恢复，而且不会幻觉出根本不存在的工具？
 
 Toolformer 定下了基础线：模型可以通过自监督学会何时调用工具。BFCL V4 则定义了 2026 年的评测目标。这两者之间的差距，就是生产级 agent 真正生活的空间。
 
-## The Concept
+## 核心概念
 
 ### Toolformer（Schick 等，NeurIPS 2023）
 
@@ -85,7 +85,7 @@ Anthropic 直接使用 `input_schema`。OpenAI 使用 `function.parameters`。�
 tool-routing
 ```
 
-## Build It
+## 动手实现
 
 `code/main.py` 实现了一个生产形态的工具注册表：
 
@@ -103,15 +103,15 @@ python3 code/main.py
 
 输出轨迹会展示一个迷你 agent 在一个 turn 里调用 3 个工具，其中有一个故意写坏的调用会被带着清晰错误信息拒绝，模型可以据此修正。
 
-## Use It
+## 使用方式
 
 每个提供方都有自己的工具 schema - Anthropic、OpenAI、Gemini、Bedrock 都不完全一样。如果你需要多提供方支持，就用一层转换器（OpenAI Agents SDK、Vercel AI SDK、LangChain tool adapter）。BFCL 是参考基准 - 如果工具使用是产品核心，发版前最好先跑一遍。
 
-## Ship It
+## 交付物
 
 `outputs/skill-tool-registry.md` 会针对某个任务域生成工具目录、schema 和注册表，并包含描述质量检查（每个工具的 description 是否说清了“什么时候该用它”）。
 
-## Exercises
+## 练习
 
 1. 增加一个 “no-op” 工具，让模型可以显式拒绝使用其他任何工具。观察它在类似 BFCL 的幻觉测试上的表现。
 2. 实现 int-as-string 和 float-as-string 的参数强制转换。强制转换从哪里开始会掩盖真实 bug？
@@ -119,10 +119,10 @@ python3 code/main.py
 4. 阅读 BFCL V4 的描述。选一个类别（例如 “multi-turn”），让你的 agent 跑 10 个示例提示词，并报告通过率。
 5. 把这个标准库校验器移植到 Pydantic 或 Zod。Pydantic/Zod 抓到了什么，而这个玩具版本没抓到？
 
-## Key Terms
+## 关键术语
 
-| Term | What people say | What it actually means |
-|------|----------------|------------------------|
+| Term | 常见说法 | 实际含义 |
+|------|----------|----------|
 | Function calling | “Tool use” | 带校验 schema 的结构化输出式工具调用 |
 | Toolformer | “自监督工具标注” | Schick 2023 - 保留那些会降低 next-token loss 的工具调用 |
 | BFCL | “Berkeley Function Calling Leaderboard” | 2026 基准：40% agentic、30% multi-turn、10% live、10% non-live、10% hallucination |
@@ -132,7 +132,7 @@ python3 code/main.py
 | Argument coercion | “字符串转整数修复” | 对可预期的 schema 不匹配做窄修正；含糊时就拒绝 |
 | Sandboxing | “工具执行边界” | 每个工具都要有明确的读写范围、网络、超时、内存上限 |
 
-## Further Reading
+## 延伸阅读
 
 - [Schick et al., Toolformer (arXiv:2302.04761)](https://arxiv.org/abs/2302.04761) - 自监督工具标注
 - [Berkeley Function Calling Leaderboard (V4)](https://gorilla.cs.berkeley.edu/leaderboard.html) - 2026 评测基准
