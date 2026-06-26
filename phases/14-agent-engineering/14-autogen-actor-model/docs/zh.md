@@ -2,25 +2,25 @@
 
 > AutoGen v0.4（Microsoft Research，2025 年 1 月）围绕 actor model 重新设计了 agent 编排。异步消息交换、事件驱动 agent、故障隔离、天然并发。这个框架现在处于维护模式，而 Microsoft Agent Framework（2025 年 10 月公开预览）正在接棒。
 
-**Type:** Learn + Build
-**Languages:** Python (stdlib)
-**Prerequisites:** Phase 14 · 01 (Agent Loop), Phase 14 · 12 (Workflow Patterns)
-**Time:** ~75 分钟
+**类型:** 学习 + 实作
+**语言:** Python (stdlib)
+**先修:** 第 14 阶段第 01 课（Agent Loop）, 第 14 阶段第 12 课（Workflow Patterns）
+**时长:** ~75 分钟
 
-## Learning Objectives
+## 学习目标
 
 - 说明 actor model：agent 作为 actor，消息是唯一的 IPC，并且每个 actor 都有故障隔离。
 - 说出 AutoGen v0.4 的三层 API - Core、AgentChat、Extensions - 以及各自用途。
 - 解释为什么把消息投递和处理解耦，会带来故障隔离和天然并发。
 - 用标准库实现一个 actor runtime，并把一个双 agent 代码审查流程迁移到它上面。
 
-## The Problem
+## 问题是什么
 
 大多数 agent 框架都是同步的：一个 agent 产出，另一个 agent 消费，全都压在同一个调用栈里。故障会把整个栈拖垮。并发通常是后补上去的。分布式支持则需要重写。
 
 AutoGen v0.4 的答案是 actor model。每个 agent 都是一个带私有 inbox 的 actor。消息是唯一的交互方式。运行时把投递和处理解耦。故障只会隔离在单个 actor 内。并发是原生的。分布式只是换一种 transport。
 
-## The Concept
+## 核心概念
 
 ### Actors
 
@@ -60,7 +60,7 @@ OpenTelemetry 支持是内建的。每条消息都会发出一个 span；tool ca
 
 2026 年初：AutoGen v0.7.x 仍然适合研究和原型开发。Microsoft 已把活跃开发转向 Microsoft Agent Framework（2025 年 10 月 1 日公开预览，目标在 2026 年第一季度末发布 1.0 GA）。AutoGen 的模式可以平滑迁移 - actor model 才是那个可持续的想法。
 
-## Build It
+## 动手实现
 
 `code/main.py` 实现了一个标准库版 actor runtime：
 
@@ -77,18 +77,18 @@ python3 code/main.py
 
 轨迹会展示消息投递、某个 actor 的模拟失败不会拖垮另一个 actor，以及最后收敛到共享 verdict。
 
-## Use It
+## 使用方式
 
 - **AutoGen v0.4/v0.7**（维护中）- 适合研究、原型和多 agent 模式。
 - **Microsoft Agent Framework**（公开预览）- 后续方向；在更新后的 API 里保留同样的 actor model 思想。
 - **LangGraph swarm topology**（第 13 课）- 通过共享工具交接实现的相似模式。
 - **Custom actor runtime** - 当你需要特定 transport（NATS、RabbitMQ、gRPC）时。
 
-## Ship It
+## 交付物
 
 `outputs/skill-actor-runtime.md` 会为给定的多 agent 任务生成一个最小 actor runtime，再加一个团队模板（RoundRobin 或 Selector）。
 
-## Exercises
+## 练习
 
 1. 增加一个 dead-letter queue：当 handler 抛错时，把失败消息存起来，供人工检查。你的玩具里 DLQ 命中频率有多高？
 2. 实现 `SelectorGroupChat`：由 selector actor 根据对话状态决定下一条消息谁处理。
@@ -96,10 +96,10 @@ python3 code/main.py
 4. 给每条消息接一个 OTel span（或者一个 no-op 替身）。按第 23 课输出 `gen_ai.agent.name`、`gen_ai.operation.name`。
 5. 阅读 AutoGen v0.4 的架构文章。把这个玩具迁移到真实的 `autogen_core` API。你跳过了哪些在生产里很重要的东西？
 
-## Key Terms
+## 关键术语
 
-| Term | What people say | What it actually means |
-|------|----------------|------------------------|
+| Term | 常见说法 | 实际含义 |
+|------|----------|----------|
 | Actor | “Agent” | 私有状态 + inbox + handler；没有共享内存 |
 | Message | “事件” | 类型化载荷；actor 交互的唯一方式 |
 | Inbox | “邮箱” | 每个 actor 的待处理消息队列 |
@@ -110,7 +110,7 @@ python3 code/main.py
 | SelectorGroupChat | “上下文路由团队” | selector 决定下一位是谁 |
 | Magentic-One | “参考团队” | 面向 web + code + files 的多 agent 小队 |
 
-## Further Reading
+## 延伸阅读
 
 - [AutoGen v0.4, Microsoft Research](https://www.microsoft.com/en-us/research/articles/autogen-v0-4-reimagining-the-foundation-of-agentic-ai-for-scale-extensibility-and-robustness/) - 重设计文章
 - [LangGraph overview](https://docs.langchain.com/oss/python/langgraph/overview) - 图形化替代方案
