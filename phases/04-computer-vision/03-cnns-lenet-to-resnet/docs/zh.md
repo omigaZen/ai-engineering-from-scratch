@@ -2,25 +2,25 @@
 
 > 过去三十年的主流 CNN，本质上都是同一套 conv - nonlinearity - downsample 的配方，只是在上面多加了一个新想法。要按顺序学这些想法。
 
-**Type:** Learn + Build
-**Languages:** Python
-**Prerequisites:** Phase 3 Lesson 11 (PyTorch), Phase 4 Lesson 01 (Image Fundamentals), Phase 4 Lesson 02 (Convolutions from Scratch)
-**Time:** ~75 分钟
+**类型:** 学习 + 实作
+**语言:** Python
+**先修:** 第 3 阶段第 11 课（PyTorch）, 第 4 阶段第 01 课（Image Fundamentals）, 第 4 阶段第 02 课（Convolutions from Scratch）
+**时长:** ~75 分钟
 
-## Learning Objectives
+## 学习目标
 
 - 梳理 LeNet-5 -> AlexNet -> VGG -> Inception -> ResNet 的架构谱系，并说出每一代的单一新想法。
 - 在 PyTorch 里实现 LeNet-5、一个 VGG 风格 block 和一个 ResNet BasicBlock，且每个都控制在 40 行以内。
 - 解释为什么 residual connection 能把一个 1000 层网络从“根本训不动”变成 SOTA。
 - 读懂现代 backbone（ResNet-18、ResNet-50），并在看源码前先预测它的输出形状、感受野和参数量。
 
-## The Problem
+## 问题是什么
 
 2011 年，最好的 ImageNet 分类器大约只有 74% 的 top-5 accuracy。2012 年 AlexNet 做到了 85%。2015 年 ResNet 做到了 96%。没有新数据，没有新一代 GPU。提升来自架构想法。一个合格的视觉工程师必须知道哪个想法来自哪篇论文，因为你在 2026 年交付的生产 backbone，本质上都是这些积木的重新组合。更重要的是，这些想法还会继续迁移：grouped conv 从 CNN 跑到了 transformer，residual connection 从 ResNet 跑到了所有 LLM，batch normalisation 现在也活在 diffusion model 里。
 
 按顺序学习这些网络，也能帮你避免一个常见错误：看到问题就去拿最大的可用模型，结果其实一个 LeNet 级别的网络就够了。MNIST 不需要 ResNet。知道每个家族的 scaling 曲线，才能决定自己该坐在哪一段。
 
-## The Concept
+## 核心概念
 
 ### 改变视觉的四个想法
 
@@ -155,7 +155,7 @@ flowchart LR
 pooling
 ```
 
-## Build It
+## 动手实现
 
 ### 第 1 步：LeNet-5
 
@@ -328,7 +328,7 @@ summary("TinyResNet", TinyResNet(),   x)
 
 三个模型，三个时代，参数量差了三个数量级。对于 CIFAR-10 的准确率，大致可以把它们理解成：LeNet 60%，MiniVGG 89%，TinyResNet 在训练几个 epoch 后能到 93%。
 
-## Use It
+## 使用方式
 
 `torchvision.models` 里已经给你准备好了上述所有网络的预训练版本。各家家族的调用签名完全一样，这正是 backbone 抽象的意义。
 
@@ -359,23 +359,23 @@ r18.fc = nn.Linear(r18.fc.in_features, 10)
 
 三行。你现在得到了一个 10 类 CIFAR 分类器，而且直接继承了 ImageNet 为你买单的表示能力。
 
-## Ship It
+## 交付物
 
 这一课会产出：
 
 - `outputs/prompt-backbone-selector.md` - 一个提示词，用来根据任务、数据集大小和算力预算挑选合适的 CNN 家族（LeNet / VGG / ResNet / MobileNet / ConvNeXt）。
 - `outputs/skill-residual-block-reviewer.md` - 一个 skill，读取 PyTorch 模块并标出 skip connection 错误（stride 变化时缺少 shortcut、shortcut 激活顺序、BN 在 addition 前后的位置）。
 
-## Exercises
+## 练习
 
 1. **（Easy）** 逐层手算 `TinyResNet` 的参数量，并和 `sum(p.numel() for p in net.parameters())` 对比。参数预算主要花在 conv、BN 还是 classifier head 上？
 2. **（Medium）** 实现 Bottleneck block（1x1 -> 3x3 -> 1x1，并带 skip），并用它搭一个 CIFAR 版 ResNet-50。和 `TinyResNet` 比参数量。
 3. **（Hard）** 去掉 `BasicBlock` 里的 skip connection，分别训练一个 34 层的“plain”网络和一个 34 层 ResNet，在 CIFAR-10 上各训 10 个 epoch。画出两者的训练 loss 随 epoch 的变化。复现 He 等人 Figure 1 里的结果：plain 深层网络收敛到的 loss 反而比更浅的 twin 更高。
 
-## Key Terms
+## 关键术语
 
-| Term | What people say | What it actually means |
-|------|----------------|------------------------|
+| Term | 常见说法 | 实际含义 |
+|------|----------|----------|
 | Backbone | “模型本体” | 产生特征图、再喂给任务头的卷积 block 堆叠 |
 | Residual connection | “跳连” | `y = F(x) + x`；让优化器通过把 F 设为 0 学到 identity，从而使任意深度都能训练 |
 | BasicBlock | “两个 3x3 卷积加 skip” | ResNet-18/34 的积木：conv-BN-ReLU-conv-BN-add-ReLU |
@@ -385,7 +385,7 @@ r18.fc = nn.Linear(r18.fc.in_features, 10)
 | Head | “分类头” | backbone 最后一层之后的部分：adaptive pool、flatten、linear(s) |
 | Transfer learning | “预训练权重” | 加载 ImageNet 训练好的 backbone，只微调你自己的任务头 |
 
-## Further Reading
+## 延伸阅读
 
 - [Deep Residual Learning for Image Recognition (He et al., 2015)](https://arxiv.org/abs/1512.03385) - ResNet 论文；每一幅图都值得细看
 - [Very Deep Convolutional Networks (Simonyan & Zisserman, 2014)](https://arxiv.org/abs/1409.1556) - VGG 论文；“为什么 3x3” 的最佳参考
