@@ -2,12 +2,12 @@
 
 > CrewAI 是 2026 年的角色型多 agent 框架。四个原语：Agent、Task、Crew、Process。两种顶层形态：Crews（自治、基于角色的协作）和 Flows（事件驱动、确定性）。文档说得很直白：“对于任何生产就绪的应用，先从 Flow 开始。”
 
-**Type:** Learn + Build
-**Languages:** Python (stdlib)
-**Prerequisites:** Phase 14 · 12 (Workflow Patterns), Phase 14 · 14 (Actor Model)
-**Time:** ~75 分钟
+**类型:** 学习 + 实作
+**语言:** Python (stdlib)
+**先修:** 第 14 阶段第 12 课（Workflow Patterns）, 第 14 阶段第 14 课（Actor Model）
+**时长:** ~75 分钟
 
-## Learning Objectives
+## 学习目标
 
 - 说出 CrewAI 的四个原语（Agent、Task、Crew、Process）以及各自负责什么。
 - 区分 Sequential、Hierarchical 和计划中的 Consensus 流程，并按工作负载选择。
@@ -17,7 +17,7 @@
 - 用标准库实现一个三 agent crew（researcher、writer、editor），产出一份 brief。
 - 识别 CrewAI 的三类失败模式：prompt 膨胀、manager LLM 成本、脆弱的交接。
 
-## The Problem
+## 问题是什么
 
 采用多 agent 框架的团队，最后都会撞到同一堵墙。演示里“自治协作”听起来很美，但一旦客户报 bug，你就需要可确定的重放。或者财务想知道一个由 LLM 路由的 crew 每次运行要花多少钱。又或者值班人员需要知道凌晨 3 点到底是哪一个 agent 卡住了。
 
@@ -25,7 +25,7 @@
 
 CrewAI 对这个取舍说得很坦诚：Crew 负责协作式、基于角色、带探索性的工作；Flow 负责事件驱动、代码拥有、可审计的生产流程。一个框架，两种形态，按场景选择。
 
-## The Concept
+## 核心概念
 
 ### 四个原语
 
@@ -38,9 +38,9 @@ CrewAI 的表面非常小。把这几个记住，剩下的就是配置。
 
 Agents 彼此看不见。Tasks 引用 agents。Crew 串起 tasks。Process 决定谁选择下一步。整个心智模型就这么简单。
 
-> **Validated against** CrewAI 0.86（2026-05）。更新版本可能会重命名或合并 process 类型；如果你要依赖某种具体形态，先看 [CrewAI Processes 文档](https://docs.crewai.com/concepts/processes)。
+> **基于** CrewAI 0.86（2026-05）验证。更新版本可能会重命名或合并 process 类型；如果你要依赖某种具体形态，先看 [CrewAI Processes 文档](https://docs.crewai.com/concepts/processes)。
 
-### Sequential vs Hierarchical vs Consensus
+### Sequential、Hierarchical 与 Consensus
 
 - **Sequential.** Tasks 按声明顺序运行。Task N 的输出会作为 `context` 提供给 Task N+1。成本最低，最可预测。适合顺序固定的场景。
 - **Hierarchical.** 一个 manager Agent（单独一次 LLM 调用）在各个 specialist 之间路由。CrewAI 会根据你的 `manager_llm` 配置，或用默认值，生成 manager。manager 每轮都决定下一步做什么，并且可以拒绝或改路由。适合你有四个或更多 specialist，并且顺序真的取决于前序输出的情况。
@@ -48,7 +48,7 @@ Agents 彼此看不见。Tasks 引用 agents。Crew 串起 tasks。Process 决�
 
 Hierarchical 会在每个 specialist 调用之外，再额外加一个 manager LLM 调用。五步运行时，token 成本可能直接翻三倍。只有在真的需要路由时才值得付这个钱。
 
-### Crews vs Flows
+### Crews 与 Flows
 
 这也是 2026 年文档的主叙事。
 
@@ -99,7 +99,7 @@ Hierarchical 会在每个 specialist 调用之外，再额外加一个 manager L
 
 CrewAI 默认提供四种记忆类型。它们可以组合：一个 Crew 可以同时打开四种。
 
-> **Validated against** CrewAI 0.86（2026-05）。最近的版本把所有东西都路由到统一的 `Memory` 系统里，这个系统封装了下面这四个存储。概念模型仍然成立，但更高版本的公开类表面可能会收敛成一个 `Memory` 入口；当前 API 以 [CrewAI memory 文档](https://docs.crewai.com/concepts/memory) 为准。
+> **基于** CrewAI 0.86（2026-05）验证。最近的版本把所有东西都路由到统一的 `Memory` 系统里，这个系统封装了下面这四个存储。概念模型仍然成立，但更高版本的公开类表面可能会收敛成一个 `Memory` 入口；当前 API 以 [CrewAI memory 文档](https://docs.crewai.com/concepts/memory) 为准。
 
 - **Short-term.** 单次运行内的对话缓冲。运行结束就清空。
 - **Long-term.** 跨运行持久化。默认存到向量数据库里（默认是 Chroma，可替换）。按和当前任务的相似度检索。
@@ -169,11 +169,11 @@ Crew 的 trace 更流动，manager 理论上可以重排。Flow 的 trace 是固
 - **OpenAI Agents SDK**（第 16 课）用于 OpenAI 优先的产品，带交接和 guardrails。
 - **Claude Agent SDK**（第 17 课）用于 Claude 优先的产品，带 subagents 和 session store。
 
-## Ship It
+## 交付物
 
 `outputs/skill-crew-or-flow.md` 会根据任务判断该用 Crew 还是 Flow，并搭出最小实现。规则上会硬拒绝：没有 backstory 的 Crew、没有显式 topic 的 Flow、以及少于三个 specialist 却用 Hierarchical 的情况。
 
-## Pitfalls
+## 常见坑
 
 - **把 backstory 当装饰。** 它会影响输出。每个 agent 至少测三种变体；差异是真实存在的。选一个后就冻结。
 - **跳过 `expected_output`。** 没有每个 task 的合同，下游 task 只能接住 LLM 随手产出的内容。Crew 跑得动；审计过不了。
@@ -181,7 +181,7 @@ Crew 的 trace 更流动，manager 理论上可以重排。Flow 的 trace 是固
 - **manager prompt 漂移。** Hierarchical 的 manager prompt 是隐式的。路由开始变怪时，开 verbose 把它打印出来读。
 - **Crew 里的工具副作用。** Crew 可能比你预想的多调用几次工具。POST、DELETE、支付这类操作应该放在 Flow 步骤里，绝不能放在 Crew tool 里。
 
-## Exercises
+## 练习
 
 1. 把 Sequential crew 改成 Flow。数一数 variability 降下来的触点，并记下可读性在哪些地方下降了。
 2. 给 crew 增加 entity memory：关于某个客户的事实能跨 kickoffs 保留。验证检索能拉到正确实体。
@@ -191,10 +191,10 @@ Crew 的 trace 更流动，manager 理论上可以重排。Flow 的 trace 是固
 6. 阅读 CrewAI 的文档导言。把这个玩具迁移到真实的 `crewai` API。标准库版本跳过了哪些保证？
 7. 给一次真实运行接上 AgentOps 或 Langfuse（第 24 课）。标准库版本里漏掉了哪些 trace？
 
-## Key Terms
+## 关键术语
 
-| Term | What people say | What it actually means |
-|------|----------------|------------------------|
+| Term | 常见说法 | 实际含义 |
+|------|----------|----------|
 | Agent | “Persona” | 角色 + 目标 + backstory + 工具 |
 | Task | “工作单元” | 描述 + 期望输出 + 执行者 + 可选结构化输出 |
 | Crew | “Agent 团队” | Agent + Task + Process 的容器 |
@@ -209,7 +209,7 @@ Crew 的 trace 更流动，manager 理论上可以重排。Flow 的 trace 是固
 | Manager LLM | “路由 agent” | Hierarchical 流程里决定下一任务的额外 LLM |
 | `expected_output` | “任务合同” | 告诉 Agent（和审计）应该返回什么形状的字符串 |
 
-## Further Reading
+## 延伸阅读
 
 - [CrewAI docs introduction](https://docs.crewai.com/en/introduction)：概念与推荐的生产路径
 - [CrewAI Flows guide](https://docs.crewai.com/en/concepts/flows)：事件驱动形态、`@start`、`@listen`
