@@ -2,19 +2,19 @@
 
 > 分类器就是一个把像素映射到类别概率分布的函数。剩下的都是管道工程。
 
-**Type:** Build
-**Languages:** Python
-**Prerequisites:** Phase 2 Lesson 09 (Model Evaluation), Phase 3 Lesson 10 (Mini Framework), Phase 4 Lesson 03 (CNNs)
-**Time:** ~75 分钟
+**类型:** 构建
+**语言:** Python
+**先修:** 第 2 阶段第 09 课（Model Evaluation）, 第 3 阶段第 10 课（Mini Framework）, 第 4 阶段第 03 课（CNNs）
+**时长:** ~75 分钟
 
-## Learning Objectives
+## 学习目标
 
 - 在 CIFAR-10 上搭建一个端到端图像分类管线：数据集、增强、模型、训练循环、评估。
 - 解释每个组件（dataloader、loss、optimizer、scheduler、augmentation）的作用，并预测其中任意一个出错时会如何体现在 loss 曲线上。
 - 从零实现 mixup、cutout 和 label smoothing，并说明各自什么时候值得加。
 - 读取 confusion matrix 和按类别的 precision / recall 表，定位聚合准确率之外的数据集和模型问题。
 
-## The Problem
+## 问题是什么
 
 几乎所有能上线的视觉任务，最终都能在某种层面上归结为图像分类。检测本质上是在给区域分类。分割本质上是在给像素分类。检索本质上是在按和类别中心的相似度排序。把分类这件事做好 - 数据集循环、增强策略、loss、评估 - 是能迁移到本阶段所有其他任务的核心能力。
 
@@ -22,7 +22,7 @@
 
 这一课要把整条管线手工接起来，这样每个环节都能检查。你不会用 `torchvision.datasets` 里可能藏 bug 的东西。
 
-## The Concept
+## 核心概念
 
 ### 分类管线
 
@@ -113,7 +113,7 @@ Cutmix:
 receptive-field
 ```
 
-## Build It
+## 动手实现
 
 ### 第 1 步：一个确定性的合成数据集
 
@@ -367,7 +367,7 @@ print_confusion(cm)
 
 行表示真实类别，列表示预测类别。比如类别 3 和 5 之间出现一团大量的非对角线计数，说明模型总是把这两个类别搞混，这就能指导你做针对性数据收集或者类别专用增强。
 
-## Use It
+## 使用方式
 
 `torchvision` 已经把上面的东西封装成了惯用组件。真实 CIFAR-10 的完整管线只需要四行外加一个训练循环。
 
@@ -391,23 +391,23 @@ val_ds   = CIFAR10(root="./data", train=False, download=True, transform=eval_tf)
 
 要注意两件事：mean/std 是 **数据集专属** 的 - 是根据 CIFAR-10 训练集算出来的，不是 ImageNet；而 reflect pad 是社区默认的裁剪策略。把 ImageNet 统计量直接抄到这里，会偷走你大约 1% 的准确率，而且没人会在有人专门做 profiling 之前发现。
 
-## Ship It
+## 交付物
 
 这一课会产出：
 
 - `outputs/prompt-classifier-pipeline-auditor.md` - 一个提示词，用来审计训练脚本是否满足上面那五条不变量，并找出第一个违例。
 - `outputs/skill-classification-diagnostics.md` - 一个 skill，给它 confusion matrix 和类别名列表，它会总结每个类别的失败情况，并提出一个最有影响力的修复建议。
 
-## Exercises
+## 练习
 
 1. **（Easy）** 在合成数据集上，把同一个模型分别用和不用 mixup 训练 5 个 epoch。画出两组的 train / val loss。解释为什么 mixup 下 train loss 更高，但 val accuracy 却差不多甚至更好。
 2. **（Medium）** 实现 Cutout - 在每张训练图里随机抹掉一个 8x8 方块 - 然后做一组消融：无增强、hflip+crop、hflip+crop+cutout、hflip+crop+mixup。报告每组的验证准确率。
 3. **（Hard）** 搭一个 CIFAR-100 管线（100 类，输入大小不变），并把 ResNet-34 的训练结果复现到和公开准确率误差 1% 以内。附加项：扫三个学习率和两个 weight decay，记录到本地 CSV，输出最终的 confusion-matrix-top-confusions 表。
 
-## Key Terms
+## 关键术语
 
-| Term | What people say | What it actually means |
-|------|----------------|------------------------|
+| Term | 常见说法 | 实际含义 |
+|------|----------|----------|
 | Logits | “原始输出” | 每张图在 softmax 之前的 C 个数；cross-entropy 要的就是它，而不是 softmax 之后的值 |
 | Cross-entropy | “那个 loss” | 正确类别负对数概率；把 log-softmax 和 NLL 合在一个稳定算子里 |
 | DataLoader | “batch 工具” | 给 dataset 加上 shuffle、batch 和（可选的）多 worker 加载；几乎一半训练 bug 最后都被怪到它头上 |
@@ -417,7 +417,7 @@ val_ds   = CIFAR10(root="./data", train=False, download=True, transform=eval_tf)
 | Top-k accuracy | “Top-5” | 正确类别是否出现在概率最高的 k 个预测里；常用于类别本来就模糊的数据集 |
 | Confusion matrix | “错误都在哪” | C x C 表，(i, j) 表示真实类别 i 被预测成 j 的次数；对角线是对的，非对角线告诉你该修什么 |
 
-## Further Reading
+## 延伸阅读
 
 - [CS231n: Training Neural Networks](https://cs231n.github.io/neural-networks-3/) - 至今仍是单页里最清楚的训练管线讲解
 - [Bag of Tricks for Image Classification (He et al., 2019)](https://arxiv.org/abs/1812.01187) - 把很多小技巧合起来，能给 ImageNet 上的 ResNet 带来 3-4% 提升
