@@ -2,19 +2,19 @@
 
 > MemGPT 在 2024 年演化成了 Letta。2026 版又加了两件事：模型可以直接编辑的离散功能性 memory block，以及一个在主 agent 空闲时异步整理记忆的 sleep-time agent。要把记忆规模做出单轮对话的边界，这就是关键手段。
 
-**Type:** Build
-**Languages:** Python (stdlib)
-**Prerequisites:** Phase 14 · 07 (MemGPT)
-**Time:** ~75 分钟
+**类型:** 构建
+**语言:** Python (stdlib)
+**先修:** 第 14 阶段第 07 课（MemGPT）
+**时长:** ~75 分钟
 
-## Learning Objectives
+## 学习目标
 
 - 说出 Letta 使用的三层记忆：core、recall、archival，以及各自的作用。
 - 解释 memory block 模式：Human block、Persona block，以及用户自定义 block 作为一等类型对象。
 - 说明 sleep-time compute 是什么、为什么它不走关键路径、以及为什么它可以用比主 agent 更强的模型。
 - 实现一个脚本化的双 agent 循环：主 agent 负责响应，sleep-time agent 在轮次之间整理 blocks。
 
-## The Problem
+## 问题是什么
 
 MemGPT（第 07 课）解决了虚拟内存式的控制流，但生产里又冒出了三个问题：
 
@@ -24,7 +24,7 @@ MemGPT（第 07 课）解决了虚拟内存式的控制流，但生产里又冒�
 
 Letta（letta.com）就是 2026 年的重写版本。memory block 让结构显式化；sleep-time compute 把整理工作移出关键路径。
 
-## The Concept
+## 核心概念
 
 ### 三层结构
 
@@ -74,7 +74,7 @@ Letta V1（`letta_v1_agent`，2026）不再使用 `send_message` / heartbeat，�
 - **静默漂移。** sleep-time agent 重写了 block，但主 agent 没察觉。要给 block 版本化，并在 trace 里暴露 diff。
 - **被污染的整合。** sleep-time agent 也可能把攻击者可触达的内容整理进 core。第 27 课的攻击同样适用于 sleep-time 界面。
 
-## Build It
+## 动手实现
 
 `code/main.py` 实现了：
 
@@ -91,17 +91,17 @@ python3 code/main.py
 
 转录会显示出这个分工：主轮次快、负责原始写入；sleep pass 负责压缩和清理。
 
-## Use It
+## 使用方式
 
 - **Letta**（letta.com） - 参考实现。可自托管，也可用云服务。
 - **Claude Agent SDK skills** - block 形态的知识；一个 skill 就是一个有名字、可版本化、可检索的指令 block，agent 会按需加载。
 - **自定义实现** - 适合想控制存储后端的团队。建议保持 Letta 的 API 合同，这样以后好迁移。
 
-## Ship It
+## 交付物
 
 `outputs/skill-memory-blocks.md` 会为任意运行时生成一套 Letta 风格的 block 系统，并接好 sleep-time 钩子，包括安全规则和引用字段。
 
-## Exercises
+## 练习
 
 1. 增加一个 `block_summarize` 工具：当 `near_limit` 返回 true 时，用模型生成的摘要替换 block value。什么触发阈值能同时最小化摘要调用次数和 block 溢出？
 2. 在 archival 上实现 sleep-time 去重：文本 token 重叠超过 90% 的两条记录合并成一条。只允许在 sleep pass 中做，绝不能放到关键路径上。
@@ -109,10 +109,10 @@ python3 code/main.py
 4. 把 sleep-time agent 当作不可信写入者。只要它触碰 Persona 或 Safety block，就要求第二个 agent 审核后再提交。
 5. 把示例迁移到 Letta API（`letta_v1_agent`）。block schema 有什么变化？native reasoning 又如何改变 trace 形状？
 
-## Key Terms
+## 关键术语
 
-| Term | What people say | What it actually means |
-|------|----------------|------------------------|
+| Term | 常见说法 | 实际含义 |
+|------|----------|----------|
 | Memory block | “可编辑的 prompt 区段” | 有类型、可持久化、可由 LLM 编辑的 core memory 片段 |
 | Human block | “用户记忆” | 关于用户的事实，固定在 core 里 |
 | Persona block | “agent 身份” | 自我设定、语气、约束，固定在 core 里 |
@@ -122,7 +122,7 @@ python3 code/main.py
 | Native reasoning | “思考通道” | 提供方级别的 reasoning 输出，而不是 prompt 里的 `Thought:` |
 | Learned context | “sleep 输出” | sleep-time agent 写入共享 block 的事实 |
 
-## Further Reading
+## 延伸阅读
 
 - [Letta, Memory Blocks blog](https://www.letta.com/blog/memory-blocks) - block 模式
 - [Letta, Sleep-time Compute blog](https://www.letta.com/blog/sleep-time-compute) - 异步整合
