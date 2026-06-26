@@ -2,19 +2,19 @@
 
 > GAN 就是两个神经网络在一个固定博弈里对抗。一个负责画，一个负责挑错。它们会一起变强，直到画出来的东西能骗过 critic。
 
-**Type:** Build
-**Languages:** Python
-**Prerequisites:** Phase 4 Lesson 03 (CNNs), Phase 3 Lesson 06 (Optimizers), Phase 3 Lesson 07 (Regularization)
-**Time:** ~75 分钟
+**类型:** 构建
+**语言:** Python
+**先修:** 第 4 阶段第 03 课（CNNs）, 第 3 阶段第 06 课（Optimizers）, 第 3 阶段第 07 课（Regularization）
+**时长:** ~75 分钟
 
-## Learning Objectives
+## 学习目标
 
 - 解释生成器和判别器之间的 minimax 博弈，以及为什么平衡点对应 `p_model = p_data`。
 - 在 PyTorch 中实现一个 DCGAN，并在 60 行以内让它生成结构连贯的 32x32 合成图像。
 - 用三个标准技巧稳定 GAN 训练：non-saturating loss、spectral norm、TTUR（two-timescale update rule）。
 - 读取训练曲线，区分健康收敛、mode collapse、振荡，以及判别器完全赢了的情况。
 
-## The Problem
+## 问题是什么
 
 分类是在教网络把图像映射到标签。生成则是反过来：采样新的图像，让它们看起来像来自同一个分布。这里没有一个可以拿来 diff 的“正确输出”；你要做的只是去模仿某个分布。
 
@@ -22,7 +22,7 @@
 
 GAN（Goodfellow 等，2014）定义了这个框架。到 2018 年，StyleGAN 已经能生成 1024x1024、肉眼几乎和照片无异的人脸。后来 diffusion model 在质量和可控性上接过了王座，但所有让 diffusion 变得实用的技巧 - 归一化选择、潜空间、特征损失 - 最早都是在 GAN 上被理解清楚的。
 
-## The Concept
+## 核心概念
 
 ### 两个网络
 
@@ -104,7 +104,7 @@ GAN 没有 ground truth，那怎么知道它在工作？
 
 对于一个小型合成数据实验，直接看样本就够了。
 
-## Build It
+## 动手实现
 
 ### 第 1 步：生成器
 
@@ -267,7 +267,7 @@ def build_sn_discriminator(img_channels=3, feat=64):
 
 把 `Discriminator` 换成 `build_sn_discriminator()`，很多时候就不需要 TTUR 了。spectral norm 是你能做的最简单、最有效的鲁棒性升级之一。
 
-## Use It
+## 使用方式
 
 如果要做认真一点的生成，要么用预训练权重，要么直接换 diffusion。两个常用库：
 
@@ -276,23 +276,23 @@ def build_sn_discriminator(img_channels=3, feat=64):
 
 到了 2026 年，GAN 仍然是这些场景的好选择：实时图像生成（延迟 <10 ms）、风格迁移、以及需要精准控制的图像到图像翻译（Pix2Pix、CycleGAN）。photorealism 和 text conditioning 这两项则是 diffusion 的强项。
 
-## Ship It
+## 交付物
 
 这一课会产出：
 
 - `outputs/prompt-gan-training-triage.md` - 一个提示词，读训练曲线描述后判断失败模式（mode collapse、D-wins、oscillation）以及最推荐的修复方法。
 - `outputs/skill-dcgan-scaffold.md` - 一个 skill，会根据 `z_dim`、目标 `image_size` 和 `num_channels` 写出 DCGAN 骨架，包括训练循环和样本保存器。
 
-## Exercises
+## 练习
 
 1. **（Easy）** 在合成圆形数据集上训练上面的 DCGAN，并在每个 epoch 结束时保存 16 张样本的网格图。到第几个 epoch 时，生成出来的圆才明显像圆？
 2. **（Medium）** 把判别器里的 batch norm 换成 spectral norm。把两个版本并排训练。哪个收敛更快？哪个在三个随机种子下方差更小？
 3. **（Hard）** 实现 conditional DCGAN：把类别标签同时输入 G 和 D（G 里把 one-hot 拼到噪声上，D 里把类别 embedding 通道拼进去）。在第 7 课的合成“圆 vs 方块”数据集上训练，并用特定标签采样，证明 class conditioning 确实生效。
 
-## Key Terms
+## 关键术语
 
-| Term | What people say | What it actually means |
-|------|----------------|------------------------|
+| Term | 常见说法 | 实际含义 |
+|------|----------|----------|
 | Generator (G) | “画图网络” | 把噪声映射到图像；训练目标是骗过判别器 |
 | Discriminator (D) | “裁判” | 二分类器；训练目标是区分真实图像和生成图像 |
 | Minimax | “这个博弈” | 对抗损失对 G 取 min、对 D 取 max；平衡点是 `p_G = p_data` |
@@ -302,7 +302,7 @@ def build_sn_discriminator(img_channels=3, feat=64):
 | Spectral norm | “1-Lipschitz 层” | 约束每层 Lipschitz 常数的权重归一化；防止 D 变得过于陡峭 |
 | FID | “Fréchet Inception Distance” | 真实集和生成集在 Inception-v3 特征分布上的距离；标准评估指标 |
 
-## Further Reading
+## 延伸阅读
 
 - [Generative Adversarial Networks (Goodfellow et al., 2014)](https://arxiv.org/abs/1406.2661) - 一切的起点
 - [DCGAN (Radford, Metz, Chintala, 2015)](https://arxiv.org/abs/1511.06434) - 让 GAN 可训练的架构规则
