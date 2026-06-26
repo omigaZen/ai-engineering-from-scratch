@@ -2,19 +2,19 @@
 
 > 分割本质上就是对每个像素做分类。U-Net 之所以能成，是因为它把一个下采样 encoder 和一个上采样 decoder 配在一起，并在它们之间用 skip connection 连接起来。
 
-**Type:** Build
-**Languages:** Python
-**Prerequisites:** Phase 4 Lesson 03 (CNNs), Phase 4 Lesson 04 (Image Classification)
-**Time:** ~75 分钟
+**类型:** 构建
+**语言:** Python
+**先修:** 第 4 阶段第 03 课（CNNs）, 第 4 阶段第 04 课（Image Classification）
+**时长:** ~75 分钟
 
-## Learning Objectives
+## 学习目标
 
 - 区分语义分割、实例分割和全景分割，并为给定问题选择正确任务。
 - 从零在 PyTorch 中搭建一个 U-Net：encoder block、bottleneck、带转置卷积的 decoder，以及 skip connection。
 - 实现逐像素 cross-entropy、Dice loss，以及当前医学和工业分割里常用的组合 loss。
 - 读取按类别的 IoU 和 Dice 指标，判断差分数是来自小目标召回、边界精度，还是类别不平衡。
 
-## The Problem
+## 问题是什么
 
 分类是每张图一个标签。检测是每张图几个框。分割是每张图每个像素一个标签。对于大小为 `H x W` 的输入，输出要么是 `H x W` 形状的张量（语义分割），要么是 `H x W x N_instances`（实例分割）。这意味着每张图不是一个预测，而是成百上百万个预测。
 
@@ -22,7 +22,7 @@
 
 这个架构问题说起来简单，做起来并不简单：你既要网络看到图像的全局上下文（这是什么场景），又要它保留局部像素细节（到底哪个像素是道路，哪个是人行道）。标准 CNN 会通过压缩空间来换上下文，但这样会丢细节。U-Net 就是第一个把两者都拿到的设计。
 
-## The Concept
+## 核心概念
 
 ### 语义、实例、全景分割
 
@@ -135,7 +135,7 @@ U-Net 的 encoder 会四次把分辨率减半，所以输入尺寸必须能被 1
 
 对第一个模型来说，256x256 输入、64 通道基宽的 U-Net 在 8 GB 显存上就能舒服训练。
 
-## Build It
+## 动手实现
 
 ### 第 1 步：encoder block
 
@@ -343,7 +343,7 @@ def train_one_epoch(model, loader, optimizer, device, num_classes):
 
 在这个合成数据集上跑 10 到 30 个 epoch，shape 类别的 mIoU 很快就会超过 0.9。注意 `nan_to_num(0)` 把一个 batch 里没有出现的类别当成 0；如果你要准确算 per-class IoU，应该按类别是否出现来 mask，并且在评估时用 `torch.nanmean` 做 batch 间平均，而不是在这里直接平均。
 
-## Use It
+## 使用方式
 
 生产里，`segmentation_models_pytorch`（“smp”）把所有标准分割架构都包好了，并且可以搭配任意 torchvision 或 timm backbone。三行就够：
 
@@ -365,23 +365,23 @@ model = smp.Unet(
 
 这三者都可以在 `smp` 或 `transformers` 里用同样的数据加载方式直接替换。
 
-## Ship It
+## 交付物
 
 这一课会产出：
 
 - `outputs/prompt-segmentation-task-picker.md` - 一个提示词，根据给定任务在语义分割、实例分割和全景分割之间做选择，并指出该用哪种架构。
 - `outputs/skill-segmentation-mask-inspector.md` - 一个 skill，输入类别分布、预测 mask 统计和类别名，它会总结每个类别的失败情况，并指出哪些类别最容易被低估或边界被抹平。
 
-## Exercises
+## 练习
 
 1. **（Easy）** 为二分类分割任务实现 `bce_dice_loss`（前景 vs 背景）。在一个二类合成数据集上验证：当前景只占像素的 5% 时，组合 loss 比单独 BCE 收敛更快。
 2. **（Medium）** 把 `nn.Upsample + conv` 的 up block 替换成 `nn.ConvTranspose2d` 版本。在合成数据集上训练两者并比较 mIoU。观察转置卷积版本里 checkerboard artifact 出现在哪里。
 3. **（Hard）** 选一个真实分割数据集（Oxford-IIIT Pets、Cityscapes mini split，或者某个医学子集），把 U-Net 训练到和 `smp.Unet` 参考结果相差 2 IoU 点以内。报告每个类别的 IoU，并指出哪些类别最受益于在 loss 里加入 Dice。
 
-## Key Terms
+## 关键术语
 
-| Term | What people say | What it actually means |
-|------|----------------|------------------------|
+| Term | 常见说法 | 实际含义 |
+|------|----------|----------|
 | Semantic segmentation | “给每个像素打标签” | 对每个像素做 C 类分类；同类的不同实例会合并 |
 | Instance segmentation | “给每个物体打标签” | 区分同一类别的不同实例；只处理前景物体 |
 | Panoptic segmentation | “语义 + 实例” | 每个像素都有类别；每个 thing 实例也有唯一 id |
@@ -391,7 +391,7 @@ model = smp.Unet(
 | mIoU | “平均交并比” | 各类别 IoU 的平均；分割任务的社区标准指标 |
 | Boundary F1 | “边界准确率” | 只在边界像素上计算的 F1；对精度要求很高的任务很重要 |
 
-## Further Reading
+## 延伸阅读
 
 - [U-Net: Convolutional Networks for Biomedical Image Segmentation (Ronneberger et al., 2015)](https://arxiv.org/abs/1505.04597) - 原始论文；大家都爱抄的那张图在第 2 页
 - [Fully Convolutional Networks (Long et al., 2015)](https://arxiv.org/abs/1411.4038) - 第一篇把分割真正做成端到端卷积问题的论文
