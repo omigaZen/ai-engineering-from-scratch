@@ -2,25 +2,25 @@
 
 > LangGraph 是 2026 年低层有状态编排的参考实现。agent 是状态机；节点是函数；边是状态迁移；状态是不可变的，并且每一步都会做 checkpoint。任何失败后都可以从原地精确恢复。
 
-**Type:** Learn + Build
-**Languages:** Python (stdlib)
-**Prerequisites:** Phase 14 · 01 (Agent Loop), Phase 14 · 12 (Workflow Patterns)
-**Time:** ~75 分钟
+**类型:** 学习 + 实作
+**语言:** Python (stdlib)
+**先修:** 第 14 阶段第 01 课（Agent Loop）, 第 14 阶段第 12 课（Workflow Patterns）
+**时长:** ~75 分钟
 
-## Learning Objectives
+## 学习目标
 
 - 说明 LangGraph 的核心模型：带不可变状态的状态机、函数节点、条件边，以及每步之后的 checkpoint。
 - 说出文档里强调的四种能力：durable execution、streaming、human-in-the-loop、comprehensive memory。
 - 解释 LangGraph 支持的三种编排拓扑：supervisor、peer-to-peer（swarm）、hierarchical（嵌套子图）。
 - 用标准库实现一个状态图，带不可变状态、条件边，以及 checkpoint / resume 循环。
 
-## The Problem
+## 问题是什么
 
 agent 和 workflow 面临同一个问题：当一个 40 步的运行在第 38 步失败时，你希望从第 38 步继续，而不是重头再来。二流的状态模型会逼运维在一个默认假设“每次都是新运行”的库外面自己补重试逻辑。
 
 LangGraph 的设计答案是：state 是一等的有类型对象，变更是显式的，而且每个节点之后都会持久化 checkpoint。恢复只需要一次 `load_state(session_id)` 调用。
 
-## The Concept
+## 核心概念
 
 ### 图的结构
 
@@ -63,7 +63,7 @@ LangGraph 文档明确点名了这项能力在生产里的价值，例子包括 
 - **非确定性节点。** resume 假设节点输入会产出相同的 state update。随机种子、墙上时钟、外部 API 都必须捕获。
 - **条件边用得过多。** 如果每条边都是条件边，那这个图其实就是个让人没法推理的状态机。应尽量用线性链路，只在必要时分叉。
 
-## Build It
+## 动手实现
 
 `code/main.py` 实现了一个标准库版有状态图：
 
@@ -81,18 +81,18 @@ python3 code/main.py
 
 轨迹会展示第一次运行在 human gate 处失败、状态被持久化，然后 resume 之后产出最终输出。
 
-## Use It
+## 使用方式
 
 - **LangGraph** - 参考实现，适合生产。可以用 `create_react_agent`、`create_supervisor`，也可以自己搭图。
 - **AutoGen v0.4**（第 14 课）- 面向高并发场景的 actor model 替代方案。
 - **Claude Agent SDK**（第 17 课）- 带内建 session store 的托管 harness。
 - **Custom** - 当你需要完全控制 state 形状或 checkpointer 后端时。
 
-## Ship It
+## 交付物
 
 `outputs/skill-state-graph.md` 会在任意目标运行时生成一个 LangGraph 风格的状态图，并接好 checkpoint 和 resume。
 
-## Exercises
+## 练习
 
 1. 给 `classify` 到 `end` 增加一条条件边：当分类置信度低于阈值时直接结束。然后在人工手动设置 `route` 后恢复运行。
 2. 把 SQLite 风格的假实现换成真正的 SQLite checkpointer。测一下每步序列化开销。
@@ -100,10 +100,10 @@ python3 code/main.py
 4. 阅读 `langgraph-supervisor` 参考文档。把这个玩具迁移到 `create_supervisor`，比较 trace 形状。
 5. 增加 streaming：每个节点运行时都输出部分 state。把到达的 delta 打印出来。
 
-## Key Terms
+## 关键术语
 
-| Term | What people say | What it actually means |
-|------|----------------|------------------------|
+| Term | 常见说法 | 实际含义 |
+|------|----------|----------|
 | State graph | “agent 作为状态机” | 有类型的 state + 节点 + 边 + reducer |
 | Checkpointer | “持久化后端” | 每个节点后序列化 state；支持恢复 |
 | Reducer | “状态合并器” | 把当前 state 和节点 update 合并起来的函数 |
@@ -113,7 +113,7 @@ python3 code/main.py
 | Supervisor | “路由 LLM” | 为专门 subagent 做中央分发 |
 | Swarm | “P2P agent” | agent 通过共享工具交接，没有中央路由器 |
 
-## Further Reading
+## 延伸阅读
 
 - [LangGraph overview](https://docs.langchain.com/oss/python/langgraph/overview) - 参考文档
 - [langgraph-supervisor reference](https://reference.langchain.com/python/langgraph/supervisor/) - supervisor 模式 API
