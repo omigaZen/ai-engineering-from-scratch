@@ -2,19 +2,19 @@
 
 > 符号规划适合那些“计划本身就能证明正确”的场景。进化式代码搜索适合那些“适应度函数可以由机器验证”的场景。ChatHTN（2025）和 AlphaEvolve（2025）展示了它们和 LLM 结合后分别能解锁什么。
 
-**Type:** Build
-**Languages:** Python (stdlib)
-**Prerequisites:** Phase 14 · 02 (ReWOO and Plan-and-Execute)
-**Time:** ~75 分钟
+**类型:** 构建
+**语言:** Python (stdlib)
+**先修:** 第 14 阶段第 02 课（ReWOO and Plan-and-Execute）
+**时长:** ~75 分钟
 
-## Learning Objectives
+## 学习目标
 
 - 解释 Hierarchical Task Networks：task、method、operator、precondition、effect。
 - 说明 ChatHTN 的混合循环 - 符号搜索加上 LLM 兜底分解。
 - 解释 AlphaEvolve 的进化循环，以及为什么它必须依赖程序化 evaluator。
 - 用标准库实现一个玩具版 HTN planner，再实现一个玩具版进化搜索。
 
-## The Problem
+## 问题是什么
 
 ReWOO（第 02 课）、Plan-and-Execute 和 ReAct 已经覆盖了大多数 agent 规划场景，但还有两类它们处理得不够好：
 
@@ -23,7 +23,7 @@ ReWOO（第 02 课）、Plan-and-Execute 和 ReAct 已经覆盖了大多数 agen
 
 HTN 规划和 AlphaEvolve 分别解决这两类不同的问题。两者都把 LLM 当作放大器，而不是替代品。
 
-## The Concept
+## 核心概念
 
 ### Hierarchical Task Networks
 
@@ -87,7 +87,7 @@ AlphaEvolve（arXiv:2506.13131，DeepMind，2025 年 6 月）是另一种东西�
 - **没有真实 evaluator 的 AlphaEvolve。** “问 LLM 代码是不是更好了”不叫 fitness function。evaluator 必须确定性强且速度快。
 - **过度工程。** 大多数 agent 任务都不需要这两套。先用 ReAct 或 ReWOO。
 
-## Build It
+## 动手实现
 
 `code/main.py` 实现了两个玩具：
 
@@ -102,18 +102,18 @@ python3 code/main.py
 
 轨迹会展示 HTN planner 如何分解一个复合任务（中途触发一次 LLM fallback），以及进化循环如何收敛到目标表达式。
 
-## Use It
+## 使用方式
 
 - **HTN planners** - `pyhop`、`SHOP3`，或者为某个领域自己写一套，用来强制执行策略。
 - **ChatHTN** - 研究代码；这个模式（符号层 + LLM fallback）可以很干净地移植到任何 HTN planner。
 - **AlphaEvolve** - DeepMind 论文；这个模式（ensemble + evaluator）是可以复现的。OpenEvolve 以及类似的开源分支正在出现。
 - **Agent frameworks** - 目前还没有原生支持 HTN 或 AlphaEvolve 的主流框架。通常要把它写成 subagent 或后台 worker。
 
-## Ship It
+## 交付物
 
 `outputs/skill-hybrid-planner.md` 会生成一个混合规划器骨架（HTN 或 evolutionary），并把 LLM 的角色明确限制在作用域内。
 
-## Exercises
+## 练习
 
 1. 给 HTN planner 加回溯：当某个 operator 的 postcondition 在运行时失败时，回滚并尝试下一个 method。
 2. 给 ChatHTN 加一个 LLM-method cache：当 LLM 在 state 模式 `P` 下分解任务 `T` 时，保存结果。下次调用前先重查 method 库。
@@ -121,10 +121,10 @@ python3 code/main.py
 4. 阅读 AlphaEvolve 的 evaluator 设计笔记。为你关心的一个领域设计 evaluator（SQL 查询优化、测试集最小化、部署 YAML）。
 5. 把两者结合：先用 HTN 把复合任务分解成子任务，再对每个子任务的原子 operator 做进化搜索。哪里最有用，哪里又是在过度工程？
 
-## Key Terms
+## 关键术语
 
-| Term | What people say | What it actually means |
-|------|----------------|------------------------|
+| Term | 常见说法 | 实际含义 |
+|------|----------|----------|
 | HTN | “层级规划器” | 用 operator、precondition、effect 做任务分解 |
 | Method | “分解规则” | 把复合任务拆成子任务的方法 |
 | Operator | “原子动作” | 带前置条件和效果的具体步骤 |
@@ -133,7 +133,7 @@ python3 code/main.py
 | Fitness function | “评估器” | 对输出进行确定性、可机器验证的打分 |
 | Online method learning | “缓存的 LLM 分解” | 保存并泛化 LLM 计划，降低查询成本 |
 
-## Further Reading
+## 延伸阅读
 
 - [Gopalakrishnan et al., ChatHTN (arXiv:2505.11814)](https://arxiv.org/abs/2505.11814) - 符号 + LLM 的混合规划器
 - [Novikov et al., AlphaEvolve (arXiv:2506.13131)](https://arxiv.org/abs/2506.13131) - 带 LLM 变异的进化式代码搜索
